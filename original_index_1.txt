@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JobZen — Student Project Request Platform</title>
+  <meta name="description" content="JobZen connects students and admins to submit, review, and manage project requests with real-time tracking and automated email notifications."/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <style>
+    /* ── PAGE LOAD CURTAIN ─────────────────────────────── */
+    #page-loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #060811;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 20px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #page-loader.fade-out { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-size: 2.2rem; font-weight: 900;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, #FF5A1F 0%, #FF8A00 50%, #22D3A5 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: loaderPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes loaderPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.7; transform: scale(0.96); }
+    }
+    .loader-bar {
+      width: 180px; height: 2px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 99px; overflow: hidden;
+    }
+    .loader-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #FF5A1F, #22D3A5);
+      border-radius: 99px;
+      animation: loaderFill 1.2s ease-out forwards;
+    }
+    @keyframes loaderFill { from { width: 0 } to { width: 100% } }
+
+    /* ── PARTICLE CANVAS ───────────────────────────────── */
+    #particle-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── MORPHING ORBS ─────────────────────────────────── */
+    .orb-container {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      animation: orbFloat var(--dur, 12s) ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,90,31,0.10) 0%, transparent 70%);
+      top: -200px; left: -150px;
+      --dur: 14s;
+      animation-name: orbFloat1;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(34,211,165,0.07) 0%, transparent 70%);
+      bottom: -150px; right: -100px;
+      --dur: 18s;
+      animation-name: orbFloat2;
+      animation-delay: -5s;
+    }
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(91,139,245,0.06) 0%, transparent 70%);
+      top: 40%; left: 50%;
+      transform: translate(-50%, -50%);
+      --dur: 22s;
+      animation-name: orbFloat3;
+      animation-delay: -9s;
+    }
+    @keyframes orbFloat1 {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(60px, 40px) scale(1.1); }
+      66%  { transform: translate(-30px, 80px) scale(0.9); }
+      100% { transform: translate(30px, -40px) scale(1.05); }
+    }
+    @keyframes orbFloat2 {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(-80px, -60px) scale(1.15); }
+      100% { transform: translate(40px, 30px) scale(0.92); }
+    }
+    @keyframes orbFloat3 {
+      0%   { transform: translate(-50%, -50%) scale(1); }
+      50%  { transform: translate(-50%, -50%) scale(1.3); }
+      100% { transform: translate(-50%, -50%) scale(0.85); }
+    }
+
+    /* ── GRID OVERLAY ──────────────────────────────────── */
+    .grid-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 0%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 0%, transparent 80%);
+    }
+
+    /* ── HERO ANIMATION ────────────────────────────────── */
+    .hero { position: relative; }
+    .hero-inner { position: relative; z-index: 1; }
+
+    /* Hero text entrance animations */
+    .hero-tag        { opacity: 0; transform: translateY(16px); animation: fadeUp 0.6s 0.3s ease forwards; }
+    .hero-text h1    { opacity: 0; transform: translateY(20px); animation: fadeUp 0.7s 0.5s ease forwards; }
+    .hero-text p     { opacity: 0; transform: translateY(20px); animation: fadeUp 0.7s 0.7s ease forwards; }
+    .hero-ctas       { opacity: 0; transform: translateY(20px); animation: fadeUp 0.7s 0.9s ease forwards; }
+    .hero-trust      { opacity: 0; transform: translateY(20px); animation: fadeUp 0.7s 1.1s ease forwards; }
+    .hero-panel      { opacity: 0; transform: translateX(40px) scale(0.96); animation: panelIn 0.9s 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes panelIn {
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    /* ── TYPEWRITER ────────────────────────────────────── */
+    .typewriter-wrap {
+      display: inline-block;
+      min-height: 1.2em;
+    }
+    .typewriter-text {
+      background: linear-gradient(135deg, #FF5A1F 0%, #FF8A00 50%, #FFBA00 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .typewriter-cursor {
+      display: inline-block;
+      width: 3px; height: 0.9em;
+      background: #FF5A1F;
+      margin-left: 3px;
+      vertical-align: middle;
+      border-radius: 2px;
+      animation: blink 0.8s ease-in-out infinite;
+      box-shadow: 0 0 8px #FF5A1F;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* ── HERO PANEL — LIVE UPDATES ─────────────────────── */
+    .hero-panel { position: relative; overflow: visible; }
+    .hero-panel::after {
+      content: '';
+      position: absolute; inset: -1px;
+      border-radius: 25px;
+      background: linear-gradient(135deg, rgba(255,90,31,0.2), transparent 40%, rgba(34,211,165,0.1) 80%);
+      z-index: -1;
+      animation: borderGlow 4s ease-in-out infinite alternate;
+    }
+    @keyframes borderGlow {
+      0%   { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* Notification ping animation on panel rows */
+    .hero-req-row { transition: all 0.4s ease; position: relative; }
+    .new-ping {
+      position: absolute; right: -6px; top: -6px;
+      width: 12px; height: 12px;
+      background: var(--orange);
+      border-radius: 50%;
+      animation: pingOut 1s ease-out forwards;
+      z-index: 10;
+    }
+    @keyframes pingOut {
+      0%   { transform: scale(0); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
+    /* Live latency counter */
+    .latency-blink { animation: latencyFlash 3s ease-in-out infinite; }
+    @keyframes latencyFlash {
+      0%,95% { color: var(--text-faint); }
+      96%,100% { color: var(--green); }
+    }
+
+    /* ── ADVANCED SCROLL REVEAL ────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px) scale(0.96);
+      filter: blur(8px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+      will-change: transform, opacity, filter;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px) scale(0.96);
+      filter: blur(8px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px) scale(0.96);
+      filter: blur(8px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.85);
+      filter: blur(10px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.34,1.56,0.64,1), filter 0.7s ease;
+    }
+    .reveal-scale.visible { opacity: 1; transform: scale(1); filter: blur(0); }
+
+    /* ── ANIMATED GRADIENT TEXT ────────────────────────── */
+    .animated-gradient-text {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--gold) 25%, var(--green) 50%, var(--blue) 75%, var(--orange) 100%);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 8s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── 3D TILT & GLARE ───────────────────────────────── */
+    .tilt-wrap {
+      perspective: 1200px;
+      transform-style: preserve-3d;
+    }
+    .tilt-card {
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease;
+      will-change: transform;
+    }
+    .tilt-card.feature-card {
+      /* Keep the feature-card styling, but transition is overridden by JS when hovering */
+    }
+    .glare {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+      pointer-events: none;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+      transform: translateZ(1px); /* Keep above card content */
+    }
+    .tilt-card:hover .glare { opacity: 1; }
+
+
+    /* Stagger delays */
+    .delay-1 { transition-delay: 0.1s !important; }
+    .delay-2 { transition-delay: 0.2s !important; }
+    .delay-3 { transition-delay: 0.3s !important; }
+    .delay-4 { transition-delay: 0.4s !important; }
+
+    /* ── FEATURE CARDS — ENHANCED ──────────────────────── */
+    .feature-card { transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 40px rgba(255,90,31,0.12);
+    }
+
+    /* Emoji icons for feature cards */
+    .feature-icon-emoji {
+      font-size: 28px; line-height: 1;
+      filter: drop-shadow(0 4px 12px rgba(255,90,31,0.3));
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .feature-card:hover .feature-icon-emoji { transform: scale(1.2) rotate(-5deg); }
+    .feature-icon-wrap2 {
+      width: 52px; height: 52px;
+      background: var(--orange-soft);
+      border: 1px solid var(--orange-border);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      transition: all 0.4s ease;
+    }
+    .feature-card:hover .feature-icon-wrap2 {
+      background: rgba(255,90,31,0.18);
+      box-shadow: 0 0 24px rgba(255,90,31,0.2);
+    }
+
+    /* ── STEPS — CONNECTED LINE ────────────────────────── */
+    .steps-grid {
+      position: relative;
+    }
+    .steps-connector {
+      position: absolute;
+      top: 26px; left: calc(16.66% + 26px);
+      right: calc(16.66% + 26px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--orange), var(--green));
+      opacity: 0.25;
+      display: none;
+    }
+    @media (min-width: 640px) { .steps-connector { display: block; } }
+
+    /* ── STATS COUNTER SECTION ─────────────────────────── */
+    .stats-showcase {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      margin-top: 60px;
+    }
+    .stat-showcase-item {
+      padding: 32px 24px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      position: relative;
+      transition: background 0.3s ease;
+    }
+    .stat-showcase-item:last-child { border-right: none; }
+    .stat-showcase-item:hover { background: rgba(255,90,31,0.04); }
+    .stat-showcase-item::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .stat-showcase-item:hover::before { opacity: 1; }
+    .stat-showcase-num {
+      font-size: 2.6rem; font-weight: 900;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, #FF5A1F, #FF8A00);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-showcase-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-faint);
+    }
+    @media (max-width: 640px) {
+      .stats-showcase { grid-template-columns: repeat(2,1fr); }
+      .stat-showcase-item:nth-child(2) { border-right: none; }
+      .stat-showcase-item:nth-child(1),
+      .stat-showcase-item:nth-child(2) { border-bottom: 1px solid var(--border); }
+    }
+
+    /* ── CTA SECTION — SPECIAL ─────────────────────────── */
+    .cta-section {
+      text-align: center;
+      padding: 100px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,90,31,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-glow-btn {
+      position: relative;
+      display: inline-flex;
+    }
+    .cta-glow-btn::before {
+      content: '';
+      position: absolute; inset: -4px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #FF5A1F, #FF8A00, #22D3A5);
+      z-index: -1;
+      opacity: 0;
+      filter: blur(12px);
+      transition: opacity 0.4s ease;
+      animation: ctaGlowPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes ctaGlowPulse {
+      0%,100% { opacity: 0; }
+      50%      { opacity: 0.6; }
+    }
+
+    /* ── NAVBAR SCROLL EFFECT ──────────────────────────── */
+    .pub-navbar.scrolled {
+      background: rgba(6,8,17,0.95);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* ── PROGRESS BAR (top) ────────────────────────────── */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0;
+      height: 2px; width: 0%;
+      background: linear-gradient(90deg, #FF5A1F, #FF8A00, #22D3A5);
+      z-index: 9998;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px rgba(255,90,31,0.6);
+    }
+
+    /* ── SECTION HEADERS ───────────────────────────────── */
+    .section-inner { position: relative; z-index: 1; }
+
+    /* ── HERO PANEL LIVE UPDATES ───────────────────────── */
+    .live-indicator {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px;
+      background: rgba(34,211,165,0.08);
+      border: 1px solid rgba(34,211,165,0.15);
+      border-radius: 99px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--green);
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: liveDot 1.5s ease-in-out infinite;
+    }
+    @keyframes liveDot {
+      0%,100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+      50%      { opacity: 0.4; box-shadow: 0 0 16px var(--green); }
+    }
+
+    /* ── FLOATING BADGE ────────────────────────────────── */
+    .float-badge {
+      position: absolute;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--r-md);
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      font-size: 12.5px; font-weight: 600;
+      backdrop-filter: blur(12px);
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .float-badge-1 {
+      bottom: -20px; left: -30px;
+      animation: badgeFloat1 4s ease-in-out infinite;
+    }
+    .float-badge-2 {
+      top: -16px; right: -20px;
+      animation: badgeFloat2 5s ease-in-out infinite;
+      animation-delay: -2s;
+    }
+    @keyframes badgeFloat1 {
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%      { transform: translateY(-10px) rotate(1deg); }
+    }
+    @keyframes badgeFloat2 {
+      0%,100% { transform: translateY(0) rotate(1deg); }
+      50%      { transform: translateY(-8px) rotate(-1deg); }
+    }
+
+    /* ── ANIMATED GRADIENT TEXT CTA ────────────────────── */
+    .gradient-text-cta {
+      background: linear-gradient(270deg, #FF5A1F, #FF8A00, #22D3A5, #5B8BF5, #FF5A1F);
+      background-size: 300% 300%;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 6s ease infinite;
+    }
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── HERO SECTION RESPONSIVE ───────────────────────── */
+    @media (max-width: 640px) {
+      .float-badge { display: none; }
+      .cta-section { padding: 64px 22px; }
+    }
+  </style>
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <div class="loader-logo"> JobZen</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- SCROLL PROGRESS BAR -->
+<div id="scroll-progress"></div>
+
+<!-- PARTICLE CANVAS -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- MORPHING ORBS -->
+<div class="orb-container">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- GRID OVERLAY -->
+<div class="grid-overlay"></div>
+
+<!-- NAVBAR -->
+<nav class="pub-navbar" id="navbar">
+  <a href="/" class="pub-navbar-logo">
+    
+    JobZen
+  </a>
+  <div class="pub-navbar-links">
+
+    <button class="theme-switch" onclick="toggleTheme()">
+      <div class="theme-switch-indicator"></div>
+      <span class="toggle-label">Dark</span>
+    </button>
+
+    <a href="/login.html" class="btn btn-ghost btn-sm">Sign In</a>
+    <a href="/register.html" class="btn btn-primary btn-sm">Get Started →</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-tag"> Project Request Platform</div>
+      <h1>Where Student Projects<br/>
+        <span class="typewriter-wrap">
+          <span class="typewriter-text" id="typewriter"></span><span class="typewriter-cursor"></span>
+        </span>
+      </h1>
+      <p>Submit project ideas, schedule meetings, track approvals in real time — a streamlined platform built for students and supervisors who value clarity and speed.</p>
+      <div class="hero-ctas">
+        <a href="/register.html" class="btn btn-primary btn-lg">Start for Free →</a>
+        <a href="/login.html"    class="btn btn-ghost  btn-lg">Sign In</a>
+      </div>
+      <!-- Trust row -->
+      <div class="hero-trust" style="display:flex;align-items:center;gap:20px;margin-top:36px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:liveDot 2s infinite"></div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em">System Online</span>
+        </div>
+        <div style="width:1px;height:14px;background:var(--border)"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em">7 Auto Emails</span>
+        <div style="width:1px;height:14px;background:var(--border)"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em">Free Forever</span>
+      </div>
+    </div>
+
+    <!-- ── LIVE MOCK DASHBOARD PANEL ── -->
+    <div class="hero-panel" style="position:relative">
+      <!-- Floating badges -->
+      <div class="float-badge float-badge-1">
+        <span style="color:var(--green);font-size:16px"></span>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-primary)">Request Accepted</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint)">Email sent · just now</div>
+        </div>
+      </div>
+      <div class="float-badge float-badge-2">
+        <span style="color:var(--orange);font-size:16px"></span>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-primary)">New Submission</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint)">Admin notified</div>
+        </div>
+      </div>
+
+      <div class="hero-panel-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em">LIVE DASHBOARD</span>
+          <div class="live-indicator"><div class="live-dot"></div>CONNECTED</div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint)" id="panel-time">--:--:--</div>
+      </div>
+
+      <!-- Stats mini -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:11px 12px;text-align:center;transition:border-color 0.3s ease" id="stat-total">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--text-primary);letter-spacing:-0.04em" id="panel-total">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Total</div>
+        </div>
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:11px 12px;text-align:center;transition:border-color 0.3s ease" id="stat-pending">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--orange);letter-spacing:-0.04em" id="panel-pending">0</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Pending</div>
+        </div>
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:11px 12px;text-align:center;transition:border-color 0.3s ease">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--green);letter-spacing:-0.04em" id="panel-rate">0%</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Accept Rate</div>
+        </div>
+      </div>
+
+      <!-- Live request rows -->
+      <div id="panel-rows">
+        <div class="hero-req-row" id="row-0">
+          <div>
+            <div class="hero-req-name">E-Commerce Mobile App</div>
+            <div class="hero-req-meta">₹150,000 · July 20, 2026</div>
+          </div>
+          <span class="badge badge-accepted">Accepted</span>
+        </div>
+        <div class="hero-req-row" id="row-1">
+          <div>
+            <div class="hero-req-name">AI Chatbot System</div>
+            <div class="hero-req-meta">₹80,000 · July 22, 2026</div>
+          </div>
+          <span class="badge badge-pending">Pending</span>
+        </div>
+        <div class="hero-req-row" id="row-2">
+          <div>
+            <div class="hero-req-name">Data Analytics Dashboard</div>
+            <div class="hero-req-meta">₹200,000 · July 25, 2026</div>
+          </div>
+          <span class="badge badge-accepted">Accepted</span>
+        </div>
+      </div>
+
+      <!-- Footer bar -->
+      <div style="margin-top:14px;padding:11px 14px;background:var(--bg-elevated);border-radius:10px;border:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.07em">AP-SOUTH-1 · LATENCY: <span class="latency-blink" id="latency-val">12ms</span></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--green)">UPTIME 99.9%</div>
+        </div>
+        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden">
+          <div id="acceptance-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--orange),var(--green));border-radius:99px;transition:width 1.5s ease-out"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ STATS ROW ════════════════════════════ -->
+<section style="padding:0 52px;margin-top:-20px;margin-bottom:0;position:relative;z-index:1">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="stats-showcase reveal">
+      <div class="stat-showcase-item">
+        <div class="stat-showcase-num counter" data-target="500" data-suffix="+">0</div>
+        <div class="stat-showcase-label">Requests Handled</div>
+      </div>
+      <div class="stat-showcase-item">
+        <div class="stat-showcase-num counter" data-target="7" data-suffix=" Emails">0</div>
+        <div class="stat-showcase-label">Auto Notifications</div>
+      </div>
+      <div class="stat-showcase-item">
+        <div class="stat-showcase-num counter" data-target="99" data-suffix="%">0</div>
+        <div class="stat-showcase-label">Uptime</div>
+      </div>
+      <div class="stat-showcase-item">
+        <div class="stat-showcase-num counter" data-target="2" data-suffix=" min">0</div>
+        <div class="stat-showcase-label">To Submit</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FEATURES ════════════════════════════ -->
+<section class="section bg-alt">
+  <div class="section-inner">
+    <div class="section-tag reveal">Why JobZen</div>
+    <h2 class="section-title reveal">Everything students and admins need</h2>
+    <p class="section-desc reveal">From first submission to final confirmation — JobZen keeps everyone perfectly in sync, automatically.</p>
+    <div class="features-grid" style="margin-top:50px">
+      <div class="feature-card reveal delay-1">
+        <div class="feature-icon-wrap2"></div>
+        <div class="feature-title">Structured Submissions</div>
+        <p class="feature-desc">A guided 2-step form captures project name, budget, description, and preferred meeting time with full validation.</p>
+      </div>
+      <div class="feature-card reveal delay-2">
+        <div class="feature-icon-wrap2"></div>
+        <div class="feature-title">7 Automated Emails</div>
+        <p class="feature-desc">Every action triggers a beautiful email — registration, submission, accept, deny, reschedule, and password reset.</p>
+      </div>
+      <div class="feature-card reveal delay-3">
+        <div class="feature-icon-wrap2"></div>
+        <div class="feature-title">Real-Time Status</div>
+        <p class="feature-desc">Students see Pending, Accepted, or Denied instantly — with a live acceptance rate gauge and timeline.</p>
+      </div>
+      <div class="feature-card reveal delay-4">
+        <div class="feature-icon-wrap2"></div>
+        <div class="feature-title">Easy Rescheduling</div>
+        <p class="feature-desc">Denied? Pick a new date and time in one click. Admin gets notified automatically, no follow-up needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ HOW IT WORKS ═════════════════════════════ -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-tag reveal">How It Works</div>
+    <h2 class="section-title reveal">Three simple steps</h2>
+    <p class="section-desc reveal">Students submit, admins decide, everyone gets notified — automatically and beautifully.</p>
+    <div class="steps-grid" style="margin-top:50px">
+      <div class="steps-connector"></div>
+      <div class="step-card reveal-scale delay-1">
+        <div class="step-num-big">1</div>
+        <div class="step-title">Register &amp; Submit</div>
+        <p class="step-desc">Create a free student account, fill in your project details, pick a meeting time, and submit in under 2 minutes.</p>
+      </div>
+      <div class="step-card reveal-scale delay-2">
+        <div class="step-num-big">2</div>
+        <div class="step-title">Admin Reviews</div>
+        <p class="step-desc">The admin sees your request instantly, reviews all details in a clean dashboard, and makes a decision.</p>
+      </div>
+      <div class="step-card reveal-scale delay-3">
+        <div class="step-num-big">3</div>
+        <div class="step-title">Get Notified</div>
+        <p class="step-desc">You receive a beautifully formatted email with the decision and confirmed meeting time — all automated.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ CTA ══════════════════════════════════ -->
+<section class="cta-section bg-alt">
+  <div style="max-width:600px;margin:0 auto;position:relative;z-index:1">
+    <div class="section-tag reveal" style="justify-content:center">Get Started</div>
+    <h2 class="section-title reveal" style="font-size:clamp(2rem,4vw,3rem)">Ready to get your project <span class="gradient-text-cta">approved?</span></h2>
+    <p class="section-desc reveal" style="margin:0 auto 36px;max-width:420px;font-size:1rem">Join students already using JobZen to move faster and more professionally.</p>
+    <div class="cta-glow-btn reveal">
+      <a href="/register.html" class="btn btn-primary btn-lg" style="font-size:16px;padding:16px 40px">Create Free Account →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo"> Job<span class="accent">Zen</span></div>
+    <div class="footer-links">
+      <a href="/login.html">Login</a>
+      <a href="/register.html">Register</a>
+    </div>
+    <div class="footer-copy">© 2026 JobZen · All rights reserved</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════ JAVASCRIPT ══════════════════════════════ -->
+<script>
+/* ── PAGE LOADER ─────────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('page-loader');
+    loader.classList.add('fade-out');
+    setTimeout(() => loader.remove(), 600);
+  }, 900);
+});
+
+/* ── PARTICLE CANVAS ──────────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+
+  const COLORS = ['rgba(255,90,31,', 'rgba(34,211,165,', 'rgba(91,139,245,', 'rgba(255,138,0,'];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+  function Particle() {
+    this.reset();
+  }
+  Particle.prototype.reset = function() {
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.r = Math.random() * 1.5 + 0.3;
+    this.vx = (Math.random() - 0.5) * 0.4;
+    this.vy = (Math.random() - 0.5) * 0.4;
+    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    this.alpha = Math.random() * 0.5 + 0.1;
+    this.life  = Math.random() * 200 + 100;
+    this.age   = 0;
+  };
+  Particle.prototype.update = function() {
+    this.age++;
+    // Mouse repulsion
+    const dx = this.x - mouse.x, dy = this.y - mouse.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 120) {
