@@ -1634,6 +1634,12 @@ body.admin-portal .sidebar::before {
 .password-toggle-btn:hover { color: var(--text-main); }
 .password-toggle-btn svg { width: 20px; height: 20px; }
 
+/* Hide native browser password reveal icons (Edge/IE) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
 
 /* --- Landing Page Custom Styles --- */
 
