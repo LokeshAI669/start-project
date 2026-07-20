@@ -28,7 +28,7 @@ export default function LandingPage() {
     const rateEl = document.getElementById('panel-rate');
     const barEl = document.getElementById('acceptance-bar');
     
-    let rate = 72;
+    let rate = 94;
     if (rateEl && barEl) {
       rateEl.innerText = rate + '%';
       barEl.style.width = rate + '%';
@@ -37,7 +37,7 @@ export default function LandingPage() {
     const simInterval = setInterval(() => {
       if (latencyEl) latencyEl.innerText = Math.floor(Math.random() * 20 + 8) + 'ms';
       if (rateEl && barEl && Math.random() > 0.5) {
-        rate = Math.max(40, Math.min(95, rate + (Math.floor(Math.random() * 5) - 2)));
+        rate = Math.max(90, Math.min(99, rate + (Math.floor(Math.random() * 5) - 2)));
         rateEl.innerText = rate + '%';
         barEl.style.width = rate + '%';
       }
@@ -176,11 +176,11 @@ export default function LandingPage() {
 
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'16px'}}>
               <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}} id="stat-total">
-                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--text-primary)',letterSpacing:'-0.04em'}} id="panel-total">0</div>
+                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--text-primary)',letterSpacing:'-0.04em'}} id="panel-total">250+</div>
                 <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Total</div>
               </div>
               <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}} id="stat-pending">
-                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--orange)',letterSpacing:'-0.04em'}} id="panel-pending">0</div>
+                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--orange)',letterSpacing:'-0.04em'}} id="panel-pending">10</div>
                 <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Pending</div>
               </div>
               <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}}>
