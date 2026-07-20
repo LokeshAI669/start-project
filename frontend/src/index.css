@@ -2351,6 +2351,7 @@ body.admin-portal .sidebar::before {
   .main-content {
     padding: 16px !important;
     width: 100% !important;
+    max-width: 100vw !important;
   }
   
   .hero-inner {
