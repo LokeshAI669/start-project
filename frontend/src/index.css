@@ -2329,6 +2329,8 @@ body.admin-portal .sidebar::before {
     flex-direction: column !important;
   }
   .sidebar {
+    position: relative !important;
+    transform: none !important;
     width: 100% !important;
     height: auto !important;
     padding: 16px !important;
