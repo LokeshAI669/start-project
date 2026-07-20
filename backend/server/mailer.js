@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 
 const PLATFORM     = process.env.PLATFORM_NAME || 'JobZen';
-const PLATFORM_URL = process.env.PLATFORM_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+const PLATFORM_URL = process.env.PLATFORM_URL || process.env.FRONTEND_URL || 'https://start-project-mu.vercel.app';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
