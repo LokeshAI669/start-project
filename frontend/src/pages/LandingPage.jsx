@@ -184,7 +184,7 @@ export default function LandingPage() {
                 <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Pending</div>
               </div>
               <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}}>
-                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--green)',letterSpacing:'-0.04em'}} id="panel-rate">0%</div>
+                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--green)',letterSpacing:'-0.04em'}} id="panel-rate">94%</div>
                 <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Accept Rate</div>
               </div>
             </div>
