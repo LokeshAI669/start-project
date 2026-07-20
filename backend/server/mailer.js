@@ -111,7 +111,7 @@ const mailer = {
 
   // 3. New request alert — admin
   async notifyAdmin(student, project) {
-    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || 'admin@platform.com';
+    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'admin@platform.com';
     
     let attachments = [];
     let attachmentNote = '';
@@ -173,7 +173,7 @@ const mailer = {
 
   // 6. Reschedule alert — admin
   async notifyAdminReschedule(student, project) {
-    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || 'admin@platform.com';
+    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'admin@platform.com';
     const html = baseTemplate('Request Rescheduled', `
       <h2>A request has been rescheduled</h2>
       <div class="highlight">
