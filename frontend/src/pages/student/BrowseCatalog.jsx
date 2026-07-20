@@ -118,13 +118,13 @@ export default function BrowseCatalog() {
         {totalPages > 1 && (
           <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:'12px',marginTop:'32px'}}>
             <button className="btn btn-ghost btn-sm" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page === 1}>
-              
+              &larr; Prev
             </button>
             <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'12px',color:'var(--text-faint)'}}>
               Page {page} of {totalPages}
             </span>
             <button className="btn btn-ghost btn-sm" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={page === totalPages}>
-              
+              Next &rarr;
             </button>
           </div>
         )}
