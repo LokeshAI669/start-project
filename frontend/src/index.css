@@ -9,6 +9,7 @@
 
 /* ══ DESIGN TOKENS ═══════════════════════════════════════════ */
 :root, [data-theme="dark"] {
+  color-scheme: dark;
   /* Core Backgrounds */
   --bg:           #111111;
   --bg-2:         #1A1A1A;
@@ -87,6 +88,7 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
   /* Core Backgrounds */
   --bg:           #FFFFFF;
   --bg-2:         #F3F4F6;
@@ -360,6 +362,8 @@ body::before {
   box-shadow: 0 0 0 3px rgba(255,90,31,0.12), 0 1px 3px rgba(0,0,0,0.3);
 }
 .form-input::placeholder, .form-textarea::placeholder { color: var(--text-faint); }
+input[type="date"]::-webkit-datetime-edit, input[type="time"]::-webkit-datetime-edit { color: var(--text-primary); }
+input[type="date"]::-webkit-datetime-edit-fields-wrapper, input[type="time"]::-webkit-datetime-edit-fields-wrapper { color: var(--text-primary); }
 .form-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
 .form-select {
   cursor: pointer;
