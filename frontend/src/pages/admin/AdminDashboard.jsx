@@ -98,7 +98,7 @@ export default function AdminDashboard() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>
           <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
