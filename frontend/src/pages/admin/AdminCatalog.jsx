@@ -76,7 +76,12 @@ export default function AdminCatalog() {
 
   return (
     <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
-      <div style={{maxWidth:'1100px',margin:'0 auto'}}>
+      <div style={{maxWidth:'1100px',margin:'0 auto',position:'relative'}}>
+        <div style={{position:'absolute',top:0,right:0}}>
+          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
+            {user?.name?.[0]?.toUpperCase() || 'A'}
+          </button>
+        </div>
         <Link to="/admin" className="btn btn-ghost btn-sm" style={{marginBottom:'24px',display:'inline-flex',alignItems:'center',gap:'6px'}}>
            Admin Dashboard
         </Link>

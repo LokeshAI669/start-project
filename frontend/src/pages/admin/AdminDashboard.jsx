@@ -105,16 +105,6 @@ export default function AdminDashboard() {
           <Link to="/admin" className="sidebar-item active"> All Requests</Link>
           <Link to="/admin/catalog" className="sidebar-item"> Manage Catalog</Link>
         </nav>
-        <div className="sidebar-footer-compact">
-          <div className="compact-user-avatar">{user?.name?.[0]?.toUpperCase() || 'A'}</div>
-          <div className="compact-user-info">
-            <div className="compact-user-name">{user?.name}</div>
-            <div className="compact-user-email">{user?.email}</div>
-          </div>
-          <button className="compact-logout-btn" onClick={handleLogout} title="Sign Out">
-            <LogOut size={16} />
-          </button>
-        </div>
       </aside>
 
       {/* Main */}
@@ -133,7 +123,12 @@ export default function AdminDashboard() {
               <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Review and manage all student project requests</p>
             </div>
           </div>
-          <button onClick={handleExport} className="btn btn-ghost btn-sm"> Export CSV</button>
+          <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
+            <button onClick={handleExport} className="btn btn-outline btn-sm">Export CSV</button>
+            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
+              {user?.name?.[0]?.toUpperCase() || 'A'}
+            </button>
+          </div>
         </div>
 
         {/* Stats */}

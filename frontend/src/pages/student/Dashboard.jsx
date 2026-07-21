@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
-import { LogOut } from 'lucide-react';
 
 
 const statusBadge = (s) => {
@@ -41,8 +40,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => { logout(); navigate('/'); };
-
 
   const total    = requests.length;
   const pending  = requests.filter(r => r.status === 'Pending').length;
@@ -67,16 +64,6 @@ export default function Dashboard() {
              Projects
           </Link>
         </nav>
-        <div className="sidebar-footer-compact">
-          <div className="compact-user-avatar">{user?.name?.[0]?.toUpperCase() || 'S'}</div>
-          <div className="compact-user-info">
-            <div className="compact-user-name">{user?.name}</div>
-            <div className="compact-user-email">{user?.email}</div>
-          </div>
-          <button className="compact-logout-btn" onClick={handleLogout} title="Sign Out">
-            <LogOut size={16} />
-          </button>
-        </div>
       </aside>
 
       {/* ── Main ── */}
@@ -97,6 +84,9 @@ export default function Dashboard() {
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
             <Link to="/request" className="btn btn-primary btn-sm"> New Request</Link>
+            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
+              {user?.name?.[0]?.toUpperCase() || 'U'}
+            </button>
           </div>
         </div>
 
