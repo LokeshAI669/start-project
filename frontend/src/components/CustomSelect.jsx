@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export default function CustomSelect({ value, onChange, options, placeholder = "Select...", style = {} }) {
+export default function CustomSelect({ value, onChange, options = [], placeholder = "Select...", style = {} }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -20,7 +20,7 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
     setIsOpen(false);
   };
 
-  const selectedOption = options.find(o => o.value === value);
+  const selectedOption = (options || []).find(o => o.value === value);
 
   return (
     <div className="custom-select-container" style={style} ref={containerRef}>
@@ -45,7 +45,7 @@ export default function CustomSelect({ value, onChange, options, placeholder = "
             >
               {placeholder}
             </li>
-            {options.map((opt) => (
+            {(options || []).map((opt) => (
               <li
                 key={opt.value}
                 className={`custom-select-option ${value === opt.value ? 'selected' : ''}`}

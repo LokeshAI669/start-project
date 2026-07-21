@@ -22,7 +22,7 @@ export default function AdminCatalog() {
   const [error, setError]   = useState('');
 
   useEffect(() => {
-    if (!token) { navigate('/login'); return; }
+    if (!token) { navigate('/admin-login'); return; }
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
     fetchItems();
   }, [token, navigate, user?.role]);
@@ -31,9 +31,14 @@ export default function AdminCatalog() {
     setLoading(true);
     try {
       const data = await api('GET', '/api/catalog?limit=100');
-      setItems(data.data);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      setItems(list);
+    } catch (e) {
+      console.error(e);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openAdd = () => { setEditItem(null); setForm(emptyForm); setError(''); setShowForm(true); };
@@ -90,14 +95,14 @@ export default function AdminCatalog() {
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'28px',flexWrap:'wrap',gap:'12px'}}>
           <div>
             <h1 style={{fontSize:'1.6rem',fontWeight:800,margin:0}}>Project Catalog</h1>
-            <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'4px'}}>{items.length} active projects</p>
+            <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'4px'}}>{(items || []).length} active projects</p>
           </div>
           <button className="btn btn-primary" onClick={openAdd}> Add Project</button>
         </div>
 
         {loading ? (
           <div style={{textAlign:'center',padding:'60px',color:'var(--text-faint)'}}>Loading...</div>
-        ) : items.length === 0 ? (
+        ) : (items || []).length === 0 ? (
           <div className="card" style={{textAlign:'center',padding:'60px'}}>
             <p style={{color:'var(--text-faint)'}}>No catalog projects yet. Add the first one!</p>
           </div>
@@ -114,7 +119,7 @@ export default function AdminCatalog() {
                 </tr>
               </thead>
               <tbody>
-                {items.map(p => (
+                {(items || []).map(p => (
                   <tr key={p.id}>
                     <td style={{fontWeight:600}}>{p.title}</td>
                     <td><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',background:'var(--orange-soft)',color:'var(--orange)',padding:'3px 8px',borderRadius:'99px'}}>{p.domain}</span></td>

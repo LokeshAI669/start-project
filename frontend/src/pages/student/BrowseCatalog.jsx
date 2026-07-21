@@ -38,11 +38,13 @@ export default function BrowseCatalog() {
       if (domain) params.append('domain', domain);
       if (search) params.append('search', search);
       const data = await api('GET', `/api/catalog?${params}`);
-      setItems(data.data);
-      setTotal(data.total);
-      setTotalPages(data.totalPages);
+      const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+      setItems(list);
+      setTotal(data.total || list.length);
+      setTotalPages(data.totalPages || 1);
     } catch (e) {
       console.error(e);
+      setItems([]);
     } finally {
       setLoading(false);
     }
