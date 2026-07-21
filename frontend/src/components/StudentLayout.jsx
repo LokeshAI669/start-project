@@ -21,7 +21,7 @@ export default function StudentLayout({ children, title, subtitle }) {
     <div className="app-layout">
       {/* ── Sidebar ── */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>
+        <div className="sidebar-logo" style={{ display: window.innerWidth > 1024 ? 'block' : 'none' }}>
           <Link to="/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
@@ -40,7 +40,7 @@ export default function StudentLayout({ children, title, subtitle }) {
       {/* ── Main ── */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+          <div style={{display:'flex', flexDirection: window.innerWidth <= 1024 ? 'column' : 'row', alignItems: window.innerWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
             <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
               <button 
                 className="mobile-menu-btn" 
@@ -49,7 +49,7 @@ export default function StudentLayout({ children, title, subtitle }) {
               >
                 ☰
               </button>
-              <Link to="/dashboard" style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/dashboard" style={{ display: window.innerWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title" style={{margin:0}}>{title}</h1>

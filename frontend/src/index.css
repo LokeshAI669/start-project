@@ -2312,7 +2312,7 @@ input[type="password"]::-ms-clear {
 }
 
 /* ── Responsive sidebar ── */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .sidebar {
       display: flex !important;
       position: fixed !important;
@@ -2375,12 +2375,6 @@ input[type="password"]::-ms-clear {
 
 /* ══ RESPONSIVE OVERRIDES (MOBILE & TABLET) ══════════════════════════════════ */
 @media screen and (max-width: 1024px) {
-  .app-layout {
-    flex-direction: column !important;
-  }
-  
-  
-
   .main-content {
     padding: 16px !important;
     width: 100% !important;

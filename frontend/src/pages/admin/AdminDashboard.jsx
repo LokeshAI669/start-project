@@ -98,7 +98,7 @@ export default function AdminDashboard() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>
+        <div className="sidebar-logo" style={{ display: window.innerWidth > 1024 ? 'block' : 'none' }}>
           <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
       {/* Main */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+          <div style={{display:'flex', flexDirection: window.innerWidth <= 1024 ? 'column' : 'row', alignItems: window.innerWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
             <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
               <button 
                 className="mobile-menu-btn" 
@@ -119,7 +119,7 @@ export default function AdminDashboard() {
               >
                 ☰
               </button>
-              <Link to="/admin" style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/admin" style={{ display: window.innerWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title">Admin Dashboard</h1>
