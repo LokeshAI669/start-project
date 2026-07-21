@@ -18,7 +18,10 @@ export default function JobZenLogo({ theme = 'dark', size = 'md' }) {
   const W = Math.round(200 * s);
   const H = Math.round(90  * s);
 
-  const idSuffix = React.useId ? React.useId().replace(/:/g, '') : Math.random().toString(36).substring(2,7);
+  const reactId = React.useId();
+  const fallbackId = Math.random().toString(36).substring(2,7);
+  const idSuffix = reactId ? reactId.replace(/:/g, '') : fallbackId;
+  
   const boxGrad = `jz-box-${size}-${idSuffix}`;
   const textGrad = `jz-text-${size}-${idSuffix}`;
   const lineGrad = `jz-line-${size}-${idSuffix}`;

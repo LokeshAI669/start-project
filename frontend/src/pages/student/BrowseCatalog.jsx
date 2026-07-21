@@ -58,7 +58,7 @@ export default function BrowseCatalog() {
     <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
       <div style={{maxWidth:'1100px',margin:'0 auto',position:'relative'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'32px'}}>
-          <JobZenLogo theme={theme} size="sm" />
+          <JobZenLogo theme={document.documentElement.getAttribute('data-theme') || 'dark'} size="sm" />
           <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
             {user?.name?.[0]?.toUpperCase() || 'U'}
           </button>
