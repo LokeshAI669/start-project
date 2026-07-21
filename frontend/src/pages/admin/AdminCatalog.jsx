@@ -15,11 +15,13 @@ export default function AdminCatalog() {
   const navigate = useNavigate();
   const [items, setItems]   = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [form, setForm]     = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
   useEffect(() => {
     if (!token) { navigate('/admin-login'); return; }
@@ -80,24 +82,43 @@ export default function AdminCatalog() {
   const f = (k) => (e) => setForm(prev => ({ ...prev, [k]: e.target.value }));
 
   return (
-    <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
-      <div style={{maxWidth:'1100px',margin:'0 auto',position:'relative'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'32px'}}>
-          <JobZenLogo theme={theme} size="sm" />
-          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-            {user?.name?.[0]?.toUpperCase() || 'A'}
-          </button>
+    <div className="app-layout admin-portal">
+      {/* Sidebar */}
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-logo" style={{ display: window.innerWidth > 1024 ? 'block' : 'none' }}>
+          <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
-        <Link to="/admin" className="btn btn-ghost btn-sm" style={{marginBottom:'24px',display:'inline-flex',alignItems:'center',gap:'6px'}}>
-           Admin Dashboard
-        </Link>
+        <nav className="sidebar-nav">
+          <Link to="/admin" className="sidebar-item"> All Requests</Link>
+          <Link to="/admin/catalog" className="sidebar-item active"> Manage Catalog</Link>
+        </nav>
+      </aside>
 
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'28px',flexWrap:'wrap',gap:'12px'}}>
-          <div>
-            <h1 style={{fontSize:'1.6rem',fontWeight:800,margin:0}}>Project Catalog</h1>
-            <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'4px'}}>{(items || []).length} active projects</p>
+      {/* Main Content */}
+      <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
+        <div className="topbar" style={{ position: 'relative', marginBottom: '28px' }}>
+          <div style={{display:'flex', flexDirection: window.innerWidth <= 1024 ? 'column' : 'row', alignItems: window.innerWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+              <button 
+                className="mobile-menu-btn" 
+                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
+                style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
+              >
+                ☰
+              </button>
+              <Link to="/admin" style={{ display: window.innerWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+            </div>
+            <div>
+              <h1 className="page-title">Manage Catalog</h1>
+              <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>{(items || []).length} active catalog projects</p>
+            </div>
           </div>
-          <button className="btn btn-primary" onClick={openAdd}> Add Project</button>
+          <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
+            <button className="btn btn-primary btn-sm" onClick={openAdd}>+ Add Project</button>
+            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
+              {user?.name?.[0]?.toUpperCase() || 'A'}
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -137,7 +158,7 @@ export default function AdminCatalog() {
             </table>
           </div>
         )}
-      </div>
+      </main>
 
       {/* Add/Edit Modal */}
       {showForm && (
@@ -145,7 +166,7 @@ export default function AdminCatalog() {
           <div className="card" style={{width:'100%',maxWidth:'600px',padding:'32px',maxHeight:'90vh',overflowY:'auto'}} onClick={e => e.stopPropagation()}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'24px'}}>
               <h3 style={{margin:0}}>{editItem ? 'Edit Project' : 'Add New Project'}</h3>
-              <button onClick={() => setShowForm(false)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-faint)'}}></button>
+              <button onClick={() => setShowForm(false)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-faint)'}}>✕</button>
             </div>
 
             <form onSubmit={handleSave}>
