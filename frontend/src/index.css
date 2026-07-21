@@ -1557,7 +1557,7 @@ tbody td { padding: 14px 18px; color: var(--text-primary); vertical-align: middl
 .bg-alt { background: var(--bg-2); }
 
 /* ══ RESPONSIVE ═══════════════════════════════════════════════ */
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);
     transition: transform var(--t-slow);
@@ -2332,6 +2332,12 @@ input[type="password"]::-ms-clear {
     .main-content { max-width: 100vw; padding: 20px 16px; margin-left: 0; }
   }
 
+@media (min-width: 1025px) {
+  .sidebar { transition: margin-left 0.3s ease; }
+  .sidebar.open { margin-left: calc(-1 * var(--sidebar-w)); }
+  .app-layout:has(.sidebar.open) .main-content { max-width: 100vw; }
+}
+
 /* ── Password Wrapper ── */
 .password-wrapper {
   position: relative;
@@ -2597,7 +2603,7 @@ input[type="password"]::-ms-clear {
 }
 /* Mobile Menu Button */
 .mobile-menu-btn { display: none; }
-@media (max-width: 960px) { .mobile-menu-btn { display: block; } }
+@media (max-width: 1024px) { .mobile-menu-btn { display: block; } }
 
 /* Compact Sidebar Footer */
 .sidebar-footer-compact { padding: 12px; border-top: 1px solid var(--border); background: var(--bg-elevated); margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
