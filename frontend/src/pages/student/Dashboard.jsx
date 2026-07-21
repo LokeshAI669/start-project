@@ -50,11 +50,8 @@ export default function Dashboard() {
     <div className="app-layout">
       {/* ── Sidebar ── */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div className="sidebar-logo">
           <Link to="/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
-          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile" style={{ width: '34px', height: '34px', fontSize: '14px' }}>
-            {user?.name?.[0]?.toUpperCase() || 'U'}
-          </button>
         </div>
         <nav className="sidebar-nav">
           <Link to="/dashboard" className="sidebar-item active">
@@ -72,18 +69,26 @@ export default function Dashboard() {
       {/* ── Main ── */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', alignItems:'flex-start', gap:'16px'}}>
-            <button 
-              className="mobile-menu-btn" 
-              onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
-            >
-              ☰
-            </button>
+          <div style={{display:'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+              <button 
+                className="mobile-menu-btn" 
+                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
+                style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
+              >
+                ☰
+              </button>
+              <Link to="/dashboard" style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+            </div>
             <div>
               <h1 className="page-title">My Requests</h1>
               <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Track all your project submissions</p>
             </div>
+          </div>
+          <div style={{position:'absolute', top:0, right:0}}>
+            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
+              {user?.name?.[0]?.toUpperCase() || 'U'}
+            </button>
           </div>
         </div>
 

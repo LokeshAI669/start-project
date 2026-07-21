@@ -98,11 +98,8 @@ export default function AdminDashboard() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingRight: '0px' }}>
-          <JobZenLogo theme={theme} size="sm" />
-          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile" style={{ width: '34px', height: '34px', fontSize: '14px' }}>
-            {user?.name?.[0]?.toUpperCase() || 'A'}
-          </button>
+        <div className="sidebar-logo">
+          <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
           <Link to="/admin" className="sidebar-item active"> All Requests</Link>
@@ -113,14 +110,17 @@ export default function AdminDashboard() {
       {/* Main */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', alignItems:'flex-start', gap:'16px', paddingRight:'50px'}}>
-            <button 
-              className="mobile-menu-btn" 
-              onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
-            >
-              ☰
-            </button>
+          <div style={{display:'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+              <button 
+                className="mobile-menu-btn" 
+                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
+                style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
+              >
+                ☰
+              </button>
+              <Link to="/admin" style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+            </div>
             <div>
               <h1 className="page-title">Admin Dashboard</h1>
               <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Review and manage all student project requests</p>
@@ -128,6 +128,9 @@ export default function AdminDashboard() {
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
             <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: window.innerWidth > 600 ? 'block' : 'none'}}>Export CSV</button>
+            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
+              {user?.name?.[0]?.toUpperCase() || 'A'}
+            </button>
           </div>
         </div>
 
