@@ -112,7 +112,14 @@ const mailer = {
 
   // 3. New request alert — admin
   async notifyAdmin(student, project) {
-    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hlokeshreddy087@gmail.com';
+    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hlokeshreddy087@gmail.com';
+    try {
+      const { pool } = require('./db');
+      const { rows } = await pool.query("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
+      if (rows.length > 0) adminEmail = rows[0].email;
+    } catch (e) {
+      console.error('[MAIL] Failed to get admin email from DB, using fallback');
+    }
     
     let attachments = [];
     let attachmentNote = '';
@@ -178,7 +185,14 @@ const mailer = {
 
   // 6. Reschedule alert — admin
   async notifyAdminReschedule(student, project) {
-    const adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hlokeshreddy087@gmail.com';
+    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hlokeshreddy087@gmail.com';
+    try {
+      const { pool } = require('./db');
+      const { rows } = await pool.query("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
+      if (rows.length > 0) adminEmail = rows[0].email;
+    } catch (e) {
+      console.error('[MAIL] Failed to get admin email from DB, using fallback');
+    }
     const html = baseTemplate('Request Rescheduled', `
       <h2>A request has been rescheduled</h2>
       <div class="highlight">

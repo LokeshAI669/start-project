@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { LogOut, ArrowLeft, User } from 'lucide-react';
+import JobZenLogo from '../components/JobZenLogo';
 
 export default function Profile() {
   const { user, logout } = useContext(AuthContext);
@@ -24,7 +25,8 @@ export default function Profile() {
     <div className="auth-page">
       <div className="auth-grid"></div>
       <div className="auth-card">
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <JobZenLogo theme={document.documentElement.getAttribute('data-theme') || 'dark'} size="sm" />
           <button 
             onClick={handleBack}
             className="btn btn-ghost btn-sm"

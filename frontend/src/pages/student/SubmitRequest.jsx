@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
+import JobZenLogo from '../../components/JobZenLogo';
 
 
 export default function SubmitRequest() {
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
@@ -103,8 +104,9 @@ export default function SubmitRequest() {
 
   return (
     <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
-      <div style={{maxWidth:'620px',margin:'0 auto',position:'relative'}}>
-        <div style={{position:'absolute',top:0,right:0}}>
+      <div style={{maxWidth:'600px',margin:'0 auto',position:'relative'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'32px'}}>
+          <JobZenLogo theme={theme} size="sm" />
           <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
             {user?.name?.[0]?.toUpperCase() || 'U'}
           </button>
