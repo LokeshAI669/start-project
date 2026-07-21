@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
-
+import JobZenLogo from '../../components/JobZenLogo';
+import CustomSelect from '../../components/CustomSelect';
 
 const DOMAINS = ['Web Development','Mobile Development','AI/ML','Data Science','Cybersecurity','Cloud Computing','IoT','Blockchain','UI/UX Design','Game Development','Other'];
 const DIFFICULTIES = ['Beginner','Intermediate','Advanced'];
@@ -115,8 +116,8 @@ export default function AdminCatalog() {
                     <td style={{fontSize:'12px',color:'var(--text-faint)'}}>{p.estimated_duration || '—'}</td>
                     <td>
                       <div style={{display:'flex',gap:'8px'}}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(p)}></button>
-                        <button className="btn btn-ghost btn-sm" style={{color:'var(--red)'}} onClick={() => handleDelete(p.id)}></button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(p)}>Edit</button>
+                        <button className="btn btn-ghost btn-sm" style={{color:'var(--red)'}} onClick={() => handleDelete(p.id)}>Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -144,16 +145,21 @@ export default function AdminCatalog() {
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
                 <div className="form-group">
                   <label className="form-label">Domain *</label>
-                  <select className="form-input" value={form.domain} onChange={f('domain')}>
-                    <option value="">Select domain...</option>
-                    {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
+                  <CustomSelect
+                    value={form.domain}
+                    onChange={val => setForm({...form, domain: val})}
+                    options={DOMAINS.map(d => ({ value: d, label: d }))}
+                    placeholder="Select domain..."
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Difficulty</label>
-                  <select className="form-input" value={form.difficulty} onChange={f('difficulty')}>
-                    {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
+                  <CustomSelect
+                    value={form.difficulty}
+                    onChange={val => setForm({...form, difficulty: val})}
+                    options={DIFFICULTIES.map(d => ({ value: d, label: d }))}
+                    placeholder="Select difficulty..."
+                  />
                 </div>
               </div>
               <div className="form-group">

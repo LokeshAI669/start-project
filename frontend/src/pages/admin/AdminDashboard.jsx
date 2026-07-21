@@ -136,14 +136,14 @@ export default function AdminDashboard() {
           <div className="dashboard-stats" style={{gap:'14px',marginBottom:'28px'}}>
             {[
               { label:'Total',    value: stats.total,    color:'var(--text-primary)' },
-              { label:'Pending',  value: stats.pending,  color:'var(--orange)' },
+              { label:'Pending',  value: stats.pending,  color:'var(--gold)' },
               { label:'Accepted', value: stats.accepted, color:'var(--green)' },
               { label:'Denied',   value: stats.denied,   color:'var(--red)' },
               { label:'Students', value: stats.students, color:'var(--blue)' },
             ].map(s => (
               <div key={s.label} className="card" style={{padding:'18px 20px',textAlign:'center'}}>
-                <div style={{fontSize:'1.8rem',fontWeight:900,color:s.color,letterSpacing:'-0.04em'}}>{s.value}</div>
-                <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:'9px',textTransform:'uppercase',letterSpacing:'.07em',color:'var(--text-faint)',marginTop:'4px',display:'flex',alignItems:'center',justifyContent:'center',gap:'4px'}}>{s.label}</div>
+                <div style={{fontSize:'1.8rem',fontWeight:700,color:s.color,letterSpacing:'-0.02em'}}>{s.value}</div>
+                <div style={{fontSize:'12px',fontWeight:500,color:'var(--text-faint)',marginTop:'4px',display:'flex',alignItems:'center',justifyContent:'center',gap:'4px'}}>{s.label}</div>
               </div>
             ))}
           </div>

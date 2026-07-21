@@ -2,8 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
-
-
+import CustomSelect from '../../components/CustomSelect';
 const difficultyColor = (d) => {
   if (d === 'Beginner')     return 'var(--green)';
   if (d === 'Advanced')     return 'var(--red)';
@@ -77,10 +76,13 @@ export default function BrowseCatalog() {
             </div>
             <button type="submit" className="btn btn-primary btn-sm">Search</button>
           </form>
-          <select className="form-input" style={{width:'200px'}} value={domain} onChange={e => { setDomain(e.target.value); setPage(1); }}>
-            <option value="">All Domains</option>
-            {domains.map(d => <option key={d.domain} value={d.domain}>{d.domain} ({d.count})</option>)}
-          </select>
+          <CustomSelect
+            value={domain}
+            onChange={val => { setDomain(val); setPage(1); }}
+            options={domains.map(d => ({ value: d.domain, label: `${d.domain} (${d.count})` }))}
+            placeholder="All Domains"
+            style={{width:'220px'}}
+          />
         </div>
 
         {/* Grid */}

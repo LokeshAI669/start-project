@@ -67,7 +67,7 @@ export default function Dashboard() {
              New Request
           </Link>
           <Link to="/browse" className="sidebar-item">
-             Browse Catalog
+             Projects
           </Link>
         </nav>
         <div className="sidebar-footer">
@@ -100,13 +100,13 @@ export default function Dashboard() {
         <div className="dashboard-stats" style={{gap:'16px',marginBottom:'28px'}}>
           {[
             { label:'Total', value: total,    color:'var(--text-primary)' },
-            { label:'Pending',  value: pending,  color:'var(--orange)' },
+            { label:'Pending',  value: pending,  color:'var(--gold)' },
             { label:'Accepted', value: accepted, color:'var(--green)' },
             { label:'Denied',   value: denied,   color:'var(--red)' },
           ].map(s => (
             <div key={s.label} className="card" style={{padding:'20px 22px',textAlign:'center'}}>
-              <div style={{fontSize:'2rem',fontWeight:900,color:s.color,letterSpacing:'-0.04em'}}>{s.value}</div>
-              <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',textTransform:'uppercase',letterSpacing:'.07em',color:'var(--text-faint)',marginTop:'4px'}}>{s.label}</div>
+              <div style={{fontSize:'2rem',fontWeight:700,color:s.color,letterSpacing:'-0.02em'}}>{s.value}</div>
+              <div style={{fontSize:'12px',fontWeight:500,color:'var(--text-faint)',marginTop:'4px'}}>{s.label}</div>
             </div>
           ))}
         </div>
