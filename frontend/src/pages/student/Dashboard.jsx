@@ -83,7 +83,6 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
-            <Link to="/request" className="btn btn-primary btn-sm"> New Request</Link>
             <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </button>
