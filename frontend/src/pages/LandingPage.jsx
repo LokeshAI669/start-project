@@ -242,7 +242,7 @@ export default function LandingPage() {
               <div className="stat-showcase-label">Uptime</div>
             </div>
             <div className="stat-showcase-item">
-              <div className="stat-showcase-num">2 min</div>
+              <div className="stat-showcase-num">2 Days</div>
               <div className="stat-showcase-label">To Submit</div>
             </div>
           </div>
@@ -297,7 +297,7 @@ export default function LandingPage() {
             <div className="step-card reveal-scale visible">
               <div className="step-num-big">1</div>
               <div className="step-title">Register &amp; Submit</div>
-              <p className="step-desc">Create a free student account, fill in your project details, pick a meeting time, and submit in under 2 minutes.</p>
+              <p className="step-desc">Create a free student account, fill in your project details, pick a meeting time, and submit in under 2 days.</p>
             </div>
             <div className="step-card reveal-scale visible">
               <div className="step-num-big">2</div>
