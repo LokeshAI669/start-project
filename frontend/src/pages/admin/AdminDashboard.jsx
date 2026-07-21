@@ -98,8 +98,11 @@ export default function AdminDashboard() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingRight: '0px' }}>
           <JobZenLogo theme={theme} size="sm" />
+          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile" style={{ width: '34px', height: '34px', fontSize: '14px' }}>
+            {user?.name?.[0]?.toUpperCase() || 'A'}
+          </button>
         </div>
         <nav className="sidebar-nav">
           <Link to="/admin" className="sidebar-item active"> All Requests</Link>
@@ -125,9 +128,6 @@ export default function AdminDashboard() {
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
             <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: window.innerWidth > 600 ? 'block' : 'none'}}>Export CSV</button>
-            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-              {user?.name?.[0]?.toUpperCase() || 'A'}
-            </button>
           </div>
         </div>
 
