@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import JobZenLogo from '../../components/JobZenLogo';
 import { api } from '../../utils/api';
 import CustomSelect from '../../components/CustomSelect';
+import StudentLayout from '../../components/StudentLayout';
 const difficultyColor = (d) => {
   if (d === 'Beginner')     return 'var(--green)';
   if (d === 'Advanced')     return 'var(--red)';
@@ -55,22 +55,11 @@ export default function BrowseCatalog() {
   };
 
   return (
-    <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
+    <StudentLayout title="Project Catalog" subtitle="Browse and request a project">
       <div style={{maxWidth:'1100px',margin:'0 auto',position:'relative'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'32px'}}>
-          <JobZenLogo theme={document.documentElement.getAttribute('data-theme') || 'dark'} size="sm" />
-          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-            {user?.name?.[0]?.toUpperCase() || 'U'}
-          </button>
-        </div>
-        <Link to="/dashboard" className="btn btn-ghost btn-sm" style={{marginBottom:'24px',display:'inline-flex',alignItems:'center',gap:'6px'}}>
-           Dashboard
-        </Link>
-
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',flexWrap:'wrap',gap:'16px',marginBottom:'32px'}}>
           <div>
-            <h1 style={{fontSize:'1.6rem',fontWeight:800,marginBottom:'4px'}}>Project Catalog</h1>
-            <p style={{color:'var(--text-faint)',fontSize:'13px'}}>{total} projects available · Browse and request one</p>
+            <p style={{color:'var(--text-faint)',fontSize:'13px'}}>{total} projects available</p>
           </div>
         </div>
 
@@ -138,6 +127,6 @@ export default function BrowseCatalog() {
           </div>
         )}
       </div>
-    </div>
+    </StudentLayout>
   );
 }

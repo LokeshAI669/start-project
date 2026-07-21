@@ -2,8 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
-import JobZenLogo from '../../components/JobZenLogo';
-
+import StudentLayout from '../../components/StudentLayout';
 
 const statusBadge = (s) => {
   if (s === 'Accepted') return <span className="badge badge-accepted">Accepted</span>;
@@ -15,13 +14,11 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digi
 const fmtCurrency = (c, b) => `${c || '₹'}${Number(b).toLocaleString('en-IN')}`;
 
 export default function Dashboard() {
-  const { user, logout, token } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [error, setError]   = useState('');
-  const [theme, setTheme]   = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
 
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
@@ -47,52 +44,8 @@ export default function Dashboard() {
   const denied   = requests.filter(r => r.status === 'Denied').length;
 
   return (
-    <div className="app-layout">
-      {/* ── Sidebar ── */}
-      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>
-          <Link to="/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
-        </div>
-        <nav className="sidebar-nav">
-          <Link to="/dashboard" className="sidebar-item active">
-             My Requests
-          </Link>
-          <Link to="/request" className="sidebar-item">
-             New Request
-          </Link>
-          <Link to="/browse" className="sidebar-item">
-             Projects
-          </Link>
-        </nav>
-      </aside>
-
-      {/* ── Main ── */}
-      <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
-        <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
-            <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
-              <button 
-                className="mobile-menu-btn" 
-                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-                style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
-              >
-                ☰
-              </button>
-              <Link to="/dashboard" style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
-            </div>
-            <div>
-              <h1 className="page-title">My Requests</h1>
-              <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Track all your project submissions</p>
-            </div>
-          </div>
-          <div style={{position:'absolute', top:0, right:0}}>
-            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-              {user?.name?.[0]?.toUpperCase() || 'U'}
-            </button>
-          </div>
-        </div>
-
-        {/* Stats row */}
+    <StudentLayout title="My Requests" subtitle="Track all your project submissions">
+      {/* Stats row */}
         <div className="dashboard-stats" style={{gap:'16px',marginBottom:'28px'}}>
           {[
             { label:'Total', value: total,    color:'var(--text-primary)' },
@@ -148,7 +101,6 @@ export default function Dashboard() {
             </table>
           </div>
         )}
-      </main>
-    </div>
+    </StudentLayout>
   );
 }

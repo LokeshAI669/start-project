@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
-import JobZenLogo from '../../components/JobZenLogo';
-
+import { CheckCircle2, ChevronRight, UploadCloud } from 'lucide-react';
+import StudentLayout from '../../components/StudentLayout';
 
 export default function SubmitRequest() {
   const { token, user } = useContext(AuthContext);
@@ -103,20 +103,8 @@ export default function SubmitRequest() {
   );
 
   return (
-    <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
+    <StudentLayout title="New Request" subtitle="Submit a project request for review">
       <div style={{maxWidth:'600px',margin:'0 auto',position:'relative'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'32px'}}>
-          <JobZenLogo theme={document.documentElement.getAttribute('data-theme') || 'dark'} size="sm" />
-          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-            {user?.name?.[0]?.toUpperCase() || 'U'}
-          </button>
-        </div>
-        <Link to="/dashboard" className="btn btn-ghost btn-sm" style={{marginBottom:'24px',display:'inline-flex',alignItems:'center',gap:'6px'}}>
-           Back to Dashboard
-        </Link>
-
-        <h1 style={{fontSize:'1.6rem',fontWeight:800,marginBottom:'6px'}}>Submit Project Request</h1>
-        <p style={{color:'var(--text-faint)',fontSize:'13px',marginBottom:'32px'}}>Fill in the details below — your supervisor will be notified.</p>
 
         {/* Step indicator */}
         <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'32px'}}>
@@ -205,6 +193,6 @@ export default function SubmitRequest() {
           </div>
         </div>
       </div>
-    </div>
+    </StudentLayout>
   );
 }
