@@ -26,9 +26,10 @@ export default function Profile() {
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
           <button 
             onClick={handleBack}
-            style={{ background: 'none', border: 'none', color: 'var(--text-faint)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+            className="btn btn-ghost btn-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
-            <ArrowLeft size={20} /> Back
+            <ArrowLeft size={16} /> Back
           </button>
         </div>
 
