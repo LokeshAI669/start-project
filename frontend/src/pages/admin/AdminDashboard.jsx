@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
   useEffect(() => {
-    if (!token) { navigate('/login'); return; }
+    if (!token) { navigate('/admin-login'); return; }
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
     fetchAll();
   }, [token, navigate, user?.role]);

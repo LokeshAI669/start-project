@@ -43,7 +43,7 @@ function baseTemplate(title, bodyHtml) {
     .badge-pending  { background:#fef3c7; color:#92400e; }
     .badge-accepted { background:#d1fae5; color:#065f46; }
     .badge-denied   { background:#fee2e2; color:#b91c1c; }
-    .btn { display:inline-block; margin-top:24px; padding:12px 24px; background:#2563eb; color:#ffffff; text-decoration:none; border-radius:6px; font-weight:500; font-size:14px; }
+    .btn { display:inline-block; margin-top:24px; padding:12px 24px; background:#2563eb; color:#ffffff !important; text-decoration:none !important; border-radius:6px; font-weight:500; font-size:14px; }
     .footer { padding:24px 40px; text-align:center; color:#9ca3af; font-size:13px; background:#f9fafb; border-top:1px solid #e5e7eb; }
   </style>
 </head>
@@ -88,7 +88,7 @@ const mailer = {
     const html = baseTemplate('Welcome to ' + PLATFORM, `
       <h2>Welcome, ${user.name}!</h2>
       <p>Your student account has been created. You can now log in and start submitting project requests for review.</p>
-      <a href="${PLATFORM_URL}/login" class="btn">Go to Login &rarr;</a>
+      <a href="${PLATFORM_URL}/login" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Go to Login &rarr;</a>
     `);
     await send(user.email, `Welcome to ${PLATFORM}!`, html);
   },
@@ -105,7 +105,7 @@ const mailer = {
         <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
       </div>
       <p>You'll receive an email once the admin reviews your request.</p>
-      <a href="${PLATFORM_URL}/dashboard" class="btn">View Dashboard &rarr;</a>
+      <a href="${PLATFORM_URL}/dashboard" class="btn" style="color:#ffffff !important; text-decoration:none !important;">View Dashboard &rarr;</a>
     `);
     await send(user.email, `[${PLATFORM}] Request Received — ${project.project_name}`, html);
   },
@@ -144,7 +144,7 @@ const mailer = {
         <p><strong>Description:</strong> ${project.description}</p>
         ${attachmentNote}
       </div>
-      <a href="${PLATFORM_URL}/admin" class="btn">Review in Admin Panel &rarr;</a>
+      <a href="${PLATFORM_URL}/admin-login" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Review in Admin Panel &rarr;</a>
     `);
     await send(adminEmail, `[${PLATFORM}] New Request: ${project.project_name}`, html, attachments);
   },
@@ -162,7 +162,7 @@ const mailer = {
         <p><strong>Status:</strong> <span class="badge badge-accepted">Accepted</span></p>
         ${project.admin_note ? `<p><strong>Note from Admin:</strong> ${project.admin_note}</p>` : ''}
       </div>
-      <a href="${PLATFORM_URL}/dashboard" class="btn">View Dashboard &rarr;</a>
+      <a href="${PLATFORM_URL}/dashboard" class="btn" style="color:#ffffff !important; text-decoration:none !important;">View Dashboard &rarr;</a>
     `);
     await send(user.email, `[${PLATFORM}] Accepted — ${project.project_name}`, html);
   },
@@ -178,7 +178,7 @@ const mailer = {
         ${project.admin_note ? `<p><strong>Reason:</strong> ${project.admin_note}</p>` : ''}
       </div>
       <p>You can reschedule or submit a new request from your dashboard.</p>
-      <a href="${PLATFORM_URL}/dashboard" class="btn">Reschedule &rarr;</a>
+      <a href="${PLATFORM_URL}/dashboard" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Reschedule &rarr;</a>
     `);
     await send(user.email, `[${PLATFORM}] Request Update — ${project.project_name}`, html);
   },
@@ -201,7 +201,7 @@ const mailer = {
         <p><strong>New Time:</strong> ${project.preferred_date} at ${project.preferred_time}</p>
         <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
       </div>
-      <a href="${PLATFORM_URL}/admin" class="btn">Review in Admin Panel &rarr;</a>
+      <a href="${PLATFORM_URL}/admin-login" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Review in Admin Panel &rarr;</a>
     `);
     await send(adminEmail, `[${PLATFORM}] Rescheduled: ${project.project_name}`, html);
   },
@@ -213,7 +213,7 @@ const mailer = {
       <h2>Password Reset</h2>
       <p>Hi ${user.name}, we received a password reset request for your account.</p>
       <p>Click below to set a new password. This link expires in <strong>30 minutes</strong>.</p>
-      <a href="${resetUrl}" class="btn">Reset Password &rarr;</a>
+      <a href="${resetUrl}" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Reset Password &rarr;</a>
       <p style="margin-top:24px;font-size:13px;color:#9ca3af;">Didn't request this? Ignore this email safely.</p>
     `);
     await send(user.email, `[${PLATFORM}] Password Reset`, html);
