@@ -2594,3 +2594,12 @@ input[type="password"]::-ms-clear {
 /* Mobile Menu Button */
 .mobile-menu-btn { display: none; }
 @media (max-width: 960px) { .mobile-menu-btn { display: block; } }
+
+/* Compact Sidebar Footer */
+.sidebar-footer-compact { padding: 12px; border-top: 1px solid var(--border); background: var(--bg-elevated); margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.compact-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #f97316); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; flex-shrink: 0; }
+.compact-user-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.compact-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compact-user-email { font-size: 11px; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.compact-logout-btn { background: none; border: none; color: var(--text-faint); cursor: pointer; padding: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.compact-logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--red); }

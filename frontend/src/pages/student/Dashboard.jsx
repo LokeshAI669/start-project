@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
+import { LogOut } from 'lucide-react';
 
 
 const statusBadge = (s) => {
@@ -66,16 +67,14 @@ export default function Dashboard() {
              Projects
           </Link>
         </nav>
-        <div className="sidebar-footer">
-          <div className="sidebar-user">
-            <div className="user-avatar">{user?.name?.[0]?.toUpperCase() || 'S'}</div>
-            <div className="sidebar-user-info">
-              <div className="sidebar-user-name">{user?.name}</div>
-              <div className="sidebar-user-email">{user?.email}</div>
-            </div>
+        <div className="sidebar-footer-compact">
+          <div className="compact-user-avatar">{user?.name?.[0]?.toUpperCase() || 'S'}</div>
+          <div className="compact-user-info">
+            <div className="compact-user-name">{user?.name}</div>
+            <div className="compact-user-email">{user?.email}</div>
           </div>
-          <button onClick={handleLogout} className="sidebar-item" style={{width:'100%',background:'none',border:'none',cursor:'pointer',color:'var(--red)',marginTop:'8px'}}>
-             Sign Out
+          <button className="compact-logout-btn" onClick={handleLogout} title="Sign Out">
+            <LogOut size={16} />
           </button>
         </div>
       </aside>
