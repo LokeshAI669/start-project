@@ -2313,9 +2313,24 @@ input[type="password"]::-ms-clear {
 
 /* ── Responsive sidebar ── */
 @media (max-width: 768px) {
-  .sidebar { display: none; }
-  .main-content { max-width: 100vw; padding: 20px 16px; }
-}
+    .sidebar {
+      display: flex !important;
+      position: fixed !important;
+      top: 0;
+      left: -280px;
+      height: 100vh !important;
+      z-index: 1000;
+      transition: left 0.3s ease !important;
+      background: var(--bg-elevated) !important;
+      width: 260px !important;
+      box-shadow: none;
+    }
+    .sidebar.open {
+      left: 0 !important;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    }
+    .main-content { max-width: 100vw; padding: 20px 16px; margin-left: 0; }
+  }
 
 /* ── Password Wrapper ── */
 .password-wrapper {
@@ -2363,25 +2378,8 @@ input[type="password"]::-ms-clear {
   .app-layout {
     flex-direction: column !important;
   }
-  .sidebar {
-    position: relative !important;
-    transform: none !important;
-    width: 100% !important;
-    height: auto !important;
-    padding: 16px !important;
-    border-right: none !important;
-    border-bottom: 1px solid var(--border) !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-  }
-  .sidebar-nav {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 8px !important;
-    margin: 0 !important;
-  }
+  
+  
 
   .main-content {
     padding: 16px !important;
@@ -2418,19 +2416,9 @@ input[type="password"]::-ms-clear {
     grid-template-columns: 1fr !important;
   }
 
-  .sidebar {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-  }
-  .sidebar-nav {
-    flex-direction: column !important;
-    width: 100% !important;
-    margin-top: 12px !important;
-  }
-  .sidebar-item {
-    width: 100% !important;
-    text-align: center !important;
-  }
+  
+  
+  
 
   .stats-showcase {
     grid-template-columns: 1fr !important;

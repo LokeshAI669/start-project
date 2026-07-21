@@ -18,9 +18,10 @@ export default function JobZenLogo({ theme = 'dark', size = 'md' }) {
   const W = Math.round(200 * s);
   const H = Math.round(90  * s);
 
-  const boxGrad = `jz-box-${size}`;
-  const textGrad = `jz-text-${size}`;
-  const lineGrad = `jz-line-${size}`;
+  const idSuffix = React.useId ? React.useId().replace(/:/g, '') : Math.random().toString(36).substring(2,7);
+  const boxGrad = `jz-box-${size}-${idSuffix}`;
+  const textGrad = `jz-text-${size}-${idSuffix}`;
+  const lineGrad = `jz-line-${size}-${idSuffix}`;
 
   return (
     <svg
