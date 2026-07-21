@@ -19,6 +19,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [error, setError]   = useState('');
   const [theme, setTheme]   = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
 
@@ -55,7 +56,7 @@ export default function Dashboard() {
   return (
     <div className="app-layout">
       {/* ── Sidebar ── */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <Link to="/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
@@ -85,11 +86,20 @@ export default function Dashboard() {
       </aside>
 
       {/* ── Main ── */}
-      <main className="main-content">
+      <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar">
-          <div>
-            <h1 className="page-title">My Requests</h1>
-            <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Track all your project submissions</p>
+          <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+            <button 
+              className="mobile-menu-btn" 
+              onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
+              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer'}}
+            >
+              ☰
+            </button>
+            <div>
+              <h1 className="page-title">My Requests</h1>
+              <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Track all your project submissions</p>
+            </div>
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
             <Link to="/request" className="btn btn-primary btn-sm"> New Request</Link>

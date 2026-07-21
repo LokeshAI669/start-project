@@ -19,6 +19,7 @@ export default function AdminDashboard() {
   const [requests, setRequests] = useState([]);
   const [stats, setStats]       = useState(null);
   const [loading, setLoading]   = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [filter, setFilter]     = useState('All');
   const [search, setSearch]     = useState('');
   const [selected, setSelected] = useState(null);
@@ -97,9 +98,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="app-layout">
+    <div className="app-layout admin-portal">
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <JobZenLogo theme={theme} size="sm" />
         </div>
@@ -122,11 +123,20 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main */}
-      <main className="main-content">
+      <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar">
-          <div>
-            <h1 className="page-title">Admin Dashboard</h1>
-            <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Review and manage all student project requests</p>
+          <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+            <button 
+              className="mobile-menu-btn" 
+              onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
+              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer'}}
+            >
+              ☰
+            </button>
+            <div>
+              <h1 className="page-title">Admin Dashboard</h1>
+              <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Review and manage all student project requests</p>
+            </div>
           </div>
           <button onClick={handleExport} className="btn btn-ghost btn-sm"> Export CSV</button>
         </div>

@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
+const fs = require('fs');
 
 const PLATFORM     = process.env.PLATFORM_NAME || 'JobZen';
 const PLATFORM_URL = process.env.PLATFORM_URL || process.env.FRONTEND_URL || 'https://start-project-mu.vercel.app';
@@ -117,9 +118,13 @@ const mailer = {
     let attachmentNote = '';
     if (project.attachment_url) {
       const filePath = path.join(__dirname, '..', project.attachment_url);
-      const fileName = project.attachment_url.split('/').pop().split('-').slice(1).join('-') || 'Attachment.pdf';
-      attachments.push({ filename: fileName, path: filePath });
-      attachmentNote = `<p><strong>Attachment:</strong> A file was uploaded (attached to this email).</p>`;
+      if (fs.existsSync(filePath)) {
+        const fileName = project.attachment_url.split('/').pop().split('-').slice(1).join('-') || 'Attachment.pdf';
+        attachments.push({ filename: fileName, path: filePath });
+        attachmentNote = `<p><strong>Attachment:</strong> A file was uploaded (attached to this email).</p>`;
+      } else {
+        attachmentNote = `<p><strong>Attachment:</strong> A file was uploaded but could not be retrieved from the server.</p>`;
+      }
     }
 
     const html = baseTemplate('New Project Request', `
