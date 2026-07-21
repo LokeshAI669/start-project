@@ -11,7 +11,7 @@ const difficultyColor = (d) => {
 };
 
 export default function BrowseCatalog() {
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const navigate  = useNavigate();
   const [items, setItems]     = useState([]);
   const [domains, setDomains] = useState([]);
