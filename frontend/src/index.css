@@ -2360,9 +2360,7 @@ input[type="password"]::-ms-clear {
     gap: 8px !important;
     margin: 0 !important;
   }
-  .sidebar-footer {
-    display: none !important;
-  }
+
   .main-content {
     padding: 16px !important;
     width: 100% !important;
