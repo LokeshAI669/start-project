@@ -27,7 +27,7 @@ export default function Dashboard() {
     if (!token) { navigate('/login'); return; }
     if (user?.role === 'admin') { navigate('/admin'); return; }
     fetchRequests();
-  }, [token]);
+  }, [token, navigate, user?.role]);
 
   const fetchRequests = async () => {
     try {
@@ -41,17 +41,12 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => { logout(); navigate('/'); };
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    setTheme(next);
-  };
+
 
   const total    = requests.length;
   const pending  = requests.filter(r => r.status === 'Pending').length;
   const accepted = requests.filter(r => r.status === 'Accepted').length;
   const denied   = requests.filter(r => r.status === 'Denied').length;
-  const rate     = total > 0 ? Math.round((accepted / total) * 100) : 0;
 
   return (
     <div className="app-layout">

@@ -35,7 +35,7 @@ export default function AdminDashboard() {
     if (!token) { navigate('/login'); return; }
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
     fetchAll();
-  }, [token]);
+  }, [token, navigate, user?.role]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -91,11 +91,7 @@ export default function AdminDashboard() {
   };
 
   const handleLogout = () => { logout(); navigate('/'); };
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    setTheme(next);
-  };
+
 
   return (
     <div className="app-layout admin-portal">
