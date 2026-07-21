@@ -2,11 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
-import { CheckCircle2, ChevronRight, UploadCloud } from 'lucide-react';
+
 import StudentLayout from '../../components/StudentLayout';
 
 export default function SubmitRequest() {
-  const { token, user } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');

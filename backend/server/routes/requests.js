@@ -73,8 +73,8 @@ router.post('/', requireStudent, upload.single('attachment'), async (req, res) =
     const { rows: studentRows } = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
     const student = studentRows[0];
 
-    mailer.requestSubmitted(student, project).catch(e => console.error(e));
-    mailer.notifyAdmin(student, project).catch(e => console.error(e));
+    await mailer.requestSubmitted(student, project).catch(e => console.error(e));
+    await mailer.notifyAdmin(student, project).catch(e => console.error(e));
 
     if (req.io) req.io.emit('new_request', fmt(project));
 
@@ -113,7 +113,7 @@ router.patch('/:id/reschedule', requireStudent, async (req, res) => {
     const { rows: studentRows } = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
     const student = studentRows[0];
     
-    mailer.notifyAdminReschedule(student, updated).catch(e => console.error(e));
+    await mailer.notifyAdminReschedule(student, updated).catch(e => console.error(e));
     
     if (req.io) req.io.emit('request_updated', fmt(updated));
 
@@ -235,8 +235,8 @@ router.patch('/:id/decision', requireAdmin, async (req, res) => {
     const { rows: studentRows } = await pool.query('SELECT * FROM users WHERE id = $1', [project.student_id]);
     const student = studentRows[0];
 
-    if (decision === 'accepted') mailer.requestAccepted(student, updated).catch(e => console.error(e));
-    else                         mailer.requestDenied(student, updated).catch(e => console.error(e));
+    if (decision === 'accepted') await mailer.requestAccepted(student, updated).catch(e => console.error(e));
+    else                         await mailer.requestDenied(student, updated).catch(e => console.error(e));
 
     if (req.io) req.io.emit('request_updated', fmt(updated));
 

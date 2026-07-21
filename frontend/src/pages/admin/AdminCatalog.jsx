@@ -25,7 +25,7 @@ export default function AdminCatalog() {
     if (!token) { navigate('/login'); return; }
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
     fetchItems();
-  }, [token]);
+  }, [token, navigate, user?.role]);
 
   const fetchItems = async () => {
     setLoading(true);

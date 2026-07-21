@@ -127,7 +127,7 @@ export default function ProjectDetails() {
         {project.attachment_url && (
           <div className="card" style={{padding:'20px 24px',marginBottom:'20px'}}>
             <div style={{color:'var(--text-faint)',fontSize:'11px',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px',fontFamily:'JetBrains Mono,monospace'}}>Attachment</div>
-            <a href={`http://localhost:3000${project.attachment_url}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm"> View Attachment</a>
+            <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}${project.attachment_url}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm"> View Attachment</a>
           </div>
         )}
 

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
-import { LogOut } from 'lucide-react';
 
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
@@ -15,7 +14,7 @@ const statusBadge = (s) => {
 };
 
 export default function AdminDashboard() {
-  const { user, logout, token } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [stats, setStats]       = useState(null);
@@ -30,7 +29,7 @@ export default function AdminDashboard() {
   const [confTime, setConfTime]   = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [decisionMsg, setDecisionMsg] = useState('');
-  const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
+  const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
   useEffect(() => {
     if (!token) { navigate('/login'); return; }
@@ -83,7 +82,7 @@ export default function AdminDashboard() {
 
   const handleExport = () => {
     const link = document.createElement('a');
-    link.href = `http://localhost:3000/api/requests/export`;
+    link.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/requests/export`;
     const headers = new Headers({ 'Authorization': `Bearer ${token}` });
     fetch(link.href, { headers }).then(res => res.blob()).then(blob => {
       const url = URL.createObjectURL(blob);
@@ -91,7 +90,6 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleLogout = () => { logout(); navigate('/'); };
 
 
   return (

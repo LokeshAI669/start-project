@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
-      } catch (e) {
+      } catch (_e) {
         console.error('Invalid user data in localStorage');
       }
     }

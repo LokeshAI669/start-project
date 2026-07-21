@@ -105,7 +105,7 @@ const mailer = {
         <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
       </div>
       <p>You'll receive an email once the admin reviews your request.</p>
-      <a href="${PLATFORM_URL}/hire-project" class="btn">View Dashboard &rarr;</a>
+      <a href="${PLATFORM_URL}/dashboard" class="btn">View Dashboard &rarr;</a>
     `);
     await send(user.email, `[${PLATFORM}] Request Received — ${project.project_name}`, html);
   },
@@ -162,7 +162,7 @@ const mailer = {
         <p><strong>Status:</strong> <span class="badge badge-accepted">Accepted</span></p>
         ${project.admin_note ? `<p><strong>Note from Admin:</strong> ${project.admin_note}</p>` : ''}
       </div>
-      <a href="${PLATFORM_URL}/hire-project" class="btn">View Dashboard &rarr;</a>
+      <a href="${PLATFORM_URL}/dashboard" class="btn">View Dashboard &rarr;</a>
     `);
     await send(user.email, `[${PLATFORM}] Accepted — ${project.project_name}`, html);
   },
@@ -178,7 +178,7 @@ const mailer = {
         ${project.admin_note ? `<p><strong>Reason:</strong> ${project.admin_note}</p>` : ''}
       </div>
       <p>You can reschedule or submit a new request from your dashboard.</p>
-      <a href="${PLATFORM_URL}/hire-project" class="btn">Reschedule &rarr;</a>
+      <a href="${PLATFORM_URL}/dashboard" class="btn">Reschedule &rarr;</a>
     `);
     await send(user.email, `[${PLATFORM}] Request Update — ${project.project_name}`, html);
   },

@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
     if (password.length < 6)
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
 
-    const { rows: existing } = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+    const { rows: existing } = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]);
     if (existing.length > 0)
       return res.status(409).json({ error: 'An account with this email already exists' });
 
@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
     `, [name.trim(), email.toLowerCase().trim(), hash]);
 
     const user = rows[0];
-    mailer.welcome(user).catch(e => console.error(e));
+    await mailer.welcome(user).catch(e => console.error(e));
 
     const token = signToken(user);
     res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
@@ -47,7 +47,7 @@ router.post('/login', async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ error: 'Email and password are required' });
 
-    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase()]);
+    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase().trim()]);
     const user = rows[0];
     if (!user || !(await bcrypt.compare(password, user.password_hash)))
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -80,7 +80,7 @@ router.post('/forgot-password', async (req, res) => {
       'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
       [user.id, resetToken, expires]
     );
-    mailer.passwordReset(user, resetToken).catch(e => console.error(e));
+    await mailer.passwordReset(user, resetToken).catch(e => console.error(e));
 
     res.json({ message: 'A reset link has been sent to your email.' });
   } catch (err) {

@@ -19,7 +19,7 @@ export async function api(method, endpoint, body = null) {
   let data;
   try {
     data = await res.json();
-  } catch (e) {
+  } catch (_e) {
     throw new Error('Server returned invalid response');
   }
   
