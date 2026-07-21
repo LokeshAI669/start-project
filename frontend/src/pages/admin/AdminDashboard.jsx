@@ -109,12 +109,12 @@ export default function AdminDashboard() {
 
       {/* Main */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
-        <div className="topbar">
-          <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+        <div className="topbar" style={{ position: 'relative' }}>
+          <div style={{display:'flex', alignItems:'flex-start', gap:'16px', paddingRight:'50px'}}>
             <button 
               className="mobile-menu-btn" 
               onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer'}}
+              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
             >
               ☰
             </button>
@@ -123,8 +123,8 @@ export default function AdminDashboard() {
               <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Review and manage all student project requests</p>
             </div>
           </div>
-          <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
-            <button onClick={handleExport} className="btn btn-outline btn-sm">Export CSV</button>
+          <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
+            <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: window.innerWidth > 600 ? 'block' : 'none'}}>Export CSV</button>
             <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
               {user?.name?.[0]?.toUpperCase() || 'A'}
             </button>

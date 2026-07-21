@@ -68,12 +68,12 @@ export default function Dashboard() {
 
       {/* ── Main ── */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
-        <div className="topbar">
-          <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
+        <div className="topbar" style={{ position: 'relative' }}>
+          <div style={{display:'flex', alignItems:'flex-start', gap:'16px', paddingRight:'50px'}}>
             <button 
               className="mobile-menu-btn" 
               onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer'}}
+              style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
             >
               ☰
             </button>
@@ -82,7 +82,7 @@ export default function Dashboard() {
               <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>Track all your project submissions</p>
             </div>
           </div>
-          <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
+          <div style={{position:'absolute', top:0, right:0}}>
             <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
               {user?.name?.[0]?.toUpperCase() || 'U'}
             </button>
