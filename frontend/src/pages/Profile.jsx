@@ -21,8 +21,9 @@ export default function Profile() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box" style={{ maxWidth: '450px', width: '100%' }}>
+    <div className="auth-page">
+      <div className="auth-grid"></div>
+      <div className="auth-card">
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
           <button 
             onClick={handleBack}
@@ -59,8 +60,8 @@ export default function Profile() {
 
         <button 
           onClick={handleLogout}
-          className="btn btn-outline"
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', color: 'var(--red)', borderColor: 'var(--red)' }}
+          className="btn btn-danger btn-full"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
         >
           <LogOut size={20} />
           Sign Out
