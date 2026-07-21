@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import JobZenLogo from '../../components/JobZenLogo';
 import { api } from '../../utils/api';
+import StudentLayout from '../../components/StudentLayout';
 
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
@@ -67,14 +67,8 @@ export default function ProjectDetails() {
   if (!project) return null;
 
   return (
-    <div style={{minHeight:'100vh',background:'var(--bg)',padding:'40px 24px'}}>
+    <StudentLayout title="Project Details" subtitle="View and manage your project request">
       <div style={{maxWidth:'1100px',margin:'0 auto',position:'relative'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'32px'}}>
-          <JobZenLogo theme={theme} size="sm" />
-          <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-            {user?.name?.[0]?.toUpperCase() || 'U'}
-          </button>
-        </div>
         <Link to="/dashboard" className="btn btn-ghost btn-sm" style={{marginBottom:'24px',display:'inline-flex',alignItems:'center',gap:'6px'}}>
            Back to Dashboard
         </Link>
@@ -166,6 +160,6 @@ export default function ProjectDetails() {
           </div>
         )}
       </div>
-    </div>
+    </StudentLayout>
   );
 }
