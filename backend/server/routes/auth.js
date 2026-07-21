@@ -69,19 +69,20 @@ router.post('/forgot-password', async (req, res) => {
     const { rows: users } = await pool.query('SELECT * FROM users WHERE email = $1', [email.toLowerCase().trim()]);
     const user = users[0];
 
-    if (user) {
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const expires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-      
-      await pool.query(
-        'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
-        [user.id, resetToken, expires]
-      );
-      mailer.passwordReset(user, resetToken).catch(e => console.error(e));
+    if (!user) {
+      return res.status(404).json({ error: 'Email address not found in our system.' });
     }
 
-    // Always 200 — don't reveal if email exists
-    res.json({ message: 'If this email exists, a reset link has been sent.' });
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    
+    await pool.query(
+      'INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, resetToken, expires]
+    );
+    mailer.passwordReset(user, resetToken).catch(e => console.error(e));
+
+    res.json({ message: 'A reset link has been sent to your email.' });
   } catch (err) {
     console.error('[AUTH] Forgot password error:', err);
     res.status(500).json({ error: 'Server error' });
