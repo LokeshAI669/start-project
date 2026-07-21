@@ -21,7 +21,7 @@ router.post('/register', async (req, res) => {
     if (existing.length > 0)
       return res.status(409).json({ error: 'An account with this email already exists' });
 
-    const hash = await bcrypt.hash(password, 12);
+    const hash = await bcrypt.hash(password, 10);
     const { rows } = await pool.query(`
       INSERT INTO users (name, email, password_hash, role)
       VALUES ($1, $2, $3, 'student')
@@ -105,7 +105,7 @@ router.post('/reset-password', async (req, res) => {
     if (!resetRecord || new Date() > new Date(resetRecord.expires_at))
       return res.status(400).json({ error: 'Reset link is invalid or has expired (30 min limit)' });
 
-    const hash = await bcrypt.hash(password, 12);
+    const hash = await bcrypt.hash(password, 10);
     
     // Update the user's password
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, resetRecord.user_id]);

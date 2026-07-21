@@ -36,7 +36,7 @@ async function seedAdmin() {
     const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
     const adminName     = process.env.ADMIN_NAME     || 'Admin';
 
-    const hash = bcrypt.hashSync(adminPassword, 12);
+    const hash = bcrypt.hashSync(adminPassword, 10);
     await pool.query(
       `INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, 'admin')`,
       [adminName, adminEmail, hash]
