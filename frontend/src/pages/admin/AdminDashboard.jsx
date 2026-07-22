@@ -168,46 +168,48 @@ export default function AdminDashboard() {
             <p style={{color:'var(--text-faint)'}}>No requests match your filters.</p>
           </div>
         ) : (
-          <div className="card" style={{padding:0,overflow:'hidden'}}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Student</th>
-                  <th>Project</th>
-                  <th>Budget</th>
-                  <th>Meeting</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(r => (
-                  <tr key={r.id}>
-                    <td>
-                      <div style={{fontWeight:600,fontSize:'13px'}}>{r.student_name}</div>
-                      <div style={{fontSize:'11px',color:'var(--text-faint)'}}>{r.student_email}</div>
-                    </td>
-                    <td style={{fontWeight:600,fontSize:'13px'}}>{r.project_name}</td>
-                    <td style={{fontSize:'13px'}}>{fmtCurrency(r.currency, r.budget)}</td>
-                    <td style={{fontSize:'12px',color:'var(--text-faint)'}}>{fmtDate(r.preferred_date)} {r.preferred_time}</td>
-                    <td>{statusBadge(r.status)}</td>
-                    <td style={{fontSize:'11px',color:'var(--text-faint)'}}>{fmtDate(r.created_at)}</td>
-                    <td>
-                      {r.status === 'Pending' ? (
-                        <button className="btn btn-primary btn-sm" onClick={() => { setSelected(r); setDecision(''); setAdminNote(''); setConfDate(r.preferred_date || ''); setConfTime(r.preferred_time || ''); setDecisionMsg(''); }}>
-                          Review
-                        </button>
-                      ) : (
-                        <button className="btn btn-ghost btn-sm" onClick={() => { setSelected(r); setDecision(''); setAdminNote(''); setDecisionMsg(''); }}>
-                          Details
-                        </button>
-                      )}
-                    </td>
+          <div className="card" style={{padding:0, overflow:'hidden', width:'100%'}}>
+            <div className="table-responsive" style={{width:'100%', overflowX:'auto', WebkitOverflowScrolling:'touch', touchAction:'pan-x pan-y'}} onWheel={(e) => { if (e.deltaY && !e.shiftKey) e.currentTarget.scrollLeft += e.deltaY; }}>
+              <table className="data-table" style={{minWidth:'1050px', width:'100%', tableLayout:'fixed'}}>
+                <thead>
+                  <tr>
+                    <th style={{width:'180px', minWidth:'180px'}}>Student</th>
+                    <th style={{width:'260px', minWidth:'260px'}}>Project</th>
+                    <th style={{width:'110px', minWidth:'110px', whiteSpace:'nowrap'}}>Budget</th>
+                    <th style={{width:'150px', minWidth:'150px', whiteSpace:'nowrap'}}>Meeting</th>
+                    <th style={{width:'120px', minWidth:'120px', whiteSpace:'nowrap'}}>Status</th>
+                    <th style={{width:'120px', minWidth:'120px', whiteSpace:'nowrap'}}>Date</th>
+                    <th style={{width:'110px', minWidth:'110px', whiteSpace:'nowrap'}}>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filtered.map(r => (
+                    <tr key={r.id}>
+                      <td style={{width:'180px', minWidth:'180px'}}>
+                        <div style={{fontWeight:600,fontSize:'13px'}}>{r.student_name}</div>
+                        <div style={{fontSize:'11px',color:'var(--text-faint)',wordBreak:'break-all'}}>{r.student_email}</div>
+                      </td>
+                      <td style={{fontWeight:600,fontSize:'13px',width:'260px',minWidth:'260px',wordBreak:'break-word'}}>{r.project_name}</td>
+                      <td style={{fontSize:'13px',whiteSpace:'nowrap',width:'110px'}}>{fmtCurrency(r.currency, r.budget)}</td>
+                      <td style={{fontSize:'12px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'150px'}}>{fmtDate(r.preferred_date)} {r.preferred_time}</td>
+                      <td style={{whiteSpace:'nowrap',width:'120px'}}>{statusBadge(r.status)}</td>
+                      <td style={{fontSize:'11px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'120px'}}>{fmtDate(r.created_at)}</td>
+                      <td style={{whiteSpace:'nowrap',width:'110px'}}>
+                        {r.status === 'Pending' ? (
+                          <button className="btn btn-primary btn-sm" onClick={() => { setSelected(r); setDecision(''); setAdminNote(''); setConfDate(r.preferred_date || ''); setConfTime(r.preferred_time || ''); setDecisionMsg(''); }}>
+                            Review
+                          </button>
+                        ) : (
+                          <button className="btn btn-ghost btn-sm" onClick={() => { setSelected(r); setDecision(''); setAdminNote(''); setDecisionMsg(''); }}>
+                            Details
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </main>

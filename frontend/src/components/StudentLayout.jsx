@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import JobZenLogo from './JobZenLogo';
+import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X, User } from 'lucide-react';
 
 export default function StudentLayout({ children, title, subtitle }) {
   const { user, token } = useContext(AuthContext);
@@ -10,61 +11,111 @@ export default function StudentLayout({ children, title, subtitle }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
 
-  // If sidebar is open on mobile and route changes, close the sidebar
+  // Close sidebar on mobile navigation
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
   if (!token) return null;
 
+  const toggleSidebar = (e) => {
+    e.stopPropagation();
+    setIsSidebarOpen((prev) => !prev);
+  };
+
+  const closeSidebar = () => {
+    if (isSidebarOpen) setIsSidebarOpen(false);
+  };
+
   return (
     <div className="app-layout">
-      {/* ── Sidebar ── */}
+      {/* ── Mobile Sidebar Overlay Backdrop ── */}
+      <div 
+        className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`} 
+        onClick={closeSidebar}
+        aria-hidden="true"
+      />
+
+      {/* ── Left Sidebar Navigation ── */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: window.innerWidth > 1024 ? 'block' : 'none' }}>
-          <Link to="/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
+        <div className="sidebar-header">
+          <Link to="/dashboard" onClick={closeSidebar} className="sidebar-logo-link">
+            <JobZenLogo theme={theme} size="sm" />
+          </Link>
+          <button 
+            className="sidebar-close-btn" 
+            onClick={toggleSidebar}
+            aria-label="Close Navigation Menu"
+          >
+            <X size={20} />
+          </button>
         </div>
+
         <nav className="sidebar-nav">
-          <Link to="/dashboard" className={`sidebar-item ${location.pathname === '/dashboard' ? 'active' : ''}`}>
-             My Requests
+          <Link 
+            to="/dashboard" 
+            className={`sidebar-item ${location.pathname === '/dashboard' ? 'active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <LayoutDashboard className="sidebar-icon" size={18} />
+            <span>My Requests</span>
           </Link>
-          <Link to="/request" className={`sidebar-item ${location.pathname === '/request' ? 'active' : ''}`}>
-             New Request
+
+          <Link 
+            to="/request" 
+            className={`sidebar-item ${location.pathname === '/request' ? 'active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <PlusCircle className="sidebar-icon" size={18} />
+            <span>New Request</span>
           </Link>
-          <Link to="/browse" className={`sidebar-item ${location.pathname === '/browse' ? 'active' : ''}`}>
-             Projects
+
+          <Link 
+            to="/browse" 
+            className={`sidebar-item ${location.pathname === '/browse' ? 'active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <FolderKanban className="sidebar-icon" size={18} />
+            <span>Projects</span>
           </Link>
         </nav>
       </aside>
 
-      {/* ── Main ── */}
-      <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
-        <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', flexDirection: window.innerWidth <= 1024 ? 'column' : 'row', alignItems: window.innerWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
-            <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
-              <button 
-                className="mobile-menu-btn" 
-                onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-                style={{background:'none',border:'none',color:'var(--text-primary)',fontSize:'1.5rem',cursor:'pointer',marginTop:'-4px'}}
-              >
-                ☰
-              </button>
-              <Link to="/dashboard" style={{ display: window.innerWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
-            </div>
-            <div>
-              <h1 className="page-title" style={{margin:0}}>{title}</h1>
-              {subtitle && <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px',marginBottom:0}}>{subtitle}</p>}
+      {/* ── Main Content Area ── */}
+      <main className="main-content">
+        {/* Sticky Top Header */}
+        <header className="topbar">
+          <div className="topbar-left">
+            <button 
+              className="mobile-menu-btn" 
+              onClick={toggleSidebar}
+              aria-label="Toggle Navigation Drawer"
+            >
+              <Menu size={22} />
+            </button>
+            
+            <div className="topbar-title-group">
+              <h1 className="page-title">{title}</h1>
+              {subtitle && <p className="page-subtitle">{subtitle}</p>}
             </div>
           </div>
-          <div style={{position:'absolute', top:0, right:0}}>
-            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-              {user?.name?.[0]?.toUpperCase() || 'U'}
+
+          <div className="topbar-right">
+            <button 
+              onClick={() => navigate('/profile')} 
+              className="topbar-profile-btn" 
+              title={user?.name || "Profile"}
+              aria-label="User Profile"
+            >
+              <span className="profile-avatar-initial">
+                {user?.name?.[0]?.toUpperCase() || 'U'}
+              </span>
             </button>
           </div>
-        </div>
+        </header>
         
-        {/* Child Content rendered below topbar */}
-        <div style={{marginTop: '20px'}}>
+        {/* Body Content */}
+        <div className="page-container">
           {children}
         </div>
       </main>

@@ -128,34 +128,36 @@ export default function AdminCatalog() {
             <p style={{color:'var(--text-faint)'}}>No catalog projects yet. Add the first one!</p>
           </div>
         ) : (
-          <div className="card" style={{padding:0,overflow:'hidden'}}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Domain</th>
-                  <th>Difficulty</th>
-                  <th>Duration</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(items || []).map(p => (
-                  <tr key={p.id}>
-                    <td style={{fontWeight:600}}>{p.title}</td>
-                    <td><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',background:'var(--orange-soft)',color:'var(--orange)',padding:'3px 8px',borderRadius:'99px'}}>{p.domain}</span></td>
-                    <td style={{fontSize:'12px',color:'var(--text-faint)'}}>{p.difficulty}</td>
-                    <td style={{fontSize:'12px',color:'var(--text-faint)'}}>{p.estimated_duration || '—'}</td>
-                    <td>
-                      <div style={{display:'flex',gap:'8px'}}>
-                        <button className="btn btn-ghost btn-sm" onClick={() => openEdit(p)}>Edit</button>
-                        <button className="btn btn-ghost btn-sm" style={{color:'var(--red)'}} onClick={() => handleDelete(p.id)}>Delete</button>
-                      </div>
-                    </td>
+          <div className="card" style={{padding:0, overflow:'hidden', width:'100%'}}>
+            <div className="table-responsive" style={{width:'100%', overflowX:'auto', WebkitOverflowScrolling:'touch', touchAction:'pan-x pan-y'}} onWheel={(e) => { if (e.deltaY && !e.shiftKey) e.currentTarget.scrollLeft += e.deltaY; }}>
+              <table className="data-table" style={{minWidth:'780px', width:'100%', tableLayout:'fixed'}}>
+                <thead>
+                  <tr>
+                    <th style={{width:'240px', minWidth:'240px'}}>Title</th>
+                    <th style={{width:'150px', minWidth:'150px', whiteSpace:'nowrap'}}>Domain</th>
+                    <th style={{width:'130px', minWidth:'130px', whiteSpace:'nowrap'}}>Difficulty</th>
+                    <th style={{width:'130px', minWidth:'130px', whiteSpace:'nowrap'}}>Duration</th>
+                    <th style={{width:'130px', minWidth:'130px', whiteSpace:'nowrap'}}>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(items || []).map(p => (
+                    <tr key={p.id}>
+                      <td style={{fontWeight:600,width:'240px',minWidth:'240px',wordBreak:'break-word'}}>{p.title}</td>
+                      <td style={{whiteSpace:'nowrap',width:'150px'}}><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',background:'var(--orange-soft)',color:'var(--orange)',padding:'3px 8px',borderRadius:'99px'}}>{p.domain}</span></td>
+                      <td style={{fontSize:'12px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'130px'}}>{p.difficulty}</td>
+                      <td style={{fontSize:'12px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'130px'}}>{p.estimated_duration || '—'}</td>
+                      <td style={{whiteSpace:'nowrap',width:'130px'}}>
+                        <div style={{display:'flex',gap:'8px'}}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(p)}>Edit</button>
+                          <button className="btn btn-ghost btn-sm" style={{color:'var(--red)'}} onClick={() => handleDelete(p.id)}>Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </main>
