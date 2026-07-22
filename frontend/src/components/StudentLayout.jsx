@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import JobZenLogo from './JobZenLogo';
-import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X } from 'lucide-react';
 
 export default function StudentLayout({ children, title, subtitle }) {
   const { user, token } = useContext(AuthContext);

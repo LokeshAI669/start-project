@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
-import { Eye, Calendar, DollarSign, Clock } from 'lucide-react';
+import { Eye, Calendar, Clock } from 'lucide-react';
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 const fmtCurrency = (c, b) => `${c || '₹'}${Number(b || 0).toLocaleString('en-IN')}`;
