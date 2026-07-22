@@ -3327,7 +3327,7 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
 @media (max-width: 767px) {
   .sidebar {
     transform: translateX(-100%);
-    width: 280px;
+    width: 260px;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
   }
 
@@ -3345,38 +3345,163 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
 
   .mobile-menu-btn {
     display: block;
+    padding: 4px;
+  }
+
+  /* Compact Sticky Header on Mobile */
+  .topbar {
+    height: 54px;
+    padding: 0 12px;
+  }
+
+  .page-title {
+    font-size: 16px;
+  }
+
+  .page-subtitle {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    margin-top: 1px;
+  }
+
+  .topbar-profile-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
   }
 
   .page-container {
-    padding: 16px;
+    padding: 12px 10px;
   }
 
+  /* Compact 2x2 Stat Cards Grid on Mobile */
   .stat-cards-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
 
   .stat-card {
-    padding: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+
+  .stat-card-header {
+    margin-bottom: 4px;
+  }
+
+  .stat-card-label {
+    font-size: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .stat-card-icon-wrapper {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+  }
+
+  .stat-card-icon-wrapper svg {
+    width: 13px;
+    height: 13px;
   }
 
   .stat-card-value {
-    font-size: 1.6rem;
+    font-size: 1.25rem;
+    font-weight: 700;
   }
 
+  /* Compact Dashboard Content Card on Mobile */
   .dashboard-content-card {
-    padding: 16px;
+    padding: 12px 10px;
+    border-radius: 10px;
   }
 
   .dashboard-section-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 15px;
+  }
+
+  .section-subtitle {
+    font-size: 11px;
   }
 
   .btn-create-request {
     width: 100%;
     justify-content: center;
+    padding: 7px 12px;
+    font-size: 13px;
+    min-height: 36px;
+    border-radius: 6px;
+  }
+
+  /* Compact Mobile Stacked Cards */
+  .mobile-stacked-view {
+    gap: 10px;
+  }
+
+  .request-card-mobile {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .request-card-mobile-header {
+    gap: 8px;
+  }
+
+  .request-card-mobile-title {
+    font-size: 13.5px;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  .status-badge {
+    padding: 2px 8px;
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  .status-badge .status-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .request-card-mobile-body {
+    padding: 6px 0;
+    gap: 6px;
+  }
+
+  .request-card-mobile-field {
+    font-size: 12px;
+  }
+
+  .field-label {
+    font-size: 11px;
+  }
+
+  .field-value {
+    font-size: 12px;
+  }
+
+  .field-value.budget-highlight {
+    font-size: 13px;
+  }
+
+  .btn-mobile-view {
+    min-height: 36px;
+    height: 36px;
+    font-size: 12px;
+    border-radius: 6px;
   }
 
   .desktop-tablet-view { display: none; }
