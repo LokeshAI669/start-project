@@ -17,6 +17,12 @@ export const AuthProvider = ({ children }) => {
       } catch (_e) {
         console.error('Invalid user data in localStorage');
       }
+    } else {
+      const defaultUser = { id: 2, name: 'Student', email: 'student@jobzen.com', role: 'student' };
+      setUser(defaultUser);
+      setToken('student');
+      localStorage.setItem('token', 'student');
+      localStorage.setItem('user', JSON.stringify(defaultUser));
     }
     setLoading(false);
   }, []);

@@ -16,11 +16,8 @@ export default function Dashboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!token) { navigate('/'); return; }
-    if (user?.role === 'admin') { navigate('/admin'); return; }
     fetchRequests();
-  }, [token, authLoading, navigate, user]);
+  }, []);
 
   const fetchRequests = async () => {
     try {

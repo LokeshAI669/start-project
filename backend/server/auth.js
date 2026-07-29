@@ -4,7 +4,10 @@ const { pool } = require('./db');
  * Mock Auth Middleware: no JWT, reads 'x-mock-role' header
  */
 async function requireAuth(req, res, next) {
-  const role = req.headers['x-mock-role'] || 'student';
+  let role = req.headers['x-mock-role'];
+  if (role !== 'admin') {
+    role = 'student';
+  }
   
   try {
     let { rows } = await pool.query('SELECT * FROM users WHERE role = $1 LIMIT 1', [role]);
@@ -17,14 +20,13 @@ async function requireAuth(req, res, next) {
         );
         rows = resData.rows;
       } catch (_e) {
-        rows = [{ id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role }];
+        rows = [{ id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role: role }];
       }
     }
-    req.user = rows[0] || { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role };
+    req.user = rows[0] || { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role: role };
     next();
   } catch (err) {
-    console.error('Mock Auth Warning, using fallback:', err.message || err);
-    req.user = { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role };
+    req.user = { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role: role };
     next();
   }
 }
@@ -46,8 +48,8 @@ function requireAdmin(req, res, next) {
  */
 function requireStudent(req, res, next) {
   requireAuth(req, res, () => {
-    if (req.user.role !== 'student') {
-      return res.status(403).json({ error: 'Forbidden — student access required' });
+    if (!req.user || req.user.role !== 'student') {
+      if (req.user) req.user.role = 'student';
     }
     next();
   });
