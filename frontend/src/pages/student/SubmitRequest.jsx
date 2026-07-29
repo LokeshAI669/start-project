@@ -149,7 +149,7 @@ export default function SubmitRequest() {
                 {attachment ? (
                   <div style={{display:'flex',alignItems:'center',gap:'10px',padding:'10px 14px',background:'var(--bg-elevated)',borderRadius:'8px',border:'1px solid var(--border)'}}>
                     <span style={{flex:1,fontSize:'13px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{attachment.name}</span>
-                    <button type="button" onClick={() => setAttachment(null)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-faint)'}}></button>
+                    <button type="button" onClick={() => setAttachment(null)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-faint)',fontSize:'18px',lineHeight:1}}>✕</button>
                   </div>
                 ) : (
                   <label style={{display:'flex',alignItems:'center',gap:'8px',padding:'12px 16px',border:'2px dashed var(--border)',borderRadius:'8px',cursor:'pointer',color:'var(--text-faint)',fontSize:'13px',transition:'all 0.2s'}}>

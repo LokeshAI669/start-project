@@ -27,7 +27,7 @@ export default function ProjectDetails() {
     if (!token) { navigate('/login'); return; }
     if (!projectId) { navigate('/dashboard'); return; }
     fetchProject();
-  }, [token, projectId]);
+  }, [token, projectId, navigate]);
 
   const fetchProject = async () => {
     try {

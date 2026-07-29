@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS projects (
   student_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   project_name    TEXT NOT NULL,
   budget          NUMERIC NOT NULL,
-  currency        TEXT NOT NULL DEFAULT '₦',
+  currency        TEXT NOT NULL DEFAULT '₹',
   description     TEXT NOT NULL,
   preferred_date  TEXT NOT NULL,
   preferred_time  TEXT NOT NULL,

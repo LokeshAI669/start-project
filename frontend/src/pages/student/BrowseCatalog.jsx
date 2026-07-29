@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 import CustomSelect from '../../components/CustomSelect';
 import StudentLayout from '../../components/StudentLayout';
+
 const difficultyColor = (d) => {
   if (d === 'Beginner')     return 'var(--green)';
   if (d === 'Advanced')     return 'var(--red)';
@@ -21,6 +22,7 @@ export default function BrowseCatalog() {
   const [search, setSearch]   = useState('');
   const [domain, setDomain]   = useState('');
   const [loading, setLoading] = useState(true);
+  const [searchTrigger, setSearchTrigger] = useState(0);
   const LIMIT = 12;
 
   useEffect(() => { if (!token) navigate('/login'); }, [token, navigate]);
@@ -29,7 +31,7 @@ export default function BrowseCatalog() {
     api('GET', '/api/catalog/domains').then(setDomains).catch(() => {});
   }, []);
 
-  useEffect(() => { fetchItems(); }, [page, domain]);
+  useEffect(() => { fetchItems(); }, [page, domain, searchTrigger]);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -53,7 +55,7 @@ export default function BrowseCatalog() {
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchItems();
+    setSearchTrigger(t => t + 1);
   };
 
   return (

@@ -19,7 +19,7 @@ export default function Dashboard() {
     if (!token) { navigate('/login'); return; }
     if (user?.role === 'admin') { navigate('/admin'); return; }
     fetchRequests();
-  }, [token, navigate, user?.role]);
+  }, [token, navigate, user]);
 
   const fetchRequests = async () => {
     try {

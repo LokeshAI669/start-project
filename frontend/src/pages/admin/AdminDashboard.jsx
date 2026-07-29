@@ -29,13 +29,20 @@ export default function AdminDashboard() {
   const [confTime, setConfTime]   = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [decisionMsg, setDecisionMsg] = useState('');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!token) { navigate('/admin-login'); return; }
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
     fetchAll();
-  }, [token, navigate, user?.role]);
+  }, [token, navigate, user]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -96,7 +103,7 @@ export default function AdminDashboard() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: window.innerWidth > 1024 ? 'block' : 'none' }}>
+        <div className="sidebar-logo" style={{ display: windowWidth > 1024 ? 'block' : 'none' }}>
           <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
@@ -108,7 +115,7 @@ export default function AdminDashboard() {
       {/* Main */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', flexDirection: window.innerWidth <= 1024 ? 'column' : 'row', alignItems: window.innerWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+          <div style={{display:'flex', flexDirection: windowWidth <= 1024 ? 'column' : 'row', alignItems: windowWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
             <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
               <button 
                 className="mobile-menu-btn" 
@@ -117,7 +124,7 @@ export default function AdminDashboard() {
               >
                 ☰
               </button>
-              <Link to="/admin" style={{ display: window.innerWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/admin" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title">Admin Dashboard</h1>
@@ -125,7 +132,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
-            <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: window.innerWidth > 600 ? 'block' : 'none'}}>Export CSV</button>
+            <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: windowWidth > 600 ? 'block' : 'none'}}>Export CSV</button>
             <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
               {user?.name?.[0]?.toUpperCase() || 'A'}
             </button>

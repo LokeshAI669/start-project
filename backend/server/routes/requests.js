@@ -61,7 +61,7 @@ router.post('/', requireStudent, upload.single('attachment'), async (req, res) =
       req.user.id, 
       project_name.trim(), 
       Number(budget), 
-      currency || '₦',
+      currency || '₹',
       description.trim(), 
       preferred_date, 
       preferred_time,
