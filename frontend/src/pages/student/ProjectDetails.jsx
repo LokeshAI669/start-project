@@ -24,11 +24,9 @@ export default function ProjectDetails() {
   const [showReschedule, setShowReschedule] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!token) { navigate('/'); return; }
     if (!projectId) { navigate('/dashboard'); return; }
     fetchProject();
-  }, [token, authLoading, projectId, navigate]);
+  }, [projectId, navigate]);
 
   const fetchProject = async () => {
     try {

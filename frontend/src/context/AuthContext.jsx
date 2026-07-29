@@ -3,29 +3,24 @@ import React, { createContext, useState, useEffect } from 'react';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      if (stored) return JSON.parse(stored);
+    } catch (_e) {}
+    const defaultUser = { id: 2, name: 'Student', email: 'student@jobzen.com', role: 'student' };
+    localStorage.setItem('user', JSON.stringify(defaultUser));
+    return defaultUser;
+  });
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      } catch (_e) {
-        console.error('Invalid user data in localStorage');
-      }
-    } else {
-      const defaultUser = { id: 2, name: 'Student', email: 'student@jobzen.com', role: 'student' };
-      setUser(defaultUser);
-      setToken('student');
-      localStorage.setItem('token', 'student');
-      localStorage.setItem('user', JSON.stringify(defaultUser));
-    }
-    setLoading(false);
-  }, []);
+  const [token, setToken] = useState(() => {
+    const stored = localStorage.getItem('token');
+    if (stored) return stored;
+    localStorage.setItem('token', 'student');
+    return 'student';
+  });
+
+  const [loading, setLoading] = useState(false);
 
   const setRole = (role) => {
     const mockUser = {

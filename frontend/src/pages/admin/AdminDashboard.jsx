@@ -38,12 +38,14 @@ export default function AdminDashboard() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const { setRole } = useContext(AuthContext);
+
   useEffect(() => {
-    if (authLoading) return;
-    if (!token) { navigate('/'); return; }
-    if (user?.role !== 'admin') { navigate('/'); return; }
+    if (!user || user.role !== 'admin') {
+      setRole('admin');
+    }
     fetchAll();
-  }, [token, authLoading, navigate, user]);
+  }, []);
 
   const fetchAll = async () => {
     setLoading(true);
