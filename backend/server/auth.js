@@ -9,20 +9,23 @@ async function requireAuth(req, res, next) {
   try {
     let { rows } = await pool.query('SELECT * FROM users WHERE role = $1 LIMIT 1', [role]);
     
-    if (rows.length === 0) {
-      if (role === 'student') {
-        const resData = await pool.query(`INSERT INTO users (name, email, password_hash, role) VALUES ('Mock Student', 'student@mock.com', 'mock', 'student') RETURNING *`);
+    if (!rows || rows.length === 0) {
+      try {
+        const resData = await pool.query(
+          `INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, 'mock', $3) RETURNING *`,
+          [role === 'admin' ? 'Admin' : 'Student', role === 'admin' ? 'admin@jobzen.com' : 'student@jobzen.com', role]
+        );
         rows = resData.rows;
-      } else if (role === 'admin') {
-        const resData = await pool.query(`INSERT INTO users (name, email, password_hash, role) VALUES ('Mock Admin', 'admin@mock.com', 'mock', 'admin') RETURNING *`);
-        rows = resData.rows;
+      } catch (_e) {
+        rows = [{ id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role }];
       }
     }
-    req.user = rows[0];
+    req.user = rows[0] || { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role };
     next();
   } catch (err) {
-    console.error('Mock Auth Error:', err);
-    return res.status(500).json({ error: 'Internal Auth Error' });
+    console.error('Mock Auth Warning, using fallback:', err.message || err);
+    req.user = { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role };
+    next();
   }
 }
 
