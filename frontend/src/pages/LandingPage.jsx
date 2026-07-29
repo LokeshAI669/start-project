@@ -119,7 +119,7 @@ export default function LandingPage() {
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <div className="nav-divider"></div>
-          <button onClick={() => { setRole('student'); navigate('/dashboard'); }} className="btn btn-primary btn-sm">Enter as Student</button>
+          <button onClick={() => navigate('/request')} className="btn btn-primary btn-sm">Submit Request</button>
         </div>
       </nav>
 
@@ -136,8 +136,9 @@ export default function LandingPage() {
             <div style={{display:'inline-block', padding:'10px 18px', background:'rgba(255, 255, 255, 0.03)', borderRadius:'10px', border:'1px solid var(--border)', color:'var(--text-primary)', fontSize:'14px', fontWeight:'500', marginBottom:'32px', marginTop:'12px', letterSpacing:'0.02em'}}>
               We have successfully delivered projects to over 250+ students.
             </div>
-            <div className="hero-ctas">
-              <button onClick={() => { setRole('student'); navigate('/dashboard'); }} className="btn btn-primary btn-lg">Enter as Student</button>
+            <div className="hero-ctas" style={{display:'flex',gap:'12px',flexWrap:'wrap'}}>
+              <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg">Submit Request →</button>
+              <button onClick={() => navigate('/browse')} className="btn btn-outline btn-lg">Browse Projects</button>
             </div>
             <div className="hero-trust" style={{display:'flex',alignItems:'center',gap:'20px',marginTop:'36px',flexWrap:'wrap'}}>
               <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
@@ -320,7 +321,7 @@ export default function LandingPage() {
           <h2 className="section-title reveal visible" style={{fontSize:'clamp(2rem,4vw,3rem)'}}>Ready to get your project <span className="gradient-text-cta">approved?</span></h2>
           <p className="section-desc reveal visible" style={{margin:'0 auto 36px',maxWidth:'420px',fontSize:'1rem'}}>Join students already using JobZen to move faster and more professionally.</p>
           <div className="cta-glow-btn reveal visible">
-            <button onClick={() => { setRole('student'); navigate('/dashboard'); }} className="btn btn-primary btn-lg" style={{fontSize:'16px',padding:'16px 40px'}}>Enter as Student</button>
+            <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg" style={{fontSize:'16px',padding:'16px 40px'}}>Submit Request →</button>
           </div>
         </div>
       </section>

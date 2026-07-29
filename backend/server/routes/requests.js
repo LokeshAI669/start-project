@@ -40,25 +40,35 @@ router.get('/mine', requireStudent, async (req, res) => {
   }
 });
 
-// POST /api/requests
-router.post('/', requireStudent, upload.single('attachment'), async (req, res) => {
+// POST /api/requests (Public submission)
+router.post('/', upload.single('attachment'), async (req, res) => {
   try {
-    const { project_name, budget, currency, description, preferred_date, preferred_time } = req.body;
+    const { name, student_name, project_name, budget, currency, description, preferred_date, preferred_time, email } = req.body;
 
+    const requesterName = (name || student_name || '').trim();
+    const requesterEmail = (email || '').trim();
+
+    if (!requesterName)
+      return res.status(400).json({ error: 'Full Name is required' });
+    if (!requesterEmail || !/\S+@\S+\.\S+/.test(requesterEmail))
+      return res.status(400).json({ error: 'Valid Email address is required' });
     if (!project_name || budget === undefined || budget === null || budget === '' || !description || !preferred_date || !preferred_time)
       return res.status(400).json({ error: 'All fields are required' });
     if (isNaN(Number(budget)) || Number(budget) < 0)
       return res.status(400).json({ error: 'Budget cannot be negative' });
 
     const attachmentUrl = req.file ? '/uploads/' + req.file.filename : null;
+    const studentId = req.user ? req.user.id : null;
 
     const { rows } = await pool.query(`
       INSERT INTO projects
-        (student_id, project_name, budget, currency, description, preferred_date, preferred_time, status, attachment_url, catalog_project_id)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending', $8, $9)
+        (student_id, student_name, email, project_name, budget, currency, description, preferred_date, preferred_time, status, attachment_url, catalog_project_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'Pending', $10, $11)
       RETURNING *
     `, [
-      req.user.id, 
+      studentId,
+      requesterName,
+      requesterEmail,
       project_name.trim(), 
       Number(budget), 
       currency || '₹',
@@ -70,11 +80,10 @@ router.post('/', requireStudent, upload.single('attachment'), async (req, res) =
     ]);
 
     const project = rows[0];
-    const { rows: studentRows } = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-    const student = studentRows[0];
+    const student = { name: requesterName, email: requesterEmail };
 
-    await mailer.requestSubmitted(student, project).catch(e => console.error(e));
-    await mailer.notifyAdmin(student, project).catch(e => console.error(e));
+    await mailer.requestSubmitted(student, project).catch(e => console.error('[MAIL submission err]', e));
+    await mailer.notifyAdmin(student, project).catch(e => console.error('[MAIL notifyAdmin err]', e));
 
     if (req.io) req.io.emit('new_request', fmt(project));
 
@@ -111,7 +120,7 @@ router.patch('/:id/reschedule', requireStudent, async (req, res) => {
 
     const updated = updatedRows[0];
     const { rows: studentRows } = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-    const student = studentRows[0];
+    const student = studentRows[0] || { name: updated.student_name, email: updated.email };
     
     await mailer.notifyAdminReschedule(student, updated).catch(e => console.error(e));
     
@@ -131,8 +140,9 @@ router.get('/export', requireAdmin, async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT p.id, p.project_name, p.status, p.budget, p.currency, p.created_at,
-             u.name as student_name, u.email as student_email
-      FROM projects p JOIN users u ON p.student_id = u.id
+             COALESCE(NULLIF(p.student_name, ''), u.name, 'Visitor') as student_name,
+             COALESCE(NULLIF(p.email, ''), u.email, 'N/A') as student_email
+      FROM projects p LEFT JOIN users u ON p.student_id = u.id
       ORDER BY p.created_at DESC
     `);
     const fields = ['id', 'project_name', 'student_name', 'student_email', 'status', 'budget', 'currency', 'created_at'];
@@ -154,8 +164,10 @@ router.get('/all', requireAdmin, async (req, res) => {
     const { status, search } = req.query;
 
     let queryStr = `
-      SELECT p.*, u.name as student_name, u.email as student_email
-      FROM projects p JOIN users u ON p.student_id = u.id
+      SELECT p.*,
+             COALESCE(NULLIF(p.student_name, ''), u.name, 'Visitor') as student_name,
+             COALESCE(NULLIF(p.email, ''), u.email, 'N/A') as student_email
+      FROM projects p LEFT JOIN users u ON p.student_id = u.id
       ORDER BY p.created_at DESC
     `;
     
@@ -167,9 +179,9 @@ router.get('/all', requireAdmin, async (req, res) => {
     if (search) {
       const q = search.toLowerCase();
       filteredRows = filteredRows.filter(r =>
-        r.student_name.toLowerCase().includes(q) ||
-        r.student_email.toLowerCase().includes(q) ||
-        r.project_name.toLowerCase().includes(q)
+        (r.student_name && r.student_name.toLowerCase().includes(q)) ||
+        (r.student_email && r.student_email.toLowerCase().includes(q)) ||
+        (r.project_name && r.project_name.toLowerCase().includes(q))
       );
     }
 

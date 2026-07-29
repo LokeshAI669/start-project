@@ -6,12 +6,13 @@ import { api } from '../../utils/api';
 import StudentLayout from '../../components/StudentLayout';
 
 export default function SubmitRequest() {
-  const { token, loading: authLoading } = useContext(AuthContext);
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
 
   const [step, setStep] = useState(1);
+  const [name, setName]               = useState('');
+  const [email, setEmail]             = useState('');
   const [projectName, setProjectName] = useState('');
   const [budget, setBudget]           = useState('');
   const [currency, setCurrency]       = useState('₹');
@@ -22,11 +23,6 @@ export default function SubmitRequest() {
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!token) navigate('/');
-  }, [token, authLoading, navigate]);
 
   useEffect(() => {
     if (catalogId) {
@@ -50,7 +46,10 @@ export default function SubmitRequest() {
         .finally(() => setLoading(false));
     }
   }, [catalogId]);
+
   const validateStep1 = () => {
+    if (!name.trim()) return setError('Full Name is required.'), false;
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) return setError('Valid Email address is required.'), false;
     if (!projectName.trim()) return setError('Project name is required.'), false;
     if (budget === '' || isNaN(Number(budget)) || Number(budget) < 0) return setError('Enter a valid budget.'), false;
     if (!description.trim() || description.length < 20) return setError('Description must be at least 20 characters.'), false;
@@ -71,6 +70,8 @@ export default function SubmitRequest() {
     setLoading(true);
     try {
       const formData = new FormData();
+      formData.append('name', name.trim());
+      formData.append('email', email.trim());
       formData.append('project_name', projectName.trim());
       formData.append('budget', Number(budget));
       formData.append('currency', currency);
@@ -90,14 +91,17 @@ export default function SubmitRequest() {
   };
 
   if (success) return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)'}}>
-      <div className="card" style={{padding:'48px',textAlign:'center',maxWidth:'440px'}}>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)',padding:'20px'}}>
+      <div className="card" style={{padding:'48px',textAlign:'center',maxWidth:'460px',width:'100%'}}>
         <div style={{fontSize:'3.5rem',marginBottom:'16px'}}></div>
         <h2 style={{marginBottom:'8px'}}>Request Submitted!</h2>
-        <p style={{color:'var(--text-faint)',marginBottom:'28px'}}>Your project request has been submitted. You'll receive an email confirmation shortly.</p>
-        <div style={{display:'flex',gap:'12px',justifyContent:'center'}}>
-          <Link to="/dashboard" className="btn btn-primary">View Dashboard</Link>
-          <button className="btn btn-ghost" onClick={() => { setSuccess(false); setStep(1); setProjectName(''); setBudget(''); setDescription(''); setPreferredDate(''); setPreferredTime(''); setAttachment(null); }}>Submit Another</button>
+        <p style={{color:'var(--text-faint)',marginBottom:'24px',lineHeight:'1.6'}}>
+          Thank you <strong>{name}</strong>. Your project request has been sent to our team.<br/>
+          We have sent a confirmation email to <strong>{email}</strong>.
+        </p>
+        <div style={{display:'flex',gap:'12px',justifyContent:'center',flexWrap:'wrap'}}>
+          <Link to="/" className="btn btn-primary">Return to Home</Link>
+          <button className="btn btn-ghost" onClick={() => { setSuccess(false); setStep(1); setName(''); setEmail(''); setProjectName(''); setBudget(''); setDescription(''); setPreferredDate(''); setPreferredTime(''); setAttachment(null); }}>Submit Another</button>
         </div>
       </div>
     </div>
@@ -120,7 +124,17 @@ export default function SubmitRequest() {
         <div className="card" style={{padding:'32px'}}>
           {step === 1 && (
             <>
-              <h3 style={{marginTop:0,marginBottom:'24px'}}>Step 1: Project Details</h3>
+              <h3 style={{marginTop:0,marginBottom:'24px'}}>Step 1: Your Info & Project Details</h3>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                <div className="form-group">
+                  <label className="form-label">Full Name *</label>
+                  <input className="form-input" type="text" placeholder="e.g. John Doe" value={name} onChange={e => setName(e.target.value)} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Email Address *</label>
+                  <input className="form-input" type="email" placeholder="e.g. john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
+                </div>
+              </div>
               <div className="form-group">
                 <label className="form-label">Project Name *</label>
                 <input className="form-input" type="text" placeholder="e.g. E-Commerce Mobile App" value={projectName} onChange={e => setProjectName(e.target.value)} />

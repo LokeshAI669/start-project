@@ -16,8 +16,6 @@ export default function StudentLayout({ children, title, subtitle }) {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
-  if (!token) return null;
-
   const toggleSidebar = (e) => {
     e.stopPropagation();
     setIsSidebarOpen((prev) => !prev);

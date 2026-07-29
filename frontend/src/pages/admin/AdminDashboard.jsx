@@ -224,8 +224,9 @@ export default function AdminDashboard() {
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={() => setSelected(null)}>
           <div className="card" style={{width:'100%',maxWidth:'520px',padding:'32px',maxHeight:'90vh',overflowY:'auto'}} onClick={e => e.stopPropagation()}>
             <h3 style={{marginTop:0,marginBottom:'4px'}}>{selected.project_name}</h3>
-            <div style={{fontSize:'12px',color:'var(--text-faint)',marginBottom:'20px'}}>
-              {selected.student_name} · {selected.student_email}
+            <div style={{fontSize:'13px',color:'var(--text-secondary)',marginBottom:'20px',background:'var(--bg-elevated)',padding:'10px 14px',borderRadius:'8px',border:'1px solid var(--border)'}}>
+              <div><strong>Requester:</strong> {selected.student_name}</div>
+              <div><strong>Email ID:</strong> <a href={`mailto:${selected.student_email || selected.email}`} style={{color:'var(--orange)'}}>{selected.student_email || selected.email}</a></div>
             </div>
 
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'20px'}}>

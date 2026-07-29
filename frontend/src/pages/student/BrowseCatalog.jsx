@@ -25,8 +25,6 @@ export default function BrowseCatalog() {
   const [searchTrigger, setSearchTrigger] = useState(0);
   const LIMIT = 12;
 
-  useEffect(() => { if (authLoading) return; if (!token) navigate('/'); }, [token, authLoading, navigate]);
-
   useEffect(() => {
     api('GET', '/api/catalog/domains').then(setDomains).catch(() => {});
   }, []);

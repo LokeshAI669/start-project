@@ -94,20 +94,24 @@ const mailer = {
   },
 
   // 2. Request submitted — student confirmation
-  async requestSubmitted(user, project) {
+  async requestSubmitted(student, project) {
+    const email = project.email || (student && student.email);
+    if (!email) return;
+    const name = (student && student.name) || project.student_name || 'there';
+
     const html = baseTemplate('Request Received', `
-      <h2>Request received!</h2>
-      <p>Hi ${user.name}, your project request is now under review.</p>
+      <h2>Request Received!</h2>
+      <p>Hi ${name}, thank you for submitting your project request.</p>
       <div class="highlight">
-        <p><strong>Project:</strong> ${project.project_name}</p>
-        <p><strong>Budget:</strong> ${project.currency}${Number(project.budget).toLocaleString()}</p>
+        <p><strong>Project Name:</strong> ${project.project_name}</p>
+        <p><strong>Budget:</strong> ${project.currency}${Number(project.budget).toLocaleString('en-IN')}</p>
         <p><strong>Preferred Meeting:</strong> ${project.preferred_date} at ${project.preferred_time}</p>
+        <p><strong>Contact Email:</strong> ${email}</p>
         <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
       </div>
-      <p>You'll receive an email once the admin reviews your request.</p>
-      <a href="${PLATFORM_URL}/dashboard" class="btn" style="color:#ffffff !important; text-decoration:none !important;">View Dashboard &rarr;</a>
+      <p>Our team will review your request and contact you at <strong>${email}</strong>.</p>
     `);
-    await send(user.email, `[${PLATFORM}] Request Received — ${project.project_name}`, html);
+    await send(email, `[${PLATFORM}] Request Received — ${project.project_name}`, html);
   },
 
   // 3. New request alert — admin
@@ -116,7 +120,7 @@ const mailer = {
     try {
       const { pool } = require('./db');
       const { rows } = await pool.query("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
-      if (rows.length > 0) adminEmail = rows[0].email;
+      if (rows.length > 0 && rows[0].email) adminEmail = rows[0].email;
     } catch (e) {
       console.error('[MAIL] Failed to get admin email from DB, using fallback');
     }
@@ -128,25 +132,36 @@ const mailer = {
       if (fs.existsSync(filePath)) {
         const fileName = project.attachment_url.split('/').pop().split('-').slice(1).join('-') || 'Attachment.pdf';
         attachments.push({ filename: fileName, path: filePath });
-        attachmentNote = `<p><strong>Attachment:</strong> A file was uploaded (attached to this email).</p>`;
+        attachmentNote = `<p><strong>Attachment:</strong> Uploaded file attached to this email (${fileName}).</p>`;
       } else {
-        attachmentNote = `<p><strong>Attachment:</strong> A file was uploaded but could not be retrieved from the server.</p>`;
+        attachmentNote = `<p><strong>Attachment:</strong> File uploaded (${project.attachment_url}).</p>`;
       }
     }
 
-    const html = baseTemplate('New Project Request', `
-      <h2>New request submitted</h2>
+    const studentName = (student && student.name) || project.student_name || 'Visitor';
+    const studentEmail = project.email || (student && student.email) || 'N/A';
+
+    const html = baseTemplate('New Project Request Details', `
+      <h2>New Project Request Submitted</h2>
+      <p>A new project request has been submitted with the following complete details:</p>
+      
       <div class="highlight">
-        <p><strong>Student:</strong> ${student.name} (${student.email})</p>
-        <p><strong>Project:</strong> ${project.project_name}</p>
-        <p><strong>Budget:</strong> ${project.currency}${Number(project.budget).toLocaleString()}</p>
-        <p><strong>Preferred Date:</strong> ${project.preferred_date} at ${project.preferred_time}</p>
-        <p><strong>Description:</strong> ${project.description}</p>
-        ${attachmentNote}
+        <p><strong>Requester Name:</strong> ${studentName}</p>
+        <p><strong>Contact Email ID:</strong> <a href="mailto:${studentEmail}">${studentEmail}</a></p>
+        <p><strong>Project Name:</strong> ${project.project_name}</p>
+        <p><strong>Budget:</strong> ${project.currency}${Number(project.budget).toLocaleString('en-IN')}</p>
+        <p><strong>Preferred Meeting:</strong> ${project.preferred_date} at ${project.preferred_time}</p>
       </div>
-      <a href="${PLATFORM_URL}/admin-login" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Review in Admin Panel &rarr;</a>
+
+      <div style="margin-top:20px; padding:16px; background:#ffffff; border:1px solid #e5e7eb; border-radius:6px;">
+        <h3 style="margin-top:0; color:#111827; font-size:16px;">Project Description</h3>
+        <p style="white-space:pre-wrap; margin-bottom:0; color:#374151;">${project.description}</p>
+      </div>
+
+      ${attachmentNote ? `<div style="margin-top:16px; padding:12px 16px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:6px; color:#1e40af;">${attachmentNote}</div>` : ''}
     `);
-    await send(adminEmail, `[${PLATFORM}] New Request: ${project.project_name}`, html, attachments);
+
+    await send(adminEmail, `[${PLATFORM}] New Request: ${project.project_name} from ${studentName} (${studentEmail})`, html, attachments);
   },
 
   // 4. Request accepted — student
