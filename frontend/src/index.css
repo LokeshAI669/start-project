@@ -3685,7 +3685,7 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
   flex: 1;
 }
 
- / *   P%P%  P R O J E C T   C A T A L O G   C A R D S   P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%  * / 
+/* P%P%  P R O J E C T   C A T A L O G   C A R D S   P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P%P% */
 
 /* PROJECT CATALOG CARDS */
 .project-catalog-card {
