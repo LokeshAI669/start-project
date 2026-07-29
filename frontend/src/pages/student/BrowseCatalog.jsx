@@ -96,19 +96,19 @@ export default function BrowseCatalog() {
         ) : (
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:'18px'}}>
             {items.map(p => (
-              <div key={p.id} className="card feature-card" style={{padding:'22px 24px',display:'flex',flexDirection:'column'}}>
+              <div key={p.id} className="project-catalog-card">
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'12px'}}>
                   <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'9px',textTransform:'uppercase',letterSpacing:'.08em',color:'var(--orange)',background:'var(--orange-soft)',border:'1px solid var(--orange-border)',padding:'3px 8px',borderRadius:'99px'}}>{p.domain}</span>
                   <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'9px',textTransform:'uppercase',letterSpacing:'.07em',color:difficultyColor(p.difficulty),fontWeight:600}}>{p.difficulty}</span>
                 </div>
-                <h3 style={{fontSize:'15px',fontWeight:700,margin:'0 0 8px',lineHeight:'1.4'}}>{p.title}</h3>
-                <p style={{fontSize:'13px',color:'var(--text-faint)',lineHeight:'1.6',flex:1,margin:'0 0 16px'}}>{p.short_description}</p>
+                <h3>{p.title}</h3>
+                <p>{p.short_description}</p>
                 {p.estimated_duration && (
                   <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',color:'var(--text-faint)',marginBottom:'16px'}}>
                     ⏱ {p.estimated_duration}
                   </div>
                 )}
-                <Link to={`/request?catalog_id=${p.id}`} className="btn btn-primary btn-sm" style={{width:'100%',textAlign:'center'}}>
+                <Link to={`/request?catalog_id=${p.id}`} className="btn btn-primary">
                   Request This Project →
                 </Link>
               </div>
