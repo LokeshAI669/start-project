@@ -13,7 +13,7 @@ export default function JobZenLogo({ theme = 'dark', size = 'md' }) {
   const orange    = '#FF7A00';
   const red       = '#E31A1A';
 
-  const scales = { sm: 0.55, md: 0.75, lg: 1.0 };
+  const scales = { sm: 0.45, md: 0.6, lg: 1.0 };
   const s = scales[size] || 0.75;
   const W = Math.round(200 * s);
   const H = Math.round(90  * s);
