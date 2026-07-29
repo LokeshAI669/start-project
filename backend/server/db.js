@@ -48,17 +48,25 @@ async function seedAdmin() {
   }
 }
 
+let initialized = false;
+
 /**
  * Initializes the database connection and runs setup.
  */
 async function initDB() {
+  if (initialized) return pool;
   try {
-    await pool.query('SELECT NOW()'); // test connection
+    await pool.query('SELECT 1'); // fast connection check
+    initialized = true;
     console.log('[DB] Connected to PostgreSQL.');
-    await applySchema();
-    await seedAdmin();
+    
+    // Run schema & admin seed in background without blocking response speed
+    applySchema().catch(err => console.error('[DB] Schema sync error:', err.message));
+    seedAdmin().catch(err => console.error('[DB] Seed admin error:', err.message));
+    
     return pool;
   } catch (err) {
+    initialized = false;
     console.error('[DB] Connection failed:', err);
     throw err;
   }

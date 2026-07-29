@@ -17,8 +17,9 @@ export default function SubmitRequest() {
   const [budget, setBudget]           = useState('');
   const [currency, setCurrency]       = useState('₹');
   const [description, setDescription] = useState('');
-  const [preferredDate, setPreferredDate] = useState('');
-  const [preferredTime, setPreferredTime] = useState('');
+  const [timeVal, setTimeVal]         = useState('10:00');
+  const [ampm, setAmpm]               = useState('AM');
+  const [preferredTime, setPreferredTime] = useState('10:00 AM');
   const [attachment, setAttachment]   = useState(null);
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -190,7 +191,37 @@ export default function SubmitRequest() {
               </div>
               <div className="form-group">
                 <label className="form-label">Preferred Meeting Time *</label>
-                <input className="form-input" type="time" value={preferredTime} onChange={e => setPreferredTime(e.target.value)} />
+                <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
+                  <input 
+                    className="form-input" 
+                    type="time" 
+                    style={{flex:1}}
+                    value={timeVal} 
+                    onChange={e => {
+                      const val = e.target.value;
+                      setTimeVal(val);
+                      setPreferredTime(val ? `${val} ${ampm}` : '');
+                    }} 
+                  />
+                  <select 
+                    className="form-input" 
+                    style={{width:'90px',fontWeight:700,textAlign:'center',background:'var(--bg-elevated)',cursor:'pointer'}}
+                    value={ampm} 
+                    onChange={e => {
+                      const val = e.target.value;
+                      setAmpm(val);
+                      setPreferredTime(timeVal ? `${timeVal} ${val}` : '');
+                    }}
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+                {preferredTime && (
+                  <div style={{fontSize:'11px',color:'var(--orange)',marginTop:'6px',fontWeight:600}}>
+                    Selected Time: {preferredTime}
+                  </div>
+                )}
               </div>
             </>
           )}
