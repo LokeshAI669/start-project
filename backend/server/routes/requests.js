@@ -45,10 +45,10 @@ router.post('/', requireStudent, upload.single('attachment'), async (req, res) =
   try {
     const { project_name, budget, currency, description, preferred_date, preferred_time } = req.body;
 
-    if (!project_name || !budget || !description || !preferred_date || !preferred_time)
+    if (!project_name || budget === undefined || budget === null || budget === '' || !description || !preferred_date || !preferred_time)
       return res.status(400).json({ error: 'All fields are required' });
-    if (isNaN(Number(budget)) || Number(budget) <= 0)
-      return res.status(400).json({ error: 'Budget must be a positive number' });
+    if (isNaN(Number(budget)) || Number(budget) < 0)
+      return res.status(400).json({ error: 'Budget cannot be negative' });
 
     const attachmentUrl = req.file ? '/uploads/' + req.file.filename : null;
 

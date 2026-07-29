@@ -6,7 +6,7 @@ import { api } from '../../utils/api';
 import StudentLayout from '../../components/StudentLayout';
 
 export default function SubmitRequest() {
-  const { token } = useContext(AuthContext);
+  const { token, loading: authLoading } = useContext(AuthContext);
   const navigate  = useNavigate();
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
@@ -24,8 +24,9 @@ export default function SubmitRequest() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (!token) navigate('/login');
-  }, [token, navigate]);
+    if (authLoading) return;
+    if (!token) navigate('/');
+  }, [token, authLoading, navigate]);
 
   useEffect(() => {
     if (catalogId) {
@@ -51,7 +52,7 @@ export default function SubmitRequest() {
   }, [catalogId]);
   const validateStep1 = () => {
     if (!projectName.trim()) return setError('Project name is required.'), false;
-    if (!budget || isNaN(Number(budget)) || Number(budget) <= 0) return setError('Enter a valid budget.'), false;
+    if (budget === '' || isNaN(Number(budget)) || Number(budget) < 0) return setError('Enter a valid budget.'), false;
     if (!description.trim() || description.length < 20) return setError('Description must be at least 20 characters.'), false;
     return true;
   };
@@ -136,7 +137,7 @@ export default function SubmitRequest() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Budget *</label>
-                  <input className="form-input" type="number" placeholder="e.g. 50000" value={budget} onChange={e => setBudget(e.target.value)} min="1" />
+                  <input className="form-input" type="number" placeholder="e.g. 50000" value={budget} onChange={e => setBudget(e.target.value)} min="0" />
                 </div>
               </div>
               <div className="form-group">

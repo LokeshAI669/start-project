@@ -32,7 +32,6 @@ async function start() {
   app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
   // ── API Routes ──────────────────────────────────────────────
-  app.use('/api', require('./routes/auth'));
   app.use('/api/requests', require('./routes/requests'));
   app.use('/api/catalog', require('./routes/catalog'));
 
@@ -41,8 +40,6 @@ async function start() {
 
   // ── Redirects for old email links that incorrectly point to port 3000 ──
   const FRONTEND_URL = process.env.FRONTEND_URL || process.env.PLATFORM_URL || 'https://start-project-mu.vercel.app';
-  app.get(['/reset-password', '/reset-password.html'], (req, res) => res.redirect(`${FRONTEND_URL}/reset-password${req._parsedUrl.search || ''}`));
-  app.get(['/login', '/login.html'], (req, res) => res.redirect(`${FRONTEND_URL}/login`));
   app.get(['/dashboard', '/dashboard.html'], (req, res) => res.redirect(`${FRONTEND_URL}/dashboard`));
   app.get(['/admin', '/admin.html'], (req, res) => res.redirect(`${FRONTEND_URL}/admin`));
 

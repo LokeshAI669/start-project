@@ -1,33 +1,28 @@
-const jwt = require('jsonwebtoken');
-
-const SECRET = process.env.JWT_SECRET || 'fallback_dev_secret_change_me';
+const { pool } = require('./db');
 
 /**
- * Sign a JWT for a user
+ * Mock Auth Middleware: no JWT, reads 'x-mock-role' header
  */
-function signToken(user) {
-  return jwt.sign(
-    { id: user.id, email: user.email, role: user.role, name: user.name },
-    SECRET,
-    { expiresIn: '7d' }
-  );
-}
-
-/**
- * Middleware: verify JWT and attach user to req.user
- */
-function requireAuth(req, res, next) {
-  const header = req.headers['authorization'];
-  if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized — no token provided' });
-  }
-
-  const token = header.slice(7);
+async function requireAuth(req, res, next) {
+  const role = req.headers['x-mock-role'] || 'student';
+  
   try {
-    req.user = jwt.verify(token, SECRET);
+    let { rows } = await pool.query('SELECT * FROM users WHERE role = $1 LIMIT 1', [role]);
+    
+    if (rows.length === 0) {
+      if (role === 'student') {
+        const resData = await pool.query(`INSERT INTO users (name, email, password_hash, role) VALUES ('Mock Student', 'student@mock.com', 'mock', 'student') RETURNING *`);
+        rows = resData.rows;
+      } else if (role === 'admin') {
+        const resData = await pool.query(`INSERT INTO users (name, email, password_hash, role) VALUES ('Mock Admin', 'admin@mock.com', 'mock', 'admin') RETURNING *`);
+        rows = resData.rows;
+      }
+    }
+    req.user = rows[0];
     next();
-  } catch {
-    return res.status(401).json({ error: 'Unauthorized — invalid or expired token' });
+  } catch (err) {
+    console.error('Mock Auth Error:', err);
+    return res.status(500).json({ error: 'Internal Auth Error' });
   }
 }
 
@@ -55,4 +50,4 @@ function requireStudent(req, res, next) {
   });
 }
 
-module.exports = { signToken, requireAuth, requireAdmin, requireStudent };
+module.exports = { requireAuth, requireAdmin, requireStudent };

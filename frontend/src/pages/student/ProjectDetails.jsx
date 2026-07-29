@@ -9,7 +9,7 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digi
 const fmtCurrency = (c, b) => `${c || '₹'}${Number(b).toLocaleString('en-IN')}`;
 
 export default function ProjectDetails() {
-  const { token } = useContext(AuthContext);
+  const { token, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
@@ -24,10 +24,11 @@ export default function ProjectDetails() {
   const [showReschedule, setShowReschedule] = useState(false);
 
   useEffect(() => {
-    if (!token) { navigate('/login'); return; }
+    if (authLoading) return;
+    if (!token) { navigate('/'); return; }
     if (!projectId) { navigate('/dashboard'); return; }
     fetchProject();
-  }, [token, projectId, navigate]);
+  }, [token, authLoading, projectId, navigate]);
 
   const fetchProject = async () => {
     try {

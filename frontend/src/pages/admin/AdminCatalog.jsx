@@ -11,7 +11,7 @@ const DIFFICULTIES = ['Beginner','Intermediate','Advanced'];
 const emptyForm = { title:'', domain:'', short_description:'', difficulty:'Intermediate', full_description:'', tech_stack:'', estimated_duration:'', objectives:'', prerequisites:'' };
 
 export default function AdminCatalog() {
-  const { token, user } = useContext(AuthContext);
+  const { token, user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [items, setItems]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,13 +31,14 @@ export default function AdminCatalog() {
   }, []);
 
   useEffect(() => {
-    if (!token) { navigate('/admin-login'); return; }
-    if (user?.role !== 'admin') { navigate('/dashboard'); return; }
+    if (authLoading) return;
+    if (!token) { navigate('/'); return; }
+    if (user?.role !== 'admin') { navigate('/'); return; }
     fetchItems();
-  }, [token, navigate, user]);
+  }, [token, user, authLoading, navigate]);
 
   const fetchItems = async () => {
-    setLoading(true);
+    setLoadingItems(true);
     try {
       const data = await api('GET', '/api/catalog?limit=100');
       const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);

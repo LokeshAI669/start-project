@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { LayoutList, Mail, Activity, CalendarDays, Sun, Moon } from 'lucide-react';
 
 import JobZenLogo from '../components/JobZenLogo';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const { setRole } = useContext(AuthContext);
 
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
 
@@ -116,8 +119,7 @@ export default function LandingPage() {
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <div className="nav-divider"></div>
-          <Link to="/login" className="btn btn-ghost btn-sm">Sign In</Link>
-          <Link to="/register" className="btn btn-primary btn-sm">Get Started →</Link>
+          <button onClick={() => { setRole('student'); navigate('/dashboard'); }} className="btn btn-primary btn-sm">Enter as Student</button>
         </div>
       </nav>
 
@@ -135,8 +137,7 @@ export default function LandingPage() {
               We have successfully delivered projects to over 250+ students.
             </div>
             <div className="hero-ctas">
-              <Link to="/register" className="btn btn-primary btn-lg">Start for Free →</Link>
-              <Link to="/login" className="btn btn-ghost  btn-lg">Sign In</Link>
+              <button onClick={() => { setRole('student'); navigate('/dashboard'); }} className="btn btn-primary btn-lg">Enter as Student</button>
             </div>
             <div className="hero-trust" style={{display:'flex',alignItems:'center',gap:'20px',marginTop:'36px',flexWrap:'wrap'}}>
               <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
@@ -319,7 +320,7 @@ export default function LandingPage() {
           <h2 className="section-title reveal visible" style={{fontSize:'clamp(2rem,4vw,3rem)'}}>Ready to get your project <span className="gradient-text-cta">approved?</span></h2>
           <p className="section-desc reveal visible" style={{margin:'0 auto 36px',maxWidth:'420px',fontSize:'1rem'}}>Join students already using JobZen to move faster and more professionally.</p>
           <div className="cta-glow-btn reveal visible">
-            <Link to="/register" className="btn btn-primary btn-lg" style={{fontSize:'16px',padding:'16px 40px'}}>Create Free Account →</Link>
+            <button onClick={() => { setRole('student'); navigate('/dashboard'); }} className="btn btn-primary btn-lg" style={{fontSize:'16px',padding:'16px 40px'}}>Enter as Student</button>
           </div>
         </div>
       </section>

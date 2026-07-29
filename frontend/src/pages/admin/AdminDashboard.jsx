@@ -14,7 +14,7 @@ const statusBadge = (s) => {
 };
 
 export default function AdminDashboard() {
-  const { user, token } = useContext(AuthContext);
+  const { user, token, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [stats, setStats]       = useState(null);
@@ -39,10 +39,11 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!token) { navigate('/admin-login'); return; }
-    if (user?.role !== 'admin') { navigate('/dashboard'); return; }
+    if (authLoading) return;
+    if (!token) { navigate('/'); return; }
+    if (user?.role !== 'admin') { navigate('/'); return; }
     fetchAll();
-  }, [token, navigate, user]);
+  }, [token, authLoading, navigate, user]);
 
   const fetchAll = async () => {
     setLoading(true);

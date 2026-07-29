@@ -3689,104 +3689,66 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
 
 /* PROJECT CATALOG CARDS */
 .project-catalog-card {
-    background: linear-gradient(145deg, rgba(30, 32, 40, 0.6) 0%, rgba(18, 19, 23, 0.9) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+    border: 1px solid var(--border);
     border-radius: var(--r-xl);
-    padding: 26px;
-    position: relative;
-    overflow: hidden;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .project-catalog-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: var(--r-xl);
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(59, 130, 246, 0.1) 100%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-}
-
-.project-catalog-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
+    top: 0; left: 0; right: 0;
     height: 1px;
-    background: radial-gradient(circle, var(--orange) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
 }
 
 .project-catalog-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(59, 130, 246, 0.15);
-    background: linear-gradient(145deg, rgba(35, 38, 48, 0.7) 0%, rgba(20, 22, 28, 0.95) 100%);
-}
-
-.project-catalog-card:hover::after {
-    opacity: 1;
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .project-catalog-card h3 {
-    font-size: 1.15rem;
-    font-weight: 800;
+    font-size: 1rem;
+    font-weight: 600;
     margin: 16px 0 10px;
-    line-height: 1.4;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
-    background: linear-gradient(to right, #ffffff, #9ca3af);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    line-height: 1.4;
 }
 
 .project-catalog-card p {
-    font-size: 13.5px;
+    font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.6;
     flex: 1;
-    margin: 0 0 20px;
+    margin: 0 0 24px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .project-catalog-card .btn-primary {
     width: 100%;
-    text-align: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-hover) 100%);
-    border: none;
-    font-weight: 700;
-    padding: 12px;
-    border-radius: var(--r-md);
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-    transition: all 0.3s ease;
+    margin-top: auto;
+    background: var(--bg-2);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    box-shadow: none;
+    transition: all 0.2s ease;
 }
 
+.project-catalog-card:hover .btn-primary,
 .project-catalog-card .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-}
-
-[data-theme="light"] .project-catalog-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 247, 250, 0.95) 100%);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-[data-theme="light"] .project-catalog-card:hover {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(240, 244, 250, 1) 100%);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 0 20px rgba(37, 99, 235, 0.1);
-}
-[data-theme="light"] .project-catalog-card h3 {
-    background: linear-gradient(to right, #111827, #6b7280);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+    box-shadow: 0 4px 12px var(--orange-soft);
 }

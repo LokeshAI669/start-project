@@ -9,17 +9,18 @@ import RequestCard from '../../components/dashboard/RequestCard';
 import { FileText, Clock, CheckCircle2, XCircle, Plus, Inbox } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, token } = useContext(AuthContext);
+  const { user, token, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!token) { navigate('/login'); return; }
+    if (authLoading) return;
+    if (!token) { navigate('/'); return; }
     if (user?.role === 'admin') { navigate('/admin'); return; }
     fetchRequests();
-  }, [token, navigate, user]);
+  }, [token, authLoading, navigate, user]);
 
   const fetchRequests = async () => {
     try {

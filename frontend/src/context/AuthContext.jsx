@@ -21,11 +21,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (newToken, newUser) => {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    setToken(newToken);
-    setUser(newUser);
+  const setRole = (role) => {
+    const mockUser = {
+      id: role === 'admin' ? 1 : 2,
+      name: role === 'admin' ? 'Mock Admin' : 'Mock Student',
+      email: role === 'admin' ? 'admin@mock.com' : 'student@mock.com',
+      role: role
+    };
+    
+    localStorage.setItem('token', role); // role acts as the token
+    localStorage.setItem('user', JSON.stringify(mockUser));
+    setToken(role);
+    setUser(mockUser);
   };
 
   const logout = () => {
@@ -36,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, setRole, logout }}>
       {children}
     </AuthContext.Provider>
   );

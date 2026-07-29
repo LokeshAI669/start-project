@@ -12,7 +12,7 @@ const difficultyColor = (d) => {
 };
 
 export default function BrowseCatalog() {
-  const { token } = useContext(AuthContext);
+  const { token, loading: authLoading } = useContext(AuthContext);
   const navigate  = useNavigate();
   const [items, setItems]     = useState([]);
   const [domains, setDomains] = useState([]);
@@ -25,7 +25,7 @@ export default function BrowseCatalog() {
   const [searchTrigger, setSearchTrigger] = useState(0);
   const LIMIT = 12;
 
-  useEffect(() => { if (!token) navigate('/login'); }, [token, navigate]);
+  useEffect(() => { if (authLoading) return; if (!token) navigate('/'); }, [token, authLoading, navigate]);
 
   useEffect(() => {
     api('GET', '/api/catalog/domains').then(setDomains).catch(() => {});

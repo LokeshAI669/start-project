@@ -5,7 +5,7 @@ const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.V
 export async function api(method, endpoint, body = null) {
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers['x-mock-role'] = token;
 
   const options = { method, headers };
   if (body) {
