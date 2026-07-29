@@ -1582,6 +1582,8 @@ tbody td { padding: 14px 18px; color: var(--text-primary); vertical-align: middl
   .stats-row { grid-template-columns: repeat(2, 1fr); }
   .filter-bar { flex-direction: column; }
   .footer { padding: 28px 22px; }
+  .footer-links { width: 100%; gap: 8px; }
+  .footer-social-link { flex: 1 1 calc(50% - 8px); justify-content: center; padding: 10px 8px; }
   .hero-ctas { flex-direction: column; }
   .hero-ctas .btn { width: 100%; justify-content: center; }
 }
