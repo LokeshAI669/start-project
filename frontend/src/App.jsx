@@ -18,13 +18,24 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/project" element={<ProjectDetails />} />
+          <Route path="/my-requests" element={<Dashboard />} />
+
           <Route path="/request" element={<SubmitRequest />} />
+          <Route path="/submit-request" element={<SubmitRequest />} />
+          <Route path="/hire-project" element={<SubmitRequest />} />
+          <Route path="/hire_project" element={<SubmitRequest />} />
+
           <Route path="/browse" element={<BrowseCatalog />} />
+          <Route path="/projects" element={<BrowseCatalog />} />
+          <Route path="/catalog" element={<BrowseCatalog />} />
+
+          <Route path="/project" element={<ProjectDetails />} />
+          <Route path="/project-details" element={<ProjectDetails />} />
           
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/catalog" element={<AdminCatalog />} />
 
+          <Route path="*" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
