@@ -30,7 +30,6 @@ app.use((req, res, next) => {
 });
 
 // ── Mount API Routes ──────────────────────────────────────────
-app.use('/api', require('../backend/server/routes/auth'));
 app.use('/api/requests', require('../backend/server/routes/requests'));
 app.use('/api/catalog', require('../backend/server/routes/catalog'));
 
