@@ -8,7 +8,7 @@ import SubmitRequest from './pages/student/SubmitRequest';
 import BrowseCatalog from './pages/student/BrowseCatalog';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCatalog from './pages/admin/AdminCatalog';
-import Profile from './pages/Profile';
+
 
 function App() {
   return (
@@ -24,7 +24,7 @@ function App() {
           
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/catalog" element={<AdminCatalog />} />
-          <Route path="/profile" element={<Profile />} />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -123,9 +123,6 @@ export default function AdminCatalog() {
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
             <button className="btn btn-primary btn-sm" onClick={openAdd}>+ Add Project</button>
-            <button onClick={() => navigate('/profile')} className="topbar-profile-btn" title="Profile">
-              {user?.name?.[0]?.toUpperCase() || 'A'}
-            </button>
           </div>
         </div>
 

@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import JobZenLogo from './JobZenLogo';
-import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X, Home } from 'lucide-react';
 
 export default function StudentLayout({ children, title, subtitle }) {
   const { user, token } = useContext(AuthContext);
@@ -104,14 +104,12 @@ export default function StudentLayout({ children, title, subtitle }) {
 
           <div className="topbar-right">
             <button 
-              onClick={() => navigate('/profile')} 
-              className="topbar-profile-btn" 
-              title={user?.name || "Profile"}
-              aria-label="User Profile"
+              onClick={() => navigate('/')} 
+              className="btn btn-outline btn-sm" 
+              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              title="Return to Home Page"
             >
-              <span className="profile-avatar-initial">
-                {user?.name?.[0]?.toUpperCase() || 'U'}
-              </span>
+              <Home size={16} /> Home
             </button>
           </div>
         </header>
