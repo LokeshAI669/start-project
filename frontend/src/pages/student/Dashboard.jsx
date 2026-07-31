@@ -6,20 +6,25 @@ import StudentLayout from '../../components/StudentLayout';
 import StatCard from '../../components/dashboard/StatCard';
 import RequestTable from '../../components/dashboard/RequestTable';
 import RequestCard from '../../components/dashboard/RequestCard';
-import { FileText, Clock, CheckCircle2, XCircle, Plus, Inbox } from 'lucide-react';
+import { FileText, Clock, CheckCircle2, XCircle, Plus, Inbox, RefreshCw } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, token, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchRequests();
   }, []);
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
     try {
       const data = await api('GET', '/api/requests/mine');
       setRequests(data || []);
@@ -27,6 +32,7 @@ export default function Dashboard() {
       setError(e.message || 'Failed to load requests');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -73,10 +79,23 @@ export default function Dashboard() {
             <p className="section-subtitle">Showing {requests.length} total request{requests.length === 1 ? '' : 's'}</p>
           </div>
 
-          <Link to="/request" className="btn-create-request">
-            <Plus size={16} />
-            <span>New Request</span>
-          </Link>
+          <div className="header-actions">
+            <button 
+              onClick={() => fetchRequests(true)} 
+              className={`btn-refresh-dashboard ${refreshing ? 'spinning' : ''}`}
+              disabled={refreshing || loading}
+              title="Refresh requests"
+              aria-label="Refresh requests"
+            >
+              <RefreshCw size={15} className={refreshing ? 'spin-icon' : ''} />
+              <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+            </button>
+
+            <Link to="/request" className="btn-create-request">
+              <Plus size={16} />
+              <span>New Request</span>
+            </Link>
+          </div>
         </div>
 
         {/* Loading State */}
