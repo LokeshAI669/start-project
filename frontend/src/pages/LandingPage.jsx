@@ -140,7 +140,7 @@ export default function LandingPage() {
               <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg">Submit Request →</button>
               <button onClick={() => navigate('/browse')} className="btn btn-outline btn-lg">Browse Projects</button>
             </div>
-            <div className="hero-trust" style={{display:'flex',alignItems:'center',gap:'20px',marginTop:'36px',flexWrap:'wrap'}}>
+            <div className="hero-trust" style={{display:'flex',alignItems:'center',gap:'12px',marginTop:'36px',flexWrap:'wrap'}}>
               <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
                 <div style={{width:'8px',height:'8px',borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 12px var(--green)',animation:'liveDot 2s infinite'}}></div>
                 <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:'10.5px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.07em'}}>System Online</span>
@@ -228,7 +228,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section style={{padding:'0 52px',marginTop:'-20px',marginBottom:'0',position:'relative',zIndex:'1'}}>
+      <section className="stats-section-wrap">
         <div style={{maxWidth:'1200px',margin:'0 auto'}}>
           <div className="stats-showcase reveal visible">
             <div className="stat-showcase-item">

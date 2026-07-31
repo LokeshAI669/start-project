@@ -103,11 +103,11 @@ export default function StudentLayout({ children, title, subtitle }) {
           <div className="topbar-right">
             <button 
               onClick={() => navigate('/')} 
-              className="btn btn-outline btn-sm" 
-              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              className="btn btn-outline btn-sm home-btn" 
               title="Return to Home Page"
+              aria-label="Return to Home Page"
             >
-              <Home size={16} /> Home
+              <Home size={16} /> <span className="home-btn-text">Home</span>
             </button>
           </div>
         </header>
