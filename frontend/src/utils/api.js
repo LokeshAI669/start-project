@@ -4,8 +4,16 @@ const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.V
 
 export async function api(method, endpoint, body = null) {
   const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['x-mock-role'] = token;
+  if (userStr) {
+    try {
+      const u = JSON.parse(userStr);
+      if (u && u.email) headers['x-user-email'] = u.email;
+      if (u && u.id) headers['x-user-id'] = String(u.id);
+    } catch (_e) {}
+  }
 
   const options = { method, headers };
   if (body) {

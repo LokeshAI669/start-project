@@ -1,6 +1,6 @@
 const express          = require('express');
 const { pool }         = require('../db');
-const { requireAuth, requireStudent, requireAdmin } = require('../auth');
+const { requireAuth, optionalAuth, requireStudent, requireAdmin } = require('../auth');
 const mailer           = require('../mailer');
 const multer           = require('multer');
 const path             = require('path');
@@ -30,9 +30,21 @@ function fmt(p) {
 // GET /api/requests/mine
 router.get('/mine', requireStudent, async (req, res) => {
   try {
+    // 1. Auto-link any existing projects matching this student's email that have student_id IS NULL
+    if (req.user && req.user.email) {
+      await pool.query(`
+        UPDATE projects
+        SET student_id = $1
+        WHERE student_id IS NULL AND email IS NOT NULL AND LOWER(email) = LOWER($2)
+      `, [req.user.id, req.user.email]);
+    }
+
+    // 2. Fetch all requests for this student (by student_id OR matching email)
     const { rows } = await pool.query(`
-      SELECT * FROM projects WHERE student_id = $1 ORDER BY created_at DESC
-    `, [req.user.id]);
+      SELECT * FROM projects
+      WHERE student_id = $1 OR (email IS NOT NULL AND LOWER(email) = LOWER($2))
+      ORDER BY created_at DESC
+    `, [req.user.id, req.user ? req.user.email : '']);
     res.json(rows.map(fmt));
   } catch (err) {
     console.error('[REQUESTS] mine error:', err);
@@ -41,7 +53,7 @@ router.get('/mine', requireStudent, async (req, res) => {
 });
 
 // POST /api/requests (Public submission)
-router.post('/', upload.single('attachment'), async (req, res) => {
+router.post('/', upload.single('attachment'), optionalAuth, async (req, res) => {
   try {
     const { name, student_name, project_name, budget, currency, description, preferred_date, preferred_time, email } = req.body;
 
@@ -58,7 +70,18 @@ router.post('/', upload.single('attachment'), async (req, res) => {
       return res.status(400).json({ error: 'Budget cannot be negative' });
 
     const attachmentUrl = req.file ? '/uploads/' + req.file.filename : null;
-    const studentId = req.user ? req.user.id : null;
+    let studentId = req.user ? req.user.id : null;
+
+    // Look up existing user by email if studentId is not set
+    if (!studentId && requesterEmail) {
+      const { rows: matchedUsers } = await pool.query(
+        'SELECT id FROM users WHERE LOWER(email) = LOWER($1)',
+        [requesterEmail]
+      );
+      if (matchedUsers.length > 0) {
+        studentId = matchedUsers[0].id;
+      }
+    }
 
     const { rows } = await pool.query(`
       INSERT INTO projects
@@ -103,7 +126,10 @@ router.patch('/:id/reschedule', requireStudent, async (req, res) => {
     if (!preferred_date || !preferred_time)
       return res.status(400).json({ error: 'New date and time required' });
 
-    const { rows: projectRows } = await pool.query('SELECT * FROM projects WHERE id = $1 AND student_id = $2', [id, req.user.id]);
+    const { rows: projectRows } = await pool.query(
+      'SELECT * FROM projects WHERE id = $1 AND (student_id = $2 OR (email IS NOT NULL AND LOWER(email) = LOWER($3)))',
+      [id, req.user.id, req.user ? req.user.email : '']
+    );
     const project = projectRows[0];
     
     if (!project) return res.status(404).json({ error: 'Request not found' });
@@ -267,12 +293,14 @@ async function checkProjectAccess(req, res, next) {
   const { rows } = await pool.query('SELECT * FROM projects WHERE id = $1', [id]);
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
   const p = rows[0];
-  if (req.user.role !== 'admin' && p.student_id !== req.user.id) {
+  const isOwner = p.student_id === req.user.id || (p.email && req.user.email && p.email.toLowerCase() === req.user.email.toLowerCase());
+  if (req.user.role !== 'admin' && !isOwner) {
     return res.status(403).json({ error: 'Forbidden' });
   }
   req.project = p;
   next();
 }
+
 
 // GET /api/requests/:id/messages
 router.get('/:id/messages', requireAuth, checkProjectAccess, async (req, res) => {

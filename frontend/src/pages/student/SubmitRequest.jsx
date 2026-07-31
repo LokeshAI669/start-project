@@ -7,12 +7,13 @@ import StudentLayout from '../../components/StudentLayout';
 
 export default function SubmitRequest() {
   const navigate  = useNavigate();
+  const { user } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
 
   const [step, setStep] = useState(1);
-  const [name, setName]               = useState('');
-  const [email, setEmail]             = useState('');
+  const [name, setName]               = useState(user?.name || '');
+  const [email, setEmail]             = useState(user?.email || '');
   const [projectName, setProjectName] = useState('');
   const [budget, setBudget]           = useState('');
   const [currency, setCurrency]       = useState('₹');
@@ -25,6 +26,13 @@ export default function SubmitRequest() {
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      if (user.name && !name) setName(user.name);
+      if (user.email && !email) setEmail(user.email);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (catalogId) {
