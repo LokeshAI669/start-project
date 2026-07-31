@@ -20,6 +20,7 @@ export default function SubmitRequest() {
   const [timeVal, setTimeVal]         = useState('10:00');
   const [ampm, setAmpm]               = useState('AM');
   const [preferredTime, setPreferredTime] = useState('10:00 AM');
+  const [preferredDate, setPreferredDate] = useState('');
   const [attachment, setAttachment]   = useState(null);
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);

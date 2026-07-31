@@ -8,6 +8,7 @@ import SubmitRequest from './pages/student/SubmitRequest';
 import BrowseCatalog from './pages/student/BrowseCatalog';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCatalog from './pages/admin/AdminCatalog';
+import AdminLogin from './pages/admin/AdminLogin';
 
 
 function App() {
@@ -32,7 +33,8 @@ function App() {
           <Route path="/project" element={<ProjectDetails />} />
           <Route path="/project-details" element={<ProjectDetails />} />
           
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/catalog" element={<AdminCatalog />} />
 
           <Route path="*" element={<Dashboard />} />

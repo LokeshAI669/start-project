@@ -40,7 +40,7 @@ export default function AdminCatalog() {
   }, []);
 
   const fetchItems = async () => {
-    setLoadingItems(true);
+    setLoading(true);
     try {
       const data = await api('GET', '/api/catalog?limit=100');
       const list = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
@@ -96,10 +96,10 @@ export default function AdminCatalog() {
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo" style={{ display: windowWidth > 1024 ? 'block' : 'none' }}>
-          <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
+          <Link to="/admin/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
-          <Link to="/admin" className="sidebar-item"> All Requests</Link>
+          <Link to="/admin/dashboard" className="sidebar-item"> All Requests</Link>
           <Link to="/admin/catalog" className="sidebar-item active"> Manage Catalog</Link>
         </nav>
       </aside>
@@ -116,7 +116,7 @@ export default function AdminCatalog() {
               >
                 ☰
               </button>
-              <Link to="/admin" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/admin/dashboard" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title">Manage Catalog</h1>

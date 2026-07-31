@@ -107,10 +107,10 @@ export default function AdminDashboard() {
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo" style={{ display: windowWidth > 1024 ? 'block' : 'none' }}>
-          <Link to="/admin"><JobZenLogo theme={theme} size="sm" /></Link>
+          <Link to="/admin/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
-          <Link to="/admin" className="sidebar-item active"> All Requests</Link>
+          <Link to="/admin/dashboard" className="sidebar-item active"> All Requests</Link>
           <Link to="/admin/catalog" className="sidebar-item"> Manage Catalog</Link>
         </nav>
       </aside>
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
               >
                 ☰
               </button>
-              <Link to="/admin" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/admin/dashboard" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title">Admin Dashboard</h1>
