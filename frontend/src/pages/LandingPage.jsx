@@ -18,13 +18,31 @@ export default function LandingPage() {
   };
 
   useEffect(() => {
-    // ── Navbar scroll effect ──
+    // ── Navbar scroll effect (passive listener = no jank) ──
     const navbar = document.getElementById('navbar');
     const onScroll = () => {
       if (window.scrollY > 20) navbar?.classList.add('scrolled');
       else navbar?.classList.remove('scrolled');
     };
-    window.addEventListener('scroll', onScroll);
+    // passive:true tells the browser we won't call preventDefault(),
+    // so it can scroll immediately without waiting for JS to finish.
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ── Scroll Progress Bar (rAF-throttled, passive listener) ──
+    const progressBar = document.getElementById('scroll-progress');
+    let rafId = null;
+    const onScrollProgress = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (progressBar) {
+          const docH = document.documentElement.scrollHeight - window.innerHeight;
+          const pct = docH > 0 ? (window.scrollY / docH) * 100 : 0;
+          progressBar.style.width = pct + '%';
+        }
+      });
+    };
+    window.addEventListener('scroll', onScrollProgress, { passive: true });
 
     // ── Live Dashboard Simulation ──
     const latencyEl = document.getElementById('latency-val');
@@ -80,20 +98,32 @@ export default function LandingPage() {
     };
     if (tw) type();
 
-    // ── Scroll Reveal ──
-    const reveals = document.querySelectorAll('.reveal');
-    const revealOnScroll = () => {
-      const wh = window.innerHeight;
-      reveals.forEach(r => {
-        if (r.getBoundingClientRect().top < wh - 50) r.classList.add('visible');
-      });
-    };
-    window.addEventListener('scroll', revealOnScroll);
-    revealOnScroll();
+    // ── Scroll Reveal — IntersectionObserver (runs OFF the main thread) ──
+    // Using IntersectionObserver instead of a scroll listener is far more
+    // performant: the browser notifies us asynchronously without running
+    // JS on every scroll pixel, completely eliminating reveal-related jank.
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            // Once visible we don't need to keep observing it
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach((el) => {
+      revealObserver.observe(el);
+    });
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('scroll', revealOnScroll);
+      window.removeEventListener('scroll', onScroll, { passive: true });
+      window.removeEventListener('scroll', onScrollProgress, { passive: true });
+      if (rafId) cancelAnimationFrame(rafId);
+      revealObserver.disconnect();
       clearInterval(simInterval);
       clearTimeout(twTimeout);
     };
@@ -108,6 +138,9 @@ export default function LandingPage() {
         <div className="orb orb-2"></div>
         <div className="orb orb-3"></div>
       </div>
+
+      {/* Page wrapper gives grid-overlay a positioned ancestor so position:absolute works */}
+      <div style={{ position: 'relative', isolation: 'isolate' }}>
       <div className="grid-overlay"></div>
 
       <nav className="pub-navbar" id="navbar">
@@ -236,8 +269,8 @@ export default function LandingPage() {
               <div className="stat-showcase-label">Digital Process</div>
             </div>
             <div className="stat-showcase-item">
-              <div className="stat-showcase-num">7</div>
-              <div className="stat-showcase-label">Auto Notifications</div>
+              <div className="stat-showcase-num">2</div>
+              <div className="stat-showcase-label">Auto Emails</div>
             </div>
             <div className="stat-showcase-item">
               <div className="stat-showcase-num">99%</div>
@@ -253,32 +286,32 @@ export default function LandingPage() {
 
       <section className="section bg-alt">
         <div className="section-inner">
-          <div className="section-tag reveal visible">Why JobZen</div>
-          <h2 className="section-title reveal visible">Everything students and admins need</h2>
-          <p className="section-desc reveal visible">From first submission to final confirmation — JobZen keeps everyone perfectly in sync, automatically.</p>
+          <div className="section-tag reveal">Why JobZen</div>
+          <h2 className="section-title reveal">Everything students and admins need</h2>
+          <p className="section-desc reveal">From first submission to final confirmation — JobZen keeps everyone perfectly in sync, automatically.</p>
           <div className="features-grid" style={{marginTop:'50px'}}>
-            <div className="feature-card reveal visible">
+            <div className="feature-card reveal">
               <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <LayoutList color="var(--blue)" size={24} />
               </div>
               <div className="feature-title">Structured Submissions</div>
               <p className="feature-desc">A guided 2-step form captures project name, budget, description, and preferred meeting time with full validation.</p>
             </div>
-            <div className="feature-card reveal visible">
+            <div className="feature-card reveal">
               <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <Mail color="var(--blue)" size={24} />
               </div>
-              <div className="feature-title">7 Automated Emails</div>
-              <p className="feature-desc">Every action triggers a beautiful email — registration, submission, accept, deny, reschedule, and password reset.</p>
+              <div className="feature-title">2 Automated Emails</div>
+              <p className="feature-desc">Key actions trigger beautifully formatted emails — zero manual follow-up needed.</p>
             </div>
-            <div className="feature-card reveal visible">
+            <div className="feature-card reveal">
               <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <Activity color="var(--blue)" size={24} />
               </div>
               <div className="feature-title">Real-Time Status</div>
               <p className="feature-desc">Students see Pending, Accepted, or Denied instantly — with a live acceptance rate gauge and timeline.</p>
             </div>
-            <div className="feature-card reveal visible">
+            <div className="feature-card reveal">
               <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <CalendarDays color="var(--blue)" size={24} />
               </div>
@@ -291,22 +324,22 @@ export default function LandingPage() {
 
       <section className="section">
         <div className="section-inner">
-          <div className="section-tag reveal visible">How It Works</div>
-          <h2 className="section-title reveal visible">Three simple steps</h2>
-          <p className="section-desc reveal visible">Students submit, admins decide, everyone gets notified — automatically and beautifully.</p>
+          <div className="section-tag reveal">How It Works</div>
+          <h2 className="section-title reveal">Three simple steps</h2>
+          <p className="section-desc reveal">Students submit, admins decide, everyone gets notified — automatically and beautifully.</p>
           <div className="steps-grid" style={{marginTop:'50px'}}>
             <div className="steps-connector"></div>
-            <div className="step-card reveal-scale visible">
+            <div className="step-card reveal-scale">
               <div className="step-num-big">1</div>
               <div className="step-title">Register &amp; Submit</div>
               <p className="step-desc">Create a free student account, fill in your project details, pick a meeting time, and submit in under 2 days.</p>
             </div>
-            <div className="step-card reveal-scale visible">
+            <div className="step-card reveal-scale">
               <div className="step-num-big">2</div>
               <div className="step-title">Admin Reviews</div>
               <p className="step-desc">The admin sees your request instantly, reviews all details in a clean dashboard, and makes a decision.</p>
             </div>
-            <div className="step-card reveal-scale visible">
+            <div className="step-card reveal-scale">
               <div className="step-num-big">3</div>
               <div className="step-title">Get Notified</div>
               <p className="step-desc">You receive a beautifully formatted email with the decision and confirmed meeting time — all automated.</p>
@@ -363,6 +396,7 @@ export default function LandingPage() {
           <div className="footer-copy">© 2026 JobZen · All rights reserved</div>
         </div>
       </footer>
+      </div>{/* end page-wrapper */}
     </>
   );
 }

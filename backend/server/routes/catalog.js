@@ -25,38 +25,38 @@ router.get('/domains', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { domain, search, page = 1, limit = 20 } = req.query;
-    
-    let queryStr = `SELECT * FROM project_catalog WHERE is_active = TRUE`;
-    let countStr = `SELECT COUNT(*) FROM project_catalog WHERE is_active = TRUE`;
+
     const params = [];
-    
+    let where = `WHERE is_active = TRUE`;
+
     if (domain) {
       params.push(domain);
-      queryStr += ` AND domain = $${params.length}`;
-      countStr += ` AND domain = $${params.length}`;
+      where += ` AND domain = $${params.length}`;
     }
-    
     if (search) {
       params.push(`%${search}%`);
-      queryStr += ` AND title ILIKE $${params.length}`;
-      countStr += ` AND title ILIKE $${params.length}`;
+      where += ` AND title ILIKE $${params.length}`;
     }
-    
-    // Pagination
+
     const offset = (Number(page) - 1) * Number(limit);
-    
-    const countResult = await pool.query(countStr, params);
-    const totalCount = Number(countResult.rows[0].count);
-    
+
+    // Single query: COUNT(*) OVER() avoids a second round-trip to the DB
     params.push(Number(limit));
-    queryStr += ` ORDER BY title ASC LIMIT $${params.length}`;
     params.push(offset);
-    queryStr += ` OFFSET $${params.length}`;
-    
-    const { rows } = await pool.query(queryStr, params);
-    
+    const { rows } = await pool.query(`
+      SELECT *, COUNT(*) OVER() AS _total_count
+      FROM project_catalog
+      ${where}
+      ORDER BY title ASC
+      LIMIT $${params.length - 1} OFFSET $${params.length}
+    `, params);
+
+    const totalCount = rows.length > 0 ? Number(rows[0]._total_count) : 0;
+    // Strip the internal _total_count field before sending
+    const data = rows.map(({ _total_count, ...r }) => r);
+
     res.json({
-      data: rows,
+      data,
       total: totalCount,
       page: Number(page),
       totalPages: Math.ceil(totalCount / Number(limit))

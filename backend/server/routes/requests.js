@@ -30,21 +30,25 @@ function fmt(p) {
 // GET /api/requests/mine
 router.get('/mine', requireStudent, async (req, res) => {
   try {
-    // 1. Auto-link any existing projects matching this student's email that have student_id IS NULL
+    // Fire-and-forget: auto-link emails in background — does NOT block the response
     if (req.user && req.user.email) {
-      await pool.query(`
-        UPDATE projects
-        SET student_id = $1
-        WHERE student_id IS NULL AND email IS NOT NULL AND LOWER(email) = LOWER($2)
-      `, [req.user.id, req.user.email]);
+      pool.query(
+        `UPDATE projects SET student_id = $1
+         WHERE student_id IS NULL AND email IS NOT NULL AND LOWER(email) = LOWER($2)`,
+        [req.user.id, req.user.email]
+      ).catch(e => console.error('[REQUESTS] auto-link error:', e.message));
     }
 
-    // 2. Fetch all requests for this student (by student_id OR matching email)
+    // Fetch requests immediately — only columns needed for the list view
     const { rows } = await pool.query(`
-      SELECT * FROM projects
+      SELECT id, project_name, budget, currency, status,
+             preferred_date, preferred_time, confirmed_date, confirmed_time,
+             admin_note, attachment_url, catalog_project_id, email,
+             student_name, created_at, updated_at
+      FROM projects
       WHERE student_id = $1 OR (email IS NOT NULL AND LOWER(email) = LOWER($2))
       ORDER BY created_at DESC
-    `, [req.user.id, req.user ? req.user.email : '']);
+    `, [req.user.id, req.user.email || '']);
     res.json(rows.map(fmt));
   } catch (err) {
     console.error('[REQUESTS] mine error:', err);

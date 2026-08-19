@@ -9,6 +9,7 @@ import BrowseCatalog from './pages/student/BrowseCatalog';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCatalog from './pages/admin/AdminCatalog';
 import AdminLogin from './pages/admin/AdminLogin';
+import CatalogDetail from './pages/student/CatalogDetail';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/browse" element={<BrowseCatalog />} />
           <Route path="/projects" element={<BrowseCatalog />} />
           <Route path="/catalog" element={<BrowseCatalog />} />
+          <Route path="/catalog/:id" element={<CatalogDetail />} />
 
           <Route path="/project" element={<ProjectDetails />} />
           <Route path="/project-details" element={<ProjectDetails />} />

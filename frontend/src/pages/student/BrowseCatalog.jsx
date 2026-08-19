@@ -79,7 +79,7 @@ export default function BrowseCatalog() {
             onChange={val => { setDomain(val); setPage(1); }}
             options={domains.map(d => ({ value: d.domain, label: `${d.domain} (${d.count})` }))}
             placeholder="All Domains"
-            style={{width:'220px'}}
+            style={{ flex: '1 1 220px', minWidth: '220px' }}
           />
         </div>
 
@@ -92,7 +92,7 @@ export default function BrowseCatalog() {
             <p style={{color:'var(--text-faint)'}}>No projects found. Try a different search or domain.</p>
           </div>
         ) : (
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))',gap:'18px'}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(min(100%, 280px),1fr))',gap:'18px'}}>
             {items.map(p => (
               <div key={p.id} className="project-catalog-card">
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'12px'}}>
