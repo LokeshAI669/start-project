@@ -269,7 +269,7 @@ export default function LandingPage() {
               <div className="stat-showcase-label">Digital Process</div>
             </div>
             <div className="stat-showcase-item">
-              <div className="stat-showcase-num">2</div>
+              <div className="stat-showcase-num">7</div>
               <div className="stat-showcase-label">Auto Emails</div>
             </div>
             <div className="stat-showcase-item">
