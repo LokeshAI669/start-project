@@ -301,7 +301,7 @@ export default function LandingPage() {
               <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <Mail color="var(--blue)" size={24} />
               </div>
-              <div className="feature-title">2 Automated Emails</div>
+              <div className="feature-title">7 Automated Emails</div>
               <p className="feature-desc">Key actions trigger beautifully formatted emails — zero manual follow-up needed.</p>
             </div>
             <div className="feature-card reveal">
