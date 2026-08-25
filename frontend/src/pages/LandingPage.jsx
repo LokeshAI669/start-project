@@ -1,15 +1,574 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutList, Mail, Activity, CalendarDays, Sun, Moon } from 'lucide-react';
+import { LayoutList, Mail, Activity, CalendarDays, Sun, Moon, CheckCircle, Sparkles, ArrowRight, Mic, BriefcaseBusiness, Users, BrainCircuit, ChevronRight, Code2, Database } from 'lucide-react';
+import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion/react';
 
 import JobZenLogo from '../components/JobZenLogo';
 import { AuthContext } from '../context/AuthContext';
+import './HireProjectLanding.css';
+import heroBgVideo from '../assets/hero-bg-robot-final.mp4';
+
+/* ─────────────────────────────────────────────────────────────
+   SPLASH INTRO — plays once per session, then reveals the page
+   ───────────────────────────────────────────────────────────── */
+const PROJECTS = [
+  { icon: '🛒', iconClass: 'blue',  name: 'E-Commerce Mobile App',      meta: '₹1,50,000  ·  Jul 20, 2026', badge: 'Accepted', badgeClass: 'accepted' },
+  { icon: '🤖', iconClass: 'gold',  name: 'AI Chatbot System',           meta: '₹80,000   ·  Jul 22, 2026', badge: 'Pending',  badgeClass: 'pending'  },
+  { icon: '📊', iconClass: 'green', name: 'Data Analytics Dashboard',    meta: '₹2,00,000 ·  Jul 25, 2026', badge: 'Accepted', badgeClass: 'accepted' },
+  { icon: '🎓', iconClass: 'blue',  name: 'LMS Portal',                  meta: '₹1,20,000 ·  Jul 28, 2026', badge: 'In Review', badgeClass: 'review'  },
+];
+
+function SplashIntro({ onDone }) {
+  const overlayRef   = useRef(null);
+  const fillRef      = useRef(null);
+  const cardRefs     = useRef([]);
+  const statusRef    = useRef(null);
+  const doneRef      = useRef(false);
+
+  useEffect(() => {
+    if (doneRef.current) return;
+
+    let raf = null;
+    let startTime = null;
+    const TOTAL_DURATION = 2600; // ms until exit begins
+
+    // ── Animate progress bar with rAF ──────────────────────
+    const animateBar = (ts) => {
+      if (!startTime) startTime = ts;
+      const elapsed = ts - startTime;
+      const pct = Math.min((elapsed / TOTAL_DURATION) * 100, 100);
+      if (fillRef.current) {
+        fillRef.current.style.width = pct + '%';
+        if (pct >= 100) fillRef.current.classList.add('done');
+      }
+      if (pct < 100) raf = requestAnimationFrame(animateBar);
+    };
+    raf = requestAnimationFrame(animateBar);
+
+    // ── Fly in each card with staggered delays ─────────────
+    const cardDelays = [400, 750, 1100, 1450];
+    const cardTimers = cardDelays.map((delay, i) =>
+      setTimeout(() => {
+        const el = cardRefs.current[i];
+        if (el) el.classList.add('fly-in');
+      }, delay)
+    );
+
+    // ── Begin exit sequence ────────────────────────────────
+    const exitTimer = setTimeout(() => {
+      // fly cards out in reverse order
+      [...cardRefs.current].reverse().forEach((el, i) => {
+        setTimeout(() => {
+          if (el) el.classList.add('fly-out');
+        }, i * 70);
+      });
+
+      // after cards leave, fade the overlay
+      setTimeout(() => {
+        const overlay = overlayRef.current;
+        if (overlay) overlay.classList.add('splash-exit');
+        // after fade completes, unmount
+        setTimeout(() => {
+          if (!doneRef.current) { doneRef.current = true; onDone(); }
+        }, 750);
+      }, 350);
+    }, TOTAL_DURATION);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      cardTimers.forEach(clearTimeout);
+      clearTimeout(exitTimer);
+    };
+  }, [onDone]);
+
+  return (
+    <div className="splash-overlay" ref={overlayRef} aria-live="polite" aria-label="Loading JobZen">
+      {/* ── Decorative background ── */}
+      <div className="splash-bg-grid" />
+      <div className="splash-orb splash-orb-1" />
+      <div className="splash-orb splash-orb-2" />
+
+      {/* ── Logo ── */}
+      <div className="splash-logo-wrap">
+        <JobZenLogo theme="dark" size="md" />
+        <span className="splash-logo-tag">Project Request Platform</span>
+      </div>
+
+      {/* ── Progress bar ── */}
+      <div className="splash-progress-wrap">
+        <div className="splash-progress-label">
+          <span>Loading projects</span>
+          <span ref={statusRef}>—</span>
+        </div>
+        <div className="splash-progress-track">
+          <div className="splash-progress-fill" ref={fillRef} />
+        </div>
+      </div>
+
+      {/* ── Project cards ── */}
+      <div className="splash-cards">
+        {PROJECTS.map((p, i) => (
+          <div
+            key={i}
+            className="splash-card"
+            ref={el => cardRefs.current[i] = el}
+          >
+            <div className={`splash-card-icon ${p.iconClass}`}>{p.icon}</div>
+            <div className="splash-card-info">
+              <div className="splash-card-name">{p.name}</div>
+              <div className="splash-card-meta">{p.meta}</div>
+            </div>
+            <span className={`splash-badge ${p.badgeClass}`}>{p.badge}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Status line ── */}
+      <div className="splash-status">
+        <span className="splash-status-dot" />
+        System Online · 250+ Projects Delivered
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ANIMATED FEATURE CARD
+   ───────────────────────────────────────────────────────────── */
+function AnimatedFeatureCard({ Icon, title, desc, index }) {
+  const cardRef = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const rotateX = useTransform(y, [-0.5, 0.5], [6, -6]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-6, 6]);
+
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (isTouch || !cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    if (isTouch) return;
+    setIsHovered(false);
+    animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
+    animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
+  };
+
+  // Subtly parallax the icon box slower than the rest of the card
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [-12, 12]);
+
+  return (
+    <div style={{ perspective: 1200 }}>
+      <motion.div
+        ref={cardRef}
+        className="feature-card"
+        initial={{ opacity: 0, y: 30, rotateX: 20 }}
+        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ type: "spring", stiffness: 100, damping: 15, delay: index * 0.12 }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => !isTouch && setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          rotateX: isTouch ? 0 : rotateX,
+          rotateY: isTouch ? 0 : rotateY,
+          transformStyle: "preserve-3d",
+          position: "relative",
+          zIndex: isHovered ? 10 : 1
+        }}
+        animate={isHovered ? { scale: 1.02, z: 20 } : { scale: 1, z: 0 }}
+      >
+        <motion.div 
+          className="feature-icon-wrap2" 
+          style={{ 
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            y: parallaxY, 
+            transform: 'translateZ(30px)', 
+            willChange: 'transform, box-shadow'
+          }}
+          animate={isHovered ? {
+            boxShadow: [
+              "0 0 0 0px rgba(59, 130, 246, 0.4)",
+              "0 0 0 20px rgba(59, 130, 246, 0)"
+            ]
+          } : {
+            boxShadow: "0 0 0 0px rgba(59, 130, 246, 0)"
+          }}
+          transition={isHovered ? { duration: 1.5, repeat: Infinity, ease: "easeOut" } : { duration: 0.3 }}
+        >
+          <Icon color="var(--blue)" size={24} />
+        </motion.div>
+        
+        <div className="feature-title" style={{ transform: "translateZ(15px)" }}>{title}</div>
+        <p className="feature-desc" style={{ transform: "translateZ(5px)" }}>{desc}</p>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ANIMATED DASHBOARD — Motion-powered hero widget
+   ───────────────────────────────────────────────────────────── */
+function AnimatedDashboard() {
+  return (
+    <div style={{ position: 'relative', display: 'flex', minHeight: '430px', alignItems: 'center', justifyContent: 'center' }}>
+      {/* Rotating ring */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', width: 320, height: 320, borderRadius: '50%', border: '1px solid rgba(59,130,246,0.2)', pointerEvents: 'none' }}
+      />
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', width: 260, height: 260, borderRadius: '50%', border: '1px dashed rgba(16,185,129,0.15)', pointerEvents: 'none' }}
+      />
+
+      {/* Main card */}
+      <motion.div
+        animate={{ y: [0, -14, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          position: 'relative', width: '100%', maxWidth: 380,
+          background: 'var(--glass-bg)',
+          border: '1px solid var(--glass-border)',
+          borderRadius: 24, padding: 22,
+          backdropFilter: 'blur(24px)',
+          boxShadow: 'var(--glass-shadow)',
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <p style={{ fontSize: 12, color: 'var(--text-faint)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Interview Readiness</p>
+            <p style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.04em', marginTop: 2 }}>86%</p>
+          </div>
+          <div style={{ background: 'rgba(16,185,129,0.15)', borderRadius: 14, padding: 10, color: '#10B981' }}>
+            <CheckCircle size={26} />
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ height: 6, borderRadius: 99, background: 'var(--glass-border)', overflow: 'hidden', marginBottom: 20 }}>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: '86%' }}
+            transition={{ duration: 1.6, delay: 0.6, ease: 'easeOut' }}
+            style={{ height: '100%', borderRadius: 99, background: 'linear-gradient(90deg, #3B82F6, #10B981)' }}
+          />
+        </div>
+
+        {/* Skill rows */}
+        {['Communication', 'Technical Skills', 'Confidence'].map((item, i) => (
+          <motion.div
+            key={item}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 + i * 0.15 }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'rgba(9,9,11,0.55)', borderRadius: 12,
+              padding: '11px 14px', marginBottom: i < 2 ? 8 : 0,
+              border: '1px solid rgba(255,255,255,0.05)',
+            }}
+          >
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{item}</span>
+            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#3B82F6', fontWeight: 700 }}>
+              {i === 0 ? '90%' : i === 1 ? '84%' : '82%'}
+            </span>
+          </motion.div>
+        ))}
+
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.4, type: 'spring', stiffness: 300 }}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            marginTop: 16, background: 'rgba(59,130,246,0.12)',
+            border: '1px solid rgba(59,130,246,0.25)',
+            borderRadius: 99, padding: '6px 14px',
+            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
+            color: '#3B82F6', fontWeight: 700,
+          }}
+        >
+          <Sparkles size={12} /> AI-Powered Analysis · Live
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ANIMATED STAT — whileInView counter card
+   ───────────────────────────────────────────────────────────── */
+function AnimatedStat({ value, label, index = 0 }) {
+  const match = value.match(/(\D*)(\d+)(\D*)/);
+  const prefix = match ? match[1] : '';
+  const numValue = match ? parseInt(match[2], 10) : 0;
+  const suffix = match ? match[3] : value;
+  const hasNum = !!match;
+
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, Math.round);
+  const [displayValue, setDisplayValue] = useState(hasNum ? prefix + '0' + suffix : value);
+
+  useEffect(() => {
+    if (!hasNum) return;
+    const unsubscribe = rounded.on("change", (latest) => {
+      setDisplayValue(prefix + latest + suffix);
+    });
+    return unsubscribe;
+  }, [rounded, prefix, suffix, hasNum]);
+
+  const cardRef = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const rotateX = useTransform(y, [-0.5, 0.5], [10, -10]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-10, 10]);
+
+  const [isTouch, setIsTouch] = useState(false);
+  useEffect(() => {
+    setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (isTouch || !cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    if (isTouch) return;
+    animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
+    animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
+  };
+
+  const handleViewportEnter = () => {
+    if (hasNum) {
+      animate(count, numValue, { duration: 1.2, delay: index * 0.15, ease: "easeOut" });
+    }
+  };
+
+  return (
+    <div className="stat-showcase-item" style={{ perspective: 1000, padding: 0 }}>
+      <motion.div
+        ref={cardRef}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.6, delay: index * 0.15 }}
+        onViewportEnter={handleViewportEnter}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        whileHover={!isTouch ? { scale: 1.03, y: -4, boxShadow: "0 15px 35px rgba(59, 130, 246, 0.12)" } : {}}
+        style={{
+          rotateX: isTouch ? 0 : rotateX,
+          rotateY: isTouch ? 0 : rotateY,
+          transformStyle: 'preserve-3d',
+          width: '100%',
+          height: '100%',
+          padding: '30px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'transparent'
+        }}
+      >
+        <div className="stat-showcase-num" style={{ transform: 'translateZ(20px)' }}>{displayValue}</div>
+        <div className="stat-showcase-label" style={{ transform: 'translateZ(10px)' }}>{label}</div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HP PROJECTS DATA
+   ───────────────────────────────────────────────────────────── */
+const HP_PROJECTS = [
+  { title: 'COVID-19 Analysis',    category: 'Data Analytics',         image: '/projects/covid-dashboard.jpg', color: '#5CFFE1', stat: 'Python + Power BI' },
+  { title: 'Netflix EDA',    category: 'Exploratory Data Analysis', image: '/projects/netflix-analysis.jpg', color: '#FF8A5B', stat: 'Pandas + Seaborn' },
+  { title: 'AI Interview Coach',     category: 'Artificial Intelligence',      image: '/projects/ai-coach.jpg', color: '#9B5CFF', stat: '92% accuracy' },
+  { title: 'Fintech Dashboard', category: 'Web Application',     image: '/projects/fintech.jpg', color: '#D8FF5C', stat: '12K users' },
+];
+const HP_PROJECTS_DUP = [...HP_PROJECTS, ...HP_PROJECTS];
+
+const HP_CATEGORIES = [
+  { icon: <BrainCircuit size={22} />, title: 'Artificial Intelligence', count: '1,240 projects', color: '#9B5CFF' },
+  { icon: <Database size={22} />,     title: 'Data Science',            count: '860 projects',   color: '#5CFFE1' },
+  { icon: <Code2 size={22} />,        title: 'Web Development',         count: '2,430 projects', color: '#FF8A5B' },
+  { icon: <BriefcaseBusiness size={22} />, title: 'Career Projects',    count: '740 projects',   color: '#D8FF5C' },
+];
+
+/* ─────────────────────────────────────────────────────────────
+   HP PROJECT CARD
+   ───────────────────────────────────────────────────────────── */
+function HpProjectCard({ project, index }) {
+  return (
+    <motion.article
+      className="hp-project-card"
+      style={{ '--accent': project.color }}
+      initial={{ opacity: 0, y: 35 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      whileHover={{ y: -14, rotate: index % 2 === 0 ? 1.5 : -1.5, scale: 1.03 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+    >
+      <div className="hp-project-image-wrap">
+        <img src={project.image} alt={project.title} loading="lazy" />
+        <div className="hp-image-overlay" />
+        <span className="hp-project-stat">{project.stat}</span>
+      </div>
+      <div className="hp-project-content">
+        <p className="hp-project-category">{project.category}</p>
+        <h3 className="hp-project-title">{project.title}</h3>
+        <button className="hp-project-btn">
+          View project <ArrowRight size={14} />
+        </button>
+      </div>
+    </motion.article>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HP CATEGORY CARD
+   ───────────────────────────────────────────────────────────── */
+function HpCategoryCard({ icon, title, count, color, index = 0 }) {
+  const cardRef = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useTransform(y, [-0.5, 0.5], [8, -8]);
+  const rotateY = useTransform(x, [-0.5, 0.5], [-8, 8]);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
+    animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, rotateY: -15 }}
+      whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
+      style={{ perspective: 1000 }}
+    >
+      <motion.div
+        ref={cardRef}
+        className="hp-category-card"
+        style={{
+          '--category-color': color,
+          rotateX,
+          rotateY,
+          transformStyle: 'preserve-3d',
+          position: 'relative'
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        animate={isHovered ? { scale: 1.02 } : { scale: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      >
+        <motion.div
+          className="hp-category-icon"
+          animate={isHovered ? { scale: 1.15, rotate: 5 } : { scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+          style={{ transform: 'translateZ(30px)' }}
+        >
+          {icon}
+        </motion.div>
+        <h3 className="hp-category-title" style={{ transform: 'translateZ(20px)' }}>{title}</h3>
+        <p className="hp-category-count" style={{ transform: 'translateZ(10px)' }}>{count}</p>
+        
+        <motion.div 
+          className="hp-category-arrow"
+          initial={false}
+          animate={isHovered ? { x: 4, opacity: 1 } : { x: -6, opacity: 0 }}
+          style={{ transform: 'translateZ(15px)', display: 'flex', alignItems: 'center' }}
+        >
+          <ArrowRight size={17} />
+        </motion.div>
+
+        {/* Soft glow/shadow matching accent color */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: color,
+            filter: 'blur(45px)',
+            zIndex: -1,
+            pointerEvents: 'none',
+            borderRadius: '18px'
+          }}
+          animate={{ opacity: isHovered ? 0.15 : 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { setRole } = useContext(AuthContext);
 
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
+
+  // Show splash only once per browser session
+  const [showSplash, setShowSplash] = useState(() => {
+    if (sessionStorage.getItem('jz_splash_seen')) return false;
+    return true;
+  });
+
+  const handleSplashDone = useCallback(() => {
+    sessionStorage.setItem('jz_splash_seen', '1');
+    setShowSplash(false);
+  }, []);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -43,36 +602,6 @@ export default function LandingPage() {
       });
     };
     window.addEventListener('scroll', onScrollProgress, { passive: true });
-
-    // ── Live Dashboard Simulation ──
-    const latencyEl = document.getElementById('latency-val');
-    const rateEl = document.getElementById('panel-rate');
-    const barEl = document.getElementById('acceptance-bar');
-    
-    let rate = 94;
-    if (rateEl && barEl) {
-      rateEl.innerText = rate + '%';
-      barEl.style.width = rate + '%';
-    }
-
-    const simInterval = setInterval(() => {
-      if (latencyEl) latencyEl.innerText = Math.floor(Math.random() * 20 + 8) + 'ms';
-      if (rateEl && barEl && Math.random() > 0.5) {
-        rate = Math.max(90, Math.min(99, rate + (Math.floor(Math.random() * 5) - 2)));
-        rateEl.innerText = rate + '%';
-        barEl.style.width = rate + '%';
-      }
-      const row1Badge = document.querySelector('#row-1 .badge');
-      if (row1Badge && Math.random() > 0.8) {
-         if (row1Badge.classList.contains('badge-pending')) {
-             row1Badge.className = 'badge badge-accepted';
-             row1Badge.innerText = 'Accepted';
-         } else {
-             row1Badge.className = 'badge badge-pending';
-             row1Badge.innerText = 'Pending';
-         }
-      }
-    }, 1500);
 
     // ── Typewriter Effect ──
     const tw = document.getElementById('typewriter');
@@ -124,13 +653,18 @@ export default function LandingPage() {
       window.removeEventListener('scroll', onScrollProgress, { passive: true });
       if (rafId) cancelAnimationFrame(rafId);
       revealObserver.disconnect();
-      clearInterval(simInterval);
       clearTimeout(twTimeout);
     };
   }, []);
 
   return (
     <>
+      {/* ── Cinematic Splash Intro (once per session) ── */}
+      {showSplash && <SplashIntro onDone={handleSplashDone} />}
+
+      {/* ── Noise texture ── */}
+      <div className="hp-noise" />
+
       <div id="scroll-progress"></div>
 
       <div className="orb-container">
@@ -156,8 +690,16 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      <section className="hero" id="hero">
-        <div className="hero-inner">
+      <section className="hero" id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="hero-video-bg"
+          src={heroBgVideo}
+        />
+        <div className="hero-inner" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-text">
             <div className="hero-tag"> Project Request Platform</div>
             <h1>Where Student Projects<br/>
@@ -166,9 +708,15 @@ export default function LandingPage() {
               </span>
             </h1>
             <p>Submit project ideas, schedule meetings, track approvals in real time — a streamlined platform built for students and supervisors who value clarity and speed.</p>
-            <div style={{display:'inline-block', padding:'10px 18px', background:'rgba(255, 255, 255, 0.03)', borderRadius:'10px', border:'1px solid var(--border)', color:'var(--text-primary)', fontSize:'14px', fontWeight:'500', marginBottom:'32px', marginTop:'12px', letterSpacing:'0.02em'}}>
-              We have successfully delivered projects to over 250+ students.
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="hero-delivery-badge"
+            >
+              <span className="hero-delivery-icon"><Users size={16} /></span>
+              We have successfully delivered projects to over <span className="highlight-text">250+ students</span>.
+            </motion.div>
             <div className="hero-ctas" style={{display:'flex',gap:'12px',flexWrap:'wrap'}}>
               <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg">Submit Request →</button>
               <button onClick={() => navigate('/browse')} className="btn btn-outline btn-lg">Browse Projects</button>
@@ -185,177 +733,199 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="hero-panel" style={{position:'relative'}}>
-            <div className="float-badge float-badge-1">
-              <span style={{color:'var(--green)',fontSize:'16px'}}></span>
-              <div>
-                <div style={{fontSize:'11px',fontWeight:'700',color:'var(--text-primary)'}}>Request Accepted</div>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'9px',color:'var(--text-faint)'}}>Email sent · just now</div>
-              </div>
-            </div>
-            <div className="float-badge float-badge-2">
-              <span style={{color:'var(--orange)',fontSize:'16px'}}></span>
-              <div>
-                <div style={{fontSize:'11px',fontWeight:'700',color:'var(--text-primary)'}}>New Submission</div>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'9px',color:'var(--text-faint)'}}>Admin notified</div>
-              </div>
-            </div>
-
-            <div className="hero-panel-header">
-              <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
-                <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:'10px',letterSpacing:'.08em'}}>LIVE DASHBOARD</span>
-                <div className="live-indicator"><div className="live-dot"></div>CONNECTED</div>
-              </div>
-              <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'9px',color:'var(--text-faint)'}} id="panel-time">--:--:--</div>
-            </div>
-
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'16px'}}>
-              <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}} id="stat-total">
-                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--text-primary)',letterSpacing:'-0.04em'}} id="panel-total">250+</div>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Total</div>
-              </div>
-              <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}} id="stat-pending">
-                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--orange)',letterSpacing:'-0.04em'}} id="panel-pending">10</div>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Pending</div>
-              </div>
-              <div style={{background:'var(--bg-elevated)',border:'1px solid var(--border)',borderRadius:'10px',padding:'11px 12px',textAlign:'center',transition:'border-color 0.3s ease'}}>
-                <div style={{fontSize:'1.4rem',fontWeight:'900',color:'var(--green)',letterSpacing:'-0.04em'}} id="panel-rate">94%</div>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'8px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.06em',marginTop:'2px'}}>Accept Rate</div>
-              </div>
-            </div>
-
-            <div id="panel-rows">
-              <div className="hero-req-row" id="row-0">
-                <div>
-                  <div className="hero-req-name">E-Commerce Mobile App</div>
-                  <div className="hero-req-meta">₹150,000 · July 20, 2026</div>
-                </div>
-                <span className="badge badge-accepted">Accepted</span>
-              </div>
-              <div className="hero-req-row" id="row-1">
-                <div>
-                  <div className="hero-req-name">AI Chatbot System</div>
-                  <div className="hero-req-meta">₹80,000 · July 22, 2026</div>
-                </div>
-                <span className="badge badge-pending">Pending</span>
-              </div>
-              <div className="hero-req-row" id="row-2">
-                <div>
-                  <div className="hero-req-name">Data Analytics Dashboard</div>
-                  <div className="hero-req-meta">₹200,000 · July 25, 2026</div>
-                </div>
-                <span className="badge badge-accepted">Accepted</span>
-              </div>
-            </div>
-
-            <div style={{marginTop:'14px',padding:'11px 14px',background:'var(--bg-elevated)',borderRadius:'10px',border:'1px solid var(--border)'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'9px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.07em'}}>AP-SOUTH-1 · LATENCY: <span className="latency-blink" id="latency-val">12ms</span></div>
-                <div style={{fontFamily:'JetBrains Mono, monospace',fontSize:'9px',color:'var(--green)'}}>UPTIME 99.9%</div>
-              </div>
-              <div style={{height:'4px',background:'rgba(255,255,255,0.06)',borderRadius:'99px',overflow:'hidden'}}>
-                <div id="acceptance-bar" style={{height:'100%',width:'0%',background:'linear-gradient(90deg,var(--orange),var(--green))',borderRadius:'99px',transition:'width 1.5s ease-out'}}></div>
-              </div>
-            </div>
-          </div>
+          <AnimatedDashboard />
         </div>
       </section>
 
       <section className="stats-section-wrap">
         <div style={{maxWidth:'1200px',margin:'0 auto'}}>
-          <div className="stats-showcase reveal visible">
-            <div className="stat-showcase-item">
-              <div className="stat-showcase-num">100%</div>
-              <div className="stat-showcase-label">Digital Process</div>
-            </div>
-            <div className="stat-showcase-item">
-              <div className="stat-showcase-num">7</div>
-              <div className="stat-showcase-label">Auto Emails</div>
-            </div>
-            <div className="stat-showcase-item">
-              <div className="stat-showcase-num">99%</div>
-              <div className="stat-showcase-label">Uptime</div>
-            </div>
-            <div className="stat-showcase-item">
-              <div className="stat-showcase-num">2 Days</div>
-              <div className="stat-showcase-label">To Submit</div>
-            </div>
+          <div className="stats-showcase">
+            <AnimatedStat value="250+" label="Students Helped" index={0} />
+            <AnimatedStat value="7"    label="Auto Emails" index={1} />
+            <AnimatedStat value="99%"  label="Uptime" index={2} />
+            <AnimatedStat value="2 Days" label="To Submit" index={3} />
           </div>
         </div>
       </section>
 
+      {/* ══ FLOWING PROJECTS BELT ══ */}
+      <section className="hp-flow-section">
+        <div className="hp-flow-header">
+          Live Projects <span className="hp-dot" />
+        </div>
+        <div className="hp-flow-area">
+          <div className="hp-flow-glow" />
+          <motion.div
+            className="hp-project-track"
+            animate={{ x: ['0%', '-50%'] }}
+            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+          >
+            {HP_PROJECTS_DUP.map((p, i) => (
+              <HpProjectCard key={`${p.title}-${i}`} project={p} index={i} />
+            ))}
+          </motion.div>
+          <div className="hp-flow-fade hp-flow-fade-left" />
+          <div className="hp-flow-fade hp-flow-fade-right" />
+        </div>
+      </section>
+
+      {/* ══ CATEGORIES ══ */}
+      <div className="hp-category-section">
+        <div className="hp-section-heading">
+          <div>
+            <p className="hp-section-label">Explore the ecosystem</p>
+            <h2 className="hp-section-h2">Ideas in motion.</h2>
+          </div>
+          <motion.button
+            className="hp-view-all"
+            initial="rest"
+            whileHover="hover"
+            animate="rest"
+            onClick={() => navigate('/browse')}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+          >
+            View all projects 
+            <motion.span variants={{ rest: { x: 0 }, hover: { x: 4 } }}>
+              <ChevronRight size={16} style={{ display: 'block' }} />
+            </motion.span>
+          </motion.button>
+        </div>
+        <div className="hp-category-grid">
+          {HP_CATEGORIES.map((c, i) => (
+            <HpCategoryCard key={c.title} {...c} index={i} />
+          ))}
+        </div>
+      </div>
+
+      {/* ══ FEATURED PROJECTS ══ */}
+      <div className="hp-featured-section">
+        <div className="hp-section-heading">
+          <div>
+            <p className="hp-section-label">Featured work</p>
+            <h2 className="hp-section-h2">Projects worth seeing.</h2>
+          </div>
+        </div>
+        <div className="hp-featured-grid">
+          {HP_PROJECTS.slice(0, 3).map((p, i) => (
+            <HpProjectCard key={p.title} project={p} index={i} />
+          ))}
+        </div>
+      </div>
+
       <section className="section bg-alt">
         <div className="section-inner">
-          <div className="section-tag reveal">Why JobZen</div>
-          <h2 className="section-title reveal">Everything students and admins need</h2>
-          <p className="section-desc reveal">From first submission to final confirmation — JobZen keeps everyone perfectly in sync, automatically.</p>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="section-tag"
+          >Why JobZen</motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="section-title"
+          >Everything students and admins need</motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="section-desc"
+          >From first submission to final confirmation — JobZen keeps everyone perfectly in sync, automatically.</motion.p>
+
           <div className="features-grid" style={{marginTop:'50px'}}>
-            <div className="feature-card reveal">
-              <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <LayoutList color="var(--blue)" size={24} />
-              </div>
-              <div className="feature-title">Structured Submissions</div>
-              <p className="feature-desc">A guided 2-step form captures project name, budget, description, and preferred meeting time with full validation.</p>
-            </div>
-            <div className="feature-card reveal">
-              <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <Mail color="var(--blue)" size={24} />
-              </div>
-              <div className="feature-title">7 Automated Emails</div>
-              <p className="feature-desc">Key actions trigger beautifully formatted emails — zero manual follow-up needed.</p>
-            </div>
-            <div className="feature-card reveal">
-              <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <Activity color="var(--blue)" size={24} />
-              </div>
-              <div className="feature-title">Real-Time Status</div>
-              <p className="feature-desc">Students see Pending, Accepted, or Denied instantly — with a live acceptance rate gauge and timeline.</p>
-            </div>
-            <div className="feature-card reveal">
-              <div className="feature-icon-wrap2" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                <CalendarDays color="var(--blue)" size={24} />
-              </div>
-              <div className="feature-title">Easy Rescheduling</div>
-              <p className="feature-desc">Denied? Pick a new date and time in one click. Admin gets notified automatically, no follow-up needed.</p>
-            </div>
+            {[
+              { Icon: LayoutList, title: 'Structured Submissions',  desc: 'A guided 2-step form captures project name, budget, description, and preferred meeting time with full validation.' },
+              { Icon: Mail,       title: '7 Automated Emails',       desc: 'Key actions trigger beautifully formatted emails — zero manual follow-up needed.' },
+              { Icon: Activity,   title: 'Real-Time Status',         desc: 'Students see Pending, Accepted, or Denied instantly — with a live acceptance rate gauge and timeline.' },
+              { Icon: CalendarDays, title: 'Easy Rescheduling',      desc: 'Denied? Pick a new date and time in one click. Admin gets notified automatically, no follow-up needed.' },
+            ].map(({ Icon, title, desc }, i) => (
+              <AnimatedFeatureCard key={title} Icon={Icon} title={title} desc={desc} index={i} />
+            ))}
           </div>
         </div>
       </section>
 
       <section className="section">
         <div className="section-inner">
-          <div className="section-tag reveal">How It Works</div>
-          <h2 className="section-title reveal">Three simple steps</h2>
-          <p className="section-desc reveal">Students submit, admins decide, everyone gets notified — automatically and beautifully.</p>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="section-tag"
+          >How It Works</motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="section-title"
+          >Three simple steps</motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="section-desc"
+          >Students submit, admins decide, everyone gets notified — automatically and beautifully.</motion.p>
+
           <div className="steps-grid" style={{marginTop:'50px'}}>
             <div className="steps-connector"></div>
-            <div className="step-card reveal-scale">
-              <div className="step-num-big">1</div>
-              <div className="step-title">Register &amp; Submit</div>
-              <p className="step-desc">Create a free student account, fill in your project details, pick a meeting time, and submit in under 2 days.</p>
-            </div>
-            <div className="step-card reveal-scale">
-              <div className="step-num-big">2</div>
-              <div className="step-title">Admin Reviews</div>
-              <p className="step-desc">The admin sees your request instantly, reviews all details in a clean dashboard, and makes a decision.</p>
-            </div>
-            <div className="step-card reveal-scale">
-              <div className="step-num-big">3</div>
-              <div className="step-title">Get Notified</div>
-              <p className="step-desc">You receive a beautifully formatted email with the decision and confirmed meeting time — all automated.</p>
-            </div>
+            {[
+              { num: '1', title: 'Register & Submit', desc: 'Create a free student account, fill in your project details, pick a meeting time, and submit in under 2 days.' },
+              { num: '2', title: 'Admin Reviews',     desc: 'The admin sees your request instantly, reviews all details in a clean dashboard, and makes a decision.' },
+              { num: '3', title: 'Get Notified',      desc: 'You receive a beautifully formatted email with the decision and confirmed meeting time — all automated.' },
+            ].map(({ num, title, desc }, i) => (
+              <motion.div
+                key={num}
+                className="step-card"
+                initial={{ opacity: 0, scale: 0.85 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, delay: i * 0.15, type: 'spring', stiffness: 180, damping: 18 }}
+                whileHover={{ y: -6 }}
+              >
+                <div className="step-num-big">{num}</div>
+                <div className="step-title">{title}</div>
+                <p className="step-desc">{desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       <section className="cta-section bg-alt">
         <div style={{maxWidth:'600px',margin:'0 auto',position:'relative',zIndex:'1'}}>
-          <div className="section-tag reveal visible" style={{justifyContent:'center'}}>Get Started</div>
-          <h2 className="section-title reveal visible" style={{fontSize:'clamp(2rem,4vw,3rem)'}}>Ready to get your project <span className="gradient-text-cta">approved?</span></h2>
-          <p className="section-desc reveal visible" style={{margin:'0 auto 36px',maxWidth:'420px',fontSize:'1rem'}}>Join students already using JobZen to move faster and more professionally.</p>
-          <div className="cta-glow-btn reveal visible">
-            <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg" style={{fontSize:'16px',padding:'16px 40px'}}>Submit Request →</button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, type: 'spring', stiffness: 160 }}
+            style={{ textAlign: 'center' }}
+          >
+            <div className="section-tag" style={{justifyContent:'center'}}>Get Started</div>
+            <h2 className="section-title" style={{fontSize:'clamp(2rem,4vw,3rem)',marginTop:8}}>
+              Ready to get your project <span className="gradient-text-cta">approved?</span>
+            </h2>
+            <p className="section-desc" style={{margin:'16px auto 36px',maxWidth:'420px',fontSize:'1rem'}}>
+              Join students already using JobZen to move faster and more professionally.
+            </p>
+            <div className="cta-glow-btn">
+              <motion.button
+                onClick={() => navigate('/request')}
+                className="btn btn-primary btn-lg"
+                style={{fontSize:'16px',padding:'16px 40px'}}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                Submit Request <ArrowRight size={18} style={{display:'inline',marginLeft:6,verticalAlign:'middle'}} />
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
       </section>
 

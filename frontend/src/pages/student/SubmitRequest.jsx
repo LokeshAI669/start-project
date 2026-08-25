@@ -1,97 +1,132 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  FileText,
+  Grid2X2,
+  Home,
+  LayoutDashboard,
+  Paperclip,
+  PlusCircle,
+  User,
+  Wallet,
+  X,
+} from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
+import JobZenLogo from '../../components/JobZenLogo';
+import './SubmitRequest.css';
 
-import StudentLayout from '../../components/StudentLayout';
+/* ─────────────────────────────────────────────────────────────
+   STEP DEFINITIONS
+   ───────────────────────────────────────────────────────────── */
+const STEPS = [
+  { n: 1, label: 'Your Info',     desc: 'Name & contact' },
+  { n: 2, label: 'Project',       desc: 'Details & budget' },
+  { n: 3, label: 'Meeting',       desc: 'Schedule & submit' },
+];
 
+/* ─────────────────────────────────────────────────────────────
+   MAIN COMPONENT
+   ───────────────────────────────────────────────────────────── */
 export default function SubmitRequest() {
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
 
-  const [step, setStep] = useState(1);
-  const [name, setName]               = useState(user?.name || '');
-  const [email, setEmail]             = useState(user?.email || '');
-  const [projectName, setProjectName] = useState('');
-  const [budget, setBudget]           = useState('');
-  const [currency, setCurrency]       = useState('₹');
-  const [description, setDescription] = useState('');
-  const [timeVal, setTimeVal]         = useState('10:00');
-  const [ampm, setAmpm]               = useState('AM');
-  const [preferredTime, setPreferredTime] = useState('10:00 AM');
-  const [preferredDate, setPreferredDate] = useState('');
-  const [attachment, setAttachment]   = useState(null);
-  const [error, setError]   = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  /* form state */
+  const [step, setStep]                     = useState(1);
+  const [name, setName]                     = useState(user?.name || '');
+  const [email, setEmail]                   = useState(user?.email || '');
+  const [projectName, setProjectName]       = useState('');
+  const [budget, setBudget]                 = useState('');
+  const [currency, setCurrency]             = useState('₹');
+  const [description, setDescription]       = useState('');
+  const [timeVal, setTimeVal]               = useState('10:00');
+  const [ampm, setAmpm]                     = useState('AM');
+  const [preferredTime, setPreferredTime]   = useState('10:00 AM');
+  const [preferredDate, setPreferredDate]   = useState('');
+  const [attachment, setAttachment]         = useState(null);
+  const [error, setError]                   = useState('');
+  const [loading, setLoading]               = useState(false);
+  const [success, setSuccess]               = useState(false);
 
+  /* pre-fill from user context */
   useEffect(() => {
     if (user) {
-      if (user.name && !name) setName(user.name);
+      if (user.name  && !name)  setName(user.name);
       if (user.email && !email) setEmail(user.email);
     }
   }, [user]);
 
+  /* pre-fill from catalog */
   useEffect(() => {
-    if (catalogId) {
-      setLoading(true);
-      api('GET', `/api/catalog/${catalogId}`)
-        .then(data => {
-          if (data) {
-            setProjectName(data.title || '');
-            let desc = data.short_description || '';
-            if (data.full_description) desc += '\n\n' + data.full_description;
-            if (data.objectives && data.objectives.length > 0) {
-              desc += '\n\nObjectives:\n- ' + data.objectives.join('\n- ');
-            }
-            if (data.tech_stack) {
-              desc += '\n\nTech Stack: ' + data.tech_stack;
-            }
-            setDescription(desc);
-          }
-        })
-        .catch(err => console.error("Failed to fetch catalog project:", err))
-        .finally(() => setLoading(false));
-    }
+    if (!catalogId) return;
+    setLoading(true);
+    api('GET', `/api/catalog/${catalogId}`)
+      .then(data => {
+        if (!data) return;
+        setProjectName(data.title || '');
+        let desc = data.short_description || '';
+        if (data.full_description) desc += '\n\n' + data.full_description;
+        if (data.objectives?.length) desc += '\n\nObjectives:\n- ' + data.objectives.join('\n- ');
+        if (data.tech_stack)        desc += '\n\nTech Stack: ' + data.tech_stack;
+        setDescription(desc);
+      })
+      .catch(err => console.error('Catalog fetch failed:', err))
+      .finally(() => setLoading(false));
   }, [catalogId]);
 
-  const validateStep1 = () => {
-    if (!name.trim()) return setError('Full Name is required.'), false;
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) return setError('Valid Email address is required.'), false;
-    if (!projectName.trim()) return setError('Project name is required.'), false;
-    if (budget === '' || isNaN(Number(budget)) || Number(budget) < 0) return setError('Enter a valid budget.'), false;
-    if (!description.trim() || description.length < 20) return setError('Description must be at least 20 characters.'), false;
-    return true;
+  /* ── Validation ── */
+  const validate = (s) => {
+    if (s === 1) {
+      if (!name.trim())  return 'Full name is required.';
+      if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) return 'A valid email is required.';
+    }
+    if (s === 2) {
+      if (!projectName.trim())                           return 'Project name is required.';
+      if (budget === '' || isNaN(+budget) || +budget < 0) return 'Enter a valid budget.';
+      if (!description.trim() || description.length < 20) return 'Description must be at least 20 characters.';
+    }
+    if (s === 3) {
+      if (!preferredDate) return 'Preferred meeting date is required.';
+      if (!preferredTime) return 'Preferred meeting time is required.';
+    }
+    return null;
   };
 
   const handleNext = () => {
+    const err = validate(step);
+    if (err) { setError(err); return; }
     setError('');
-    if (validateStep1()) setStep(2);
+    setStep(s => s + 1);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const err = validate(3);
+    if (err) { setError(err); return; }
     setError('');
-    if (!preferredDate) return setError('Meeting date is required.');
-    if (!preferredTime) return setError('Meeting time is required.');
-
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('name', name.trim());
-      formData.append('email', email.trim());
-      formData.append('project_name', projectName.trim());
-      formData.append('budget', Number(budget));
-      formData.append('currency', currency);
-      formData.append('description', description.trim());
-      formData.append('preferred_date', preferredDate);
-      formData.append('preferred_time', preferredTime);
-      if (catalogId) formData.append('catalog_project_id', catalogId);
-      if (attachment) formData.append('attachment', attachment);
-
-      await api('POST', '/api/requests', formData);
+      const fd = new FormData();
+      fd.append('name', name.trim());
+      fd.append('email', email.trim());
+      fd.append('project_name', projectName.trim());
+      fd.append('budget', Number(budget));
+      fd.append('currency', currency);
+      fd.append('description', description.trim());
+      fd.append('preferred_date', preferredDate);
+      fd.append('preferred_time', preferredTime);
+      if (catalogId)  fd.append('catalog_project_id', catalogId);
+      if (attachment) fd.append('attachment', attachment);
+      await api('POST', '/api/requests', fd);
       setSuccess(true);
     } catch (e) {
       setError(e.message);
@@ -100,154 +135,378 @@ export default function SubmitRequest() {
     }
   };
 
+  const resetForm = () => {
+    setSuccess(false); setStep(1);
+    setName(''); setEmail(''); setProjectName('');
+    setBudget(''); setDescription('');
+    setPreferredDate(''); setPreferredTime('10:00 AM');
+    setTimeVal('10:00'); setAmpm('AM'); setAttachment(null);
+  };
+
+  /* ══════════════════════════════════════════════════════════════
+     SUCCESS SCREEN
+     ══════════════════════════════════════════════════════════════ */
   if (success) return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)',padding:'20px'}}>
-      <div className="card" style={{padding:'48px',textAlign:'center',maxWidth:'460px',width:'100%'}}>
-        <div style={{fontSize:'3.5rem',marginBottom:'16px'}}></div>
-        <h2 style={{marginBottom:'8px'}}>Request Submitted!</h2>
-        <p style={{color:'var(--text-faint)',marginBottom:'24px',lineHeight:'1.6'}}>
-          Thank you <strong>{name}</strong>. Your project request has been sent to our team.<br/>
-          We have sent a confirmation email to <strong>{email}</strong>.
-        </p>
-        <div style={{display:'flex',gap:'12px',justifyContent:'center',flexWrap:'wrap'}}>
-          <Link to="/" className="btn btn-primary">Return to Home</Link>
-          <button className="btn btn-ghost" onClick={() => { setSuccess(false); setStep(1); setName(''); setEmail(''); setProjectName(''); setBudget(''); setDescription(''); setPreferredDate(''); setPreferredTime(''); setAttachment(null); }}>Submit Another</button>
-        </div>
+    <div className="sr-wrap">
+      <Sidebar active={null} />
+      <div className="sr-success">
+        <motion.div
+          className="sr-success-card"
+          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+        >
+          <div className="sr-success-icon">🎉</div>
+          <h2>Request Submitted!</h2>
+          <p>
+            Thank you <strong style={{ color: '#f5f7ff' }}>{name}</strong>. Your project
+            request has been sent to our team.<br />
+            We've sent a confirmation to <strong style={{ color: '#f5f7ff' }}>{email}</strong>.
+          </p>
+          <div className="sr-success-btns">
+            <Link to="/" className="sr-btn-primary">
+              <Home size={17} /> Return Home
+            </Link>
+            <button className="sr-btn-ghost" onClick={resetForm}>
+              Submit Another
+            </button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 
+  /* ══════════════════════════════════════════════════════════════
+     MAIN FORM
+     ══════════════════════════════════════════════════════════════ */
   return (
-    <StudentLayout title="New Request" subtitle="Submit a project request for review">
-      <div style={{maxWidth:'600px',margin:'0 auto',position:'relative'}}>
+    <div className="sr-wrap">
+      <Sidebar active="request" />
 
-        {/* Step indicator */}
-        <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'32px'}}>
-          {[1, 2].map(n => (
-            <React.Fragment key={n}>
-              <div style={{width:'32px',height:'32px',borderRadius:'50%',background: step >= n ? 'var(--orange)' : 'var(--bg-elevated)',border:`2px solid ${step >= n ? 'var(--orange)' : 'var(--border)'}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'13px',fontWeight:700,color: step >= n ? '#fff' : 'var(--text-faint)',transition:'all 0.2s ease'}}>{n}</div>
-              {n < 2 && <div style={{flex:1,height:'2px',background: step > n ? 'var(--orange)' : 'var(--border)',transition:'background 0.2s ease'}} />}
-            </React.Fragment>
-          ))}
+      <main className="sr-main">
+        {/* Header */}
+        <header className="sr-header">
+          <div>
+            <p className="sr-kicker">Start your journey</p>
+            <h1>New Request</h1>
+            <p className="sr-subtitle">
+              Fill in the details below and our team will get back to you.
+            </p>
+          </div>
+          <Link to="/" className="sr-home-btn">
+            <Home size={17} /> Home
+          </Link>
+        </header>
+
+        {/* Step progress */}
+        <div className="sr-steps">
+          {STEPS.map((s, i) => {
+            const state = step > s.n ? 'done' : step === s.n ? 'active' : 'idle';
+            return (
+              <React.Fragment key={s.n}>
+                <div className="sr-step">
+                  <div className={`sr-step-circle ${state}`}>
+                    {state === 'done' ? <CheckCircle2 size={17} /> : s.n}
+                  </div>
+                  <div className="sr-step-info">
+                    <div className={`sr-step-label ${state === 'active' ? 'active-label' : state === 'done' ? 'done-label' : ''}`}>
+                      {s.label}
+                    </div>
+                    <div className="sr-step-desc">{s.desc}</div>
+                  </div>
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div className={`sr-step-line ${step > s.n ? 'done' : ''}`} />
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
 
-        <div className="card" style={{padding:'32px'}}>
-          {step === 1 && (
-            <>
-              <h3 style={{marginTop:0,marginBottom:'24px'}}>Step 1: Your Info & Project Details</h3>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-                <div className="form-group">
-                  <label className="form-label">Full Name *</label>
-                  <input className="form-input" type="text" placeholder="e.g. John Doe" value={name} onChange={e => setName(e.target.value)} />
+        {/* Form card */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            className="sr-card"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -24 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
+          >
+            {/* ── Step 1: Personal info ── */}
+            {step === 1 && (
+              <>
+                <div className="sr-card-title">
+                  <div className="sr-card-title-icon"><User size={18} /></div>
+                  Your Information
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Email Address *</label>
-                  <input className="form-input" type="email" placeholder="e.g. john@example.com" value={email} onChange={e => setEmail(e.target.value)} />
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Project Name *</label>
-                <input className="form-input" type="text" placeholder="e.g. E-Commerce Mobile App" value={projectName} onChange={e => setProjectName(e.target.value)} />
-              </div>
-              <div style={{display:'grid',gridTemplateColumns:'100px 1fr',gap:'12px'}}>
-                <div className="form-group">
-                  <label className="form-label">Currency</label>
-                  <select className="form-input" value={currency} onChange={e => setCurrency(e.target.value)}>
-                    <option value="₹">₹ INR</option>
-                    <option value="$">$ USD</option>
-                    <option value="₦">₦ NGN</option>
-                    <option value="€">€ EUR</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Budget *</label>
-                  <input className="form-input" type="number" placeholder="e.g. 50000" value={budget} onChange={e => setBudget(e.target.value)} min="0" />
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Project Description * <span style={{color:'var(--text-faint)',fontWeight:400}}>(min 20 chars)</span></label>
-                <textarea className="form-input" rows={5} style={{resize:'vertical'}} placeholder="Describe your project goals, features, and requirements..." value={description} onChange={e => setDescription(e.target.value)} />
-                <div style={{textAlign:'right',fontSize:'11px',color: description.length < 20 ? 'var(--red)' : 'var(--text-faint)',marginTop:'4px'}}>{description.length} / 20 min</div>
-              </div>
-              <div className="form-group" style={{marginBottom:0}}>
-                <label className="form-label">Attachment <span style={{color:'var(--text-faint)',fontWeight:400}}>(optional)</span></label>
-                {attachment ? (
-                  <div style={{display:'flex',alignItems:'center',gap:'10px',padding:'10px 14px',background:'var(--bg-elevated)',borderRadius:'8px',border:'1px solid var(--border)'}}>
-                    <span style={{flex:1,fontSize:'13px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{attachment.name}</span>
-                    <button type="button" onClick={() => setAttachment(null)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-faint)',fontSize:'18px',lineHeight:1}}>✕</button>
+                <div className="sr-grid-2">
+                  <div className="sr-field">
+                    <label className="sr-label">Full Name *</label>
+                    <input
+                      className="sr-input"
+                      type="text"
+                      placeholder="e.g. Priya Sharma"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                    />
                   </div>
-                ) : (
-                  <label style={{display:'flex',alignItems:'center',gap:'8px',padding:'12px 16px',border:'2px dashed var(--border)',borderRadius:'8px',cursor:'pointer',color:'var(--text-faint)',fontSize:'13px',transition:'all 0.2s'}}>
-                     Click to upload a file
-                    <input type="file" style={{display:'none'}} onChange={e => setAttachment(e.target.files[0])} />
-                  </label>
-                )}
-              </div>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <h3 style={{marginTop:0,marginBottom:'24px'}}>Step 2: Meeting Preference</h3>
-              <div style={{background:'var(--bg-elevated)',borderRadius:'10px',padding:'16px 18px',marginBottom:'24px',border:'1px solid var(--border)'}}>
-                <div style={{fontSize:'12px',color:'var(--text-faint)',marginBottom:'4px'}}>Project</div>
-                <div style={{fontWeight:700}}>{projectName}</div>
-                <div style={{color:'var(--orange)',fontSize:'13px',marginTop:'2px'}}>{currency}{Number(budget).toLocaleString('en-IN')}</div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Preferred Meeting Date *</label>
-                <input className="form-input" type="date" value={preferredDate} onChange={e => setPreferredDate(e.target.value)} min={new Date().toISOString().split('T')[0]} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Preferred Meeting Time *</label>
-                <div style={{display:'flex',gap:'10px',alignItems:'center'}}>
-                  <input 
-                    className="form-input" 
-                    type="time" 
-                    style={{flex:1}}
-                    value={timeVal} 
-                    onChange={e => {
-                      const val = e.target.value;
-                      setTimeVal(val);
-                      setPreferredTime(val ? `${val} ${ampm}` : '');
-                    }} 
-                  />
-                  <select 
-                    className="form-input" 
-                    style={{width:'90px',fontWeight:700,textAlign:'center',background:'var(--bg-elevated)',cursor:'pointer'}}
-                    value={ampm} 
-                    onChange={e => {
-                      const val = e.target.value;
-                      setAmpm(val);
-                      setPreferredTime(timeVal ? `${timeVal} ${val}` : '');
-                    }}
-                  >
-                    <option value="AM">AM</option>
-                    <option value="PM">PM</option>
-                  </select>
-                </div>
-                {preferredTime && (
-                  <div style={{fontSize:'11px',color:'var(--orange)',marginTop:'6px',fontWeight:600}}>
-                    Selected Time: {preferredTime}
+                  <div className="sr-field">
+                    <label className="sr-label">Email Address *</label>
+                    <input
+                      className="sr-input"
+                      type="email"
+                      placeholder="e.g. priya@example.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                    />
                   </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {error && <div className="form-error show" style={{marginTop:'16px'}}>{error}</div>}
-
-          <div style={{display:'flex',gap:'12px',marginTop:'28px',justifyContent:'flex-end'}}>
-            {step === 2 && <button className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>}
-            {step === 1 && <button className="btn btn-primary" onClick={handleNext}>Next Step →</button>}
-            {step === 2 && (
-              <button className="btn btn-primary" onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit Request →'}
-              </button>
+                </div>
+              </>
             )}
-          </div>
+
+            {/* ── Step 2: Project details ── */}
+            {step === 2 && (
+              <>
+                <div className="sr-card-title">
+                  <div className="sr-card-title-icon"><FileText size={18} /></div>
+                  Project Details
+                </div>
+
+                <div className="sr-field">
+                  <label className="sr-label">Project Name *</label>
+                  <input
+                    className="sr-input"
+                    type="text"
+                    placeholder="e.g. AI Interview Coach"
+                    value={projectName}
+                    onChange={e => setProjectName(e.target.value)}
+                  />
+                </div>
+
+                <div className="sr-grid-budget">
+                  <div className="sr-field" style={{ marginBottom: 0 }}>
+                    <label className="sr-label">Currency</label>
+                    <div className="sr-select-wrap">
+                      <select
+                        className="sr-select"
+                        value={currency}
+                        onChange={e => setCurrency(e.target.value)}
+                      >
+                        <option value="₹">₹ INR</option>
+                        <option value="$">$ USD</option>
+                        <option value="₦">₦ NGN</option>
+                        <option value="€">€ EUR</option>
+                      </select>
+                      <ChevronDown size={15} />
+                    </div>
+                  </div>
+                  <div className="sr-field" style={{ marginBottom: 0 }}>
+                    <label className="sr-label">
+                      <Wallet size={13} /> Budget *
+                    </label>
+                    <input
+                      className="sr-input"
+                      type="number"
+                      placeholder="e.g. 50000"
+                      value={budget}
+                      onChange={e => setBudget(e.target.value)}
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="sr-field" style={{ marginTop: 18 }}>
+                  <label className="sr-label">
+                    <FileText size={13} /> Project Description *
+                    <span className="sr-label-opt">(min 20 chars)</span>
+                  </label>
+                  <textarea
+                    className="sr-textarea"
+                    placeholder="Describe your project goals, features, and requirements..."
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                  />
+                  <div className={`sr-char-hint ${description.length === 0 ? '' : description.length < 20 ? 'warn' : 'ok'}`}>
+                    {description.length} / 20 min characters
+                  </div>
+                </div>
+
+                <div className="sr-field">
+                  <label className="sr-label">
+                    <Paperclip size={13} /> Attachment
+                    <span className="sr-label-opt">— optional</span>
+                  </label>
+                  {attachment ? (
+                    <div className="sr-file-chosen">
+                      <Paperclip size={15} style={{ color: '#748cff', flexShrink: 0 }} />
+                      <span className="sr-file-name">{attachment.name}</span>
+                      <button
+                        type="button"
+                        className="sr-file-remove"
+                        onClick={() => setAttachment(null)}
+                      >
+                        <X size={15} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="sr-file-drop">
+                      <Paperclip size={17} />
+                      Click to upload a file (PDF, DOCX, image…)
+                      <input
+                        type="file"
+                        style={{ display: 'none' }}
+                        onChange={e => setAttachment(e.target.files[0])}
+                      />
+                    </label>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* ── Step 3: Meeting ── */}
+            {step === 3 && (
+              <>
+                <div className="sr-card-title">
+                  <div className="sr-card-title-icon"><CalendarDays size={18} /></div>
+                  Schedule a Meeting
+                </div>
+
+                {/* Project summary pill */}
+                <div className="sr-project-pill">
+                  <div>
+                    <div className="sr-project-pill-title">{projectName}</div>
+                    <div className="sr-project-pill-sub">Project · {name}</div>
+                  </div>
+                  <div className="sr-project-pill-budget">
+                    {currency}{Number(budget || 0).toLocaleString('en-IN')}
+                  </div>
+                </div>
+
+                <div className="sr-field">
+                  <label className="sr-label">
+                    <CalendarDays size={13} /> Preferred Date *
+                  </label>
+                  <input
+                    className="sr-input"
+                    type="date"
+                    value={preferredDate}
+                    onChange={e => setPreferredDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div className="sr-field">
+                  <label className="sr-label">
+                    <Clock size={13} /> Preferred Time *
+                  </label>
+                  <div className="sr-time-row">
+                    <input
+                      className="sr-input"
+                      type="time"
+                      value={timeVal}
+                      onChange={e => {
+                        setTimeVal(e.target.value);
+                        setPreferredTime(e.target.value ? `${e.target.value} ${ampm}` : '');
+                      }}
+                    />
+                    <div className="sr-select-wrap">
+                      <select
+                        className="sr-select"
+                        value={ampm}
+                        onChange={e => {
+                          setAmpm(e.target.value);
+                          setPreferredTime(timeVal ? `${timeVal} ${e.target.value}` : '');
+                        }}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                      <ChevronDown size={14} />
+                    </div>
+                  </div>
+                  {preferredTime && (
+                    <p style={{ fontSize: '0.78rem', color: '#748cff', margin: '6px 0 0', fontWeight: 600 }}>
+                      ✓ Selected: {preferredTime}
+                    </p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Error */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  className="sr-error"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                >
+                  <X size={16} style={{ flexShrink: 0 }} />
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Actions */}
+            <div className="sr-actions">
+              {step > 1 && (
+                <button className="sr-btn-ghost" onClick={() => { setError(''); setStep(s => s - 1); }}>
+                  ← Back
+                </button>
+              )}
+              {step < 3 && (
+                <button className="sr-btn-primary" onClick={handleNext}>
+                  Next Step <ArrowRight size={17} />
+                </button>
+              )}
+              {step === 3 && (
+                <button
+                  className="sr-btn-primary"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                >
+                  {loading ? 'Submitting…' : <><CheckCircle2 size={17} /> Submit Request</>}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </main>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SIDEBAR
+   ───────────────────────────────────────────────────────────── */
+function Sidebar({ active }) {
+  return (
+    <aside className="sr-sidebar">
+      <Link to="/" className="sr-logo" style={{padding:'0 24px'}}>
+        <JobZenLogo theme="dark" size="sm" />
+      </Link>
+
+      <nav className="sr-nav">
+        <Link to="/dashboard" className={active === 'dashboard' ? 'sr-active' : ''}>
+          <LayoutDashboard size={20} /> My Requests
+        </Link>
+        <Link to="/request" className={active === 'request' ? 'sr-active' : ''}>
+          <PlusCircle size={20} /> New Request
+        </Link>
+        <Link to="/browse" className={active === 'browse' ? 'sr-active' : ''}>
+          <Grid2X2 size={20} /> Projects
+        </Link>
+      </nav>
+
+      <div className="sr-sidebar-bottom">
+        <div className="sr-profile-letter">U</div>
+        <div>
+          <strong>Welcome back</strong>
+          <small>Keep building</small>
         </div>
       </div>
-    </StudentLayout>
+    </aside>
   );
 }

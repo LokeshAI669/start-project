@@ -88,7 +88,7 @@ export default function ProjectDetails() {
           </div>
         </div>
 
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',marginBottom:'20px'}}>
+        <div className="details-grid" style={{marginBottom:'20px'}}>
           <div className="card" style={{padding:'20px 24px'}}>
             <div style={{color:'var(--text-faint)',fontSize:'11px',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px',fontFamily:'JetBrains Mono,monospace'}}>Budget</div>
             <div style={{fontSize:'1.4rem',fontWeight:800,color:'var(--orange)'}}>{fmtCurrency(project.currency, project.budget)}</div>
@@ -139,7 +139,7 @@ export default function ProjectDetails() {
             )}
             {showReschedule && (
               <form onSubmit={handleReschedule}>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'16px',marginBottom:'16px'}}>
+                <div className="details-grid" style={{marginBottom:'16px'}}>
                   <div className="form-group" style={{marginBottom:0}}>
                     <label className="form-label">New Date</label>
                     <input type="date" className="form-input" value={rescheduleDate} onChange={e => setRescheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]} required />

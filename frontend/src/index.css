@@ -77,6 +77,11 @@
   --shadow-lg:  0 10px 15px rgba(0,0,0,0.6);
   --shadow-glow: 0 0 0 rgba(0,0,0,0); /* Removed glow for simplicity */
 
+  /* Glass Theme */
+  --glass-bg: rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+
   /* Transitions */
   --t:      0.15s ease;
   --t-slow: 0.3s ease;
@@ -154,6 +159,11 @@
   --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.1);
   --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.1);
   --shadow-glow: 0 0 0 rgba(0,0,0,0); /* Removed glow for simplicity */
+
+  /* Glass Theme */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 20px 40px rgba(0,0,0,0.05), 0 0 0 1px rgba(255,255,255,0.5) inset;
 
   /* Transitions */
   --t:      0.15s ease;
@@ -717,6 +727,15 @@ input[type="date"]::-webkit-datetime-edit-fields-wrapper, input[type="time"]::-w
   transition: all var(--t);
   position: relative;
   overflow: hidden;
+}
+.file-upload-wrap input {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 .req-card::before {
   content: '';
@@ -3899,6 +3918,7 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
   .steps-grid     { grid-template-columns: repeat(3, 1fr) !important; }
   .stats-showcase { grid-template-columns: repeat(2, 1fr) !important; }
   .stat-showcase-item:nth-child(2) { border-right: none; }
+  .stat-showcase-item:nth-child(2) { border-right: none; }
   .stat-showcase-item:nth-child(1),
   .stat-showcase-item:nth-child(2) { border-bottom: 1px solid var(--border); }
 }
@@ -3938,6 +3958,7 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
   .features-grid  { grid-template-columns: 1fr !important; }
   /* Steps: single column */
   .steps-grid     { grid-template-columns: 1fr !important; }
+  .details-grid   { grid-template-columns: 1fr !important; }
   .step-card      { text-align: left; padding: 18px; }
   .step-num-big   { margin: 0 0 12px; }
 
@@ -3998,12 +4019,13 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
   /* Hero */
   .hero { padding: 28px 14px 36px !important; min-height: auto !important; }
   .hero-text h1 {
-    font-size: clamp(1.6rem, 8.5vw, 2.1rem) !important;
-    line-height: 1.1 !important;
+    font-size: clamp(1.6rem, 8vw, 2.1rem) !important;
+    line-height: 1.15 !important;
     word-break: break-word;
+    hyphens: auto;
   }
   .hero-text p  { font-size: 13px !important; margin-bottom: 18px !important; }
-  .hero-tag     { font-size: 10px !important; padding: 4px 8px !important; margin-bottom: 12px !important; }
+  .hero-tag     { font-size: 10px !important; padding: 4px 8px !important; margin-bottom: 12px !important; white-space: normal; text-align: center; }
 
   /* Hero social proof badge */
   div[style*="250+ students"] {
