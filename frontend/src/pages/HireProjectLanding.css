@@ -3,6 +3,277 @@
    Injected into LandingPage as independent self-contained sections
    ═══════════════════════════════════════════════════════════════ */
 
+/* ══════════════════════════════════════════════════════════════
+   SPLASH INTRO
+   ══════════════════════════════════════════════════════════════ */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: var(--bg, #09090b);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 0.75s ease, visibility 0.75s;
+  padding: 20px;
+}
+
+.splash-overlay.splash-exit {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: var(--auth-grid, linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px));
+  background-size: 40px 40px;
+  z-index: -2;
+  opacity: 0.5;
+}
+
+.splash-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -1;
+  opacity: 0.4;
+}
+
+.splash-orb-1 {
+  width: min(400px, 80vw);
+  height: min(400px, 80vw);
+  background: var(--orange, #3b82f6);
+  top: -10%;
+  left: -10%;
+}
+
+.splash-orb-2 {
+  width: min(300px, 60vw);
+  height: min(300px, 60vw);
+  background: var(--green, #10b981);
+  bottom: -5%;
+  right: -5%;
+}
+
+.splash-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.splash-logo-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-secondary, #a1a1aa);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.splash-progress-wrap {
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 50px;
+}
+
+.splash-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-primary, #fafafa);
+  margin-bottom: 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.splash-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.splash-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--orange, #3b82f6), var(--orange-light, #60a5fa));
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--orange-glow, rgba(59,130,246,0.5));
+}
+
+.splash-progress-fill.done {
+  background: var(--green, #10b981);
+  box-shadow: 0 0 10px var(--green-soft, rgba(16,185,129,0.5));
+}
+
+.splash-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.splash-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.splash-card.fly-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.splash-card.fly-out {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+  transition: all 0.3s ease-in;
+}
+
+.splash-card-icon {
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.splash-card-icon.blue { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); }
+.splash-card-icon.gold { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.3); }
+.splash-card-icon.green { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+.splash-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.splash-card-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.splash-card-meta {
+  font-size: 13px;
+  color: var(--text-secondary, #a1a1aa);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.splash-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.splash-badge.accepted { color: #10b981; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
+.splash-badge.pending { color: #eab308; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2); }
+.splash-badge.review { color: #3b82f6; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); }
+
+.splash-status {
+  position: absolute;
+  bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted, #71717a);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: 100%;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.splash-status-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  background: var(--green, #10b981);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--green, #10b981);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Responsive Overrides for Mobile */
+@media (max-width: 480px) {
+  .splash-overlay {
+    padding: 16px;
+  }
+  .splash-logo-wrap {
+    margin-bottom: 30px;
+  }
+  .splash-logo-tag {
+    font-size: 11px;
+  }
+  .splash-progress-wrap {
+    margin-bottom: 30px;
+  }
+  .splash-progress-label {
+    font-size: 13px;
+  }
+  .splash-card {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+  .splash-card-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+  .splash-card-name {
+    font-size: 14px;
+  }
+  .splash-card-meta {
+    font-size: 11px;
+  }
+  .splash-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+  .splash-status {
+    bottom: 24px;
+    font-size: 10px;
+  }
+}
+
 /* ── Noise texture overlay ───────────────────────────────────── */
 .hp-noise {
   position: fixed;
