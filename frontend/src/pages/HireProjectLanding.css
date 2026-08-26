@@ -1086,13 +1086,24 @@
 .hero-delivery-badge {
   padding: 12px 20px !important;
 }
-@media (max-width: 414px) {
+@media (max-width: 768px) {
   .hero-delivery-badge {
-    flex-direction: column;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+    gap: 6px !important;
+  }
+}
+@media (max-width: 480px) {
+  .hero-delivery-badge {
+    flex-direction: row;
     text-align: center;
-    gap: 8px !important;
-    padding: 14px 16px !important;
-    font-size: 13px !important;
+    gap: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+  }
+  .hero-delivery-icon svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
@@ -1119,12 +1130,27 @@
 }
 @media (max-width: 500px) {
   .hero-ctas {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
+    gap: 12px;
   }
   .hero-ctas .btn {
-    max-width: 100%;
-    width: 100%;
+    max-width: none;
+    width: auto;
+    flex: 0 1 auto;
+    height: 44px;
+    padding: 0 18px;
+    font-size: 13.5px;
+  }
+}
+@media (max-width: 360px) {
+  .hero-ctas {
+    gap: 8px;
+  }
+  .hero-ctas .btn {
+    padding: 0 12px;
+    font-size: 12px;
   }
 }
 

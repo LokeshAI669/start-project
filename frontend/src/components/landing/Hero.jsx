@@ -101,7 +101,7 @@ export default function Hero({ navigate }) {
             Submit project ideas, schedule meetings, track approvals in real time — a streamlined platform built for students and supervisors who value clarity and speed.
           </motion.p>
           
-          <StatsBadge count="250+" label="students" />
+          <StatsBadge count="250+" label="projects" />
           <CTAButtons navigate={navigate} />
           <StatusBar />
         </motion.div>

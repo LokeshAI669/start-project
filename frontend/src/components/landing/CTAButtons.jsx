@@ -20,10 +20,7 @@ export default function CTAButtons({ navigate }) {
       </motion.button>
       
       <motion.button 
-        onClick={() => {
-          const cat = document.getElementById('catalog');
-          if (cat) cat.scrollIntoView({ behavior: 'smooth' });
-        }} 
+        onClick={() => navigate('/browse')} 
         className="btn btn-secondary btn-lg"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
