@@ -6,9 +6,8 @@ import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion
 import JobZenLogo from '../components/JobZenLogo';
 import { AuthContext } from '../context/AuthContext';
 import './HireProjectLanding.css';
-import heroBgVideo from '../assets/hero-bg-robot-final.mp4';
-import heroBgMobileVideo from '../assets/hero-bg-robot.mp4';
-import heroBgPoster from '../assets/hero-bg-robot-poster.webp';
+import Header from '../components/landing/Header';
+import Hero from '../components/landing/Hero';
 
 /* ─────────────────────────────────────────────────────────────
    SPLASH INTRO — plays once per session, then reveals the page
@@ -228,100 +227,7 @@ function AnimatedFeatureCard({ Icon, title, desc, index }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ANIMATED DASHBOARD — Motion-powered hero widget
-   ───────────────────────────────────────────────────────────── */
-function AnimatedDashboard() {
-  return (
-    <div style={{ position: 'relative', display: 'flex', minHeight: '430px', alignItems: 'center', justifyContent: 'center' }}>
-      {/* Rotating ring */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', width: 320, height: 320, borderRadius: '50%', border: '1px solid rgba(59,130,246,0.2)', pointerEvents: 'none' }}
-      />
-      <motion.div
-        animate={{ rotate: -360 }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', width: 260, height: 260, borderRadius: '50%', border: '1px dashed rgba(16,185,129,0.15)', pointerEvents: 'none' }}
-      />
 
-      {/* Main card */}
-      <motion.div
-        animate={{ y: [0, -14, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'relative', width: '100%', maxWidth: 380,
-          background: 'var(--glass-bg)',
-          border: '1px solid var(--glass-border)',
-          borderRadius: 24, padding: 22,
-          backdropFilter: 'blur(24px)',
-          boxShadow: 'var(--glass-shadow)',
-        }}
-        className="animated-dashboard-card"
-      >
-        {/* Header */}
-        <div className="animated-dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div>
-            <p style={{ fontSize: 12, color: 'var(--text-faint)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Interview Readiness</p>
-            <p className="animated-dashboard-percentage" style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.04em', marginTop: 2 }}>86%</p>
-          </div>
-          <div className="animated-dashboard-icon" style={{ background: 'rgba(16,185,129,0.15)', borderRadius: 14, padding: 10, color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CheckCircle size={26} />
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        <div style={{ height: 6, borderRadius: 99, background: 'var(--glass-border)', overflow: 'hidden', marginBottom: 20 }}>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: '86%' }}
-            transition={{ duration: 1.6, delay: 0.6, ease: 'easeOut' }}
-            style={{ height: '100%', borderRadius: 99, background: 'linear-gradient(90deg, #3B82F6, #10B981)' }}
-          />
-        </div>
-
-        {/* Skill rows */}
-        {['Communication', 'Technical Skills', 'Confidence'].map((item, i) => (
-          <motion.div
-            key={item}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.9 + i * 0.15 }}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: 'rgba(9,9,11,0.55)', borderRadius: 12,
-              padding: '11px 14px', marginBottom: i < 2 ? 8 : 0,
-              border: '1px solid rgba(255,255,255,0.05)',
-            }}
-          >
-            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{item}</span>
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: '#3B82F6', fontWeight: 700 }}>
-              {i === 0 ? '90%' : i === 1 ? '84%' : '82%'}
-            </span>
-          </motion.div>
-        ))}
-
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.4, type: 'spring', stiffness: 300 }}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            marginTop: 16, background: 'rgba(59,130,246,0.12)',
-            border: '1px solid rgba(59,130,246,0.25)',
-            borderRadius: 99, padding: '6px 14px',
-            fontSize: 11, fontFamily: 'JetBrains Mono, monospace',
-            color: '#3B82F6', fontWeight: 700,
-          }}
-        >
-          <Sparkles size={12} /> AI-Powered Analysis · Live
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-}
 
 /* ─────────────────────────────────────────────────────────────
    ANIMATED STAT — whileInView counter card
@@ -562,8 +468,6 @@ export default function LandingPage() {
 
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
-  const videoRef = useRef(null);
-  const [showFallbackButton, setShowFallbackButton] = useState(false);
 
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(() => {
@@ -586,29 +490,6 @@ export default function LandingPage() {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    // Attempt programmatic autoplay with robust mobile fallback
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Check Data Saver mode on Android
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (connection && connection.saveData) {
-      console.warn("Data Saver mode enabled, skipping autoplay.");
-      setShowFallbackButton(true);
-      return;
-    }
-
-    video.muted = true; // Crucial for iOS Safari programmatic autoplay
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((err) => {
-        console.warn("Autoplay blocked by browser policy or low power mode:", err);
-        setShowFallbackButton(true);
-      });
-    }
   }, []);
 
   useEffect(() => {
@@ -712,89 +593,9 @@ export default function LandingPage() {
       <div style={{ position: 'relative', isolation: 'isolate' }}>
       <div className="grid-overlay"></div>
 
-      <nav className="pub-navbar" id="navbar">
-        <Link to="/" className="pub-navbar-logo">
-          <JobZenLogo theme={theme} size="md" />
-        </Link>
-        <div className="pub-navbar-links">
-          <button className="theme-toggle-btn" onClick={toggleTheme} title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'} style={{padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'all 0.2s ease'}}>
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          <div className="nav-divider"></div>
-          <button onClick={() => navigate('/request')} className="btn btn-primary btn-sm">Submit Request</button>
-        </div>
-      </nav>
-
-      <section className="hero" id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          webkit-playsinline="true"
-          className="hero-video-bg"
-          poster={heroBgPoster}
-          preload={isMobile ? "metadata" : "auto"}
-        >
-          <source src={heroBgMobileVideo} media="(max-width: 768px)" type="video/mp4" />
-          <source src={heroBgVideo} type="video/mp4" />
-        </video>
-        
-        {/* Dark overlay to ensure text readability regardless of image position */}
-        <div className="hero-video-gradient-overlay" aria-hidden="true"></div>
-        
-        {showFallbackButton && (
-          <div className="hero-video-fallback-overlay">
-            <button 
-              onClick={() => { 
-                if(videoRef.current) videoRef.current.play(); 
-                setShowFallbackButton(false); 
-              }} 
-              className="btn-play-fallback"
-            >
-              <PlayCircle size={48} />
-              <span>Play Background Video</span>
-            </button>
-          </div>
-        )}
-        <div className="hero-inner" style={{ position: 'relative', zIndex: 1 }}>
-          <div className="hero-text">
-            <div className="hero-tag"> Project Request Platform</div>
-            <h1>Where Student Projects<br/>
-              <span className="typewriter-wrap">
-                <span className="typewriter-text" id="typewriter">Get Approved</span><span className="typewriter-cursor"></span>
-              </span>
-            </h1>
-            <p>Submit project ideas, schedule meetings, track approvals in real time — a streamlined platform built for students and supervisors who value clarity and speed.</p>
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="hero-delivery-badge"
-            >
-              <span className="hero-delivery-icon"><Users size={16} /></span>
-              We have successfully delivered projects to over <span className="highlight-text">250+ students</span>.
-            </motion.div>
-            <div className="hero-ctas">
-              <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg">Submit Request →</button>
-              <button onClick={() => navigate('/browse')} className="btn btn-outline btn-lg">Browse Projects</button>
-            </div>
-            <div className="hero-trust">
-              <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
-                <div style={{width:'8px',height:'8px',borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 12px var(--green)',animation:'liveDot 2s infinite'}}></div>
-                <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:'10.5px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.07em'}}>System Online</span>
-              </div>
-              <div style={{width:'1px',height:'14px',background:'var(--border)'}}></div>
-              <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:'10.5px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.07em'}}>Real-Time Tracking</span>
-              <div style={{width:'1px',height:'14px',background:'var(--border)'}}></div>
-              <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:'10.5px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.07em'}}>Free Forever</span>
-            </div>
-          </div>
-
-          <AnimatedDashboard />
-        </div>
-      </section>
+      <Header theme={theme} toggleTheme={toggleTheme} navigate={navigate} />
+      
+      <Hero navigate={navigate} />
 
       <section className="stats-section-wrap">
         <div style={{maxWidth:'1200px',margin:'0 auto'}}>
