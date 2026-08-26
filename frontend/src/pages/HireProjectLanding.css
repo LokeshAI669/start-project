@@ -762,7 +762,8 @@
 /* ── Hero Video Background ───────────────────────────────────── */
 .hero { background-color: var(--bg); }
 
-.hero-video-bg {
+.hero-video-bg,
+.hero-poster-bg {
   position: absolute;
   top: 0;
   left: 0;
@@ -773,6 +774,20 @@
   opacity: var(--video-opacity, 0.5);
   filter: var(--video-filter, none);
   pointer-events: none;
+}
+
+/* Adjust object-position for mobile poster so robot is visible */
+@media (max-width: 768px) {
+  .hero-poster-bg {
+    object-position: 85% center;
+    opacity: 0.45; /* slightly more visible on mobile */
+  }
+}
+@media (max-width: 480px) {
+  .hero-poster-bg {
+    object-position: 85% center;
+    opacity: 0.4;
+  }
 }
 
 /* ── Hero Delivery Badge ───────────────────────────────────── */

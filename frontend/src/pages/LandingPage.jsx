@@ -7,6 +7,7 @@ import JobZenLogo from '../components/JobZenLogo';
 import { AuthContext } from '../context/AuthContext';
 import './HireProjectLanding.css';
 import heroBgVideo from '../assets/hero-bg-robot-final.mp4';
+import heroBgPoster from '../assets/hero-bg-robot-poster.webp';
 
 /* ─────────────────────────────────────────────────────────────
    SPLASH INTRO — plays once per session, then reveals the page
@@ -558,6 +559,7 @@ export default function LandingPage() {
   const { setRole } = useContext(AuthContext);
 
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
 
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(() => {
@@ -575,6 +577,12 @@ export default function LandingPage() {
     document.documentElement.setAttribute('data-theme', next);
     setTheme(next);
   };
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     // ── Navbar scroll effect (passive listener = no jank) ──
@@ -691,14 +699,25 @@ export default function LandingPage() {
       </nav>
 
       <section className="hero" id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="hero-video-bg"
-          src={heroBgVideo}
-        />
+        {!isMobile ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="hero-video-bg"
+            poster={heroBgPoster}
+            src={heroBgVideo}
+          />
+        ) : (
+          <img
+            src={heroBgPoster}
+            alt=""
+            aria-hidden="true"
+            className="hero-poster-bg"
+            loading="eager"
+          />
+        )}
         <div className="hero-inner" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-text">
             <div className="hero-tag"> Project Request Platform</div>
