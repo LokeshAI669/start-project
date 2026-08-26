@@ -109,7 +109,7 @@ export default function BrowseCatalog() {
       const matchLevel    = level === 'All levels' || p.level === level;
       return matchSearch && matchCategory && matchLevel;
     });
-  }, [search, category, level]);
+  }, [search, category, level, projects]);
 
   return (
     <div className="pc-wrap">
@@ -199,19 +199,19 @@ export default function BrowseCatalog() {
             </div>
 
             {/* Custom Category select */}
-            <div className="pc-custom-select-wrap" style={{ position: 'relative' }}>
+            <div className="pc-select-wrap" style={{ position: 'relative', padding: 0, border: 'none', background: 'transparent', height: 'auto' }}>
               <button 
                 className="pc-select-btn" 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 style={{ 
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                  background: 'var(--bg-card)', border: '1px solid var(--border)', 
-                  padding: '10px 16px', borderRadius: '8px', color: 'var(--text-primary)',
-                  fontSize: '14px', width: '200px', cursor: 'pointer', fontFamily: 'inherit'
+                  background: 'rgba(255,255,255,0.055)', border: '1px solid var(--pc-border)', 
+                  padding: '0 15px', borderRadius: '12px', color: 'var(--text-primary)',
+                  fontSize: '0.9rem', width: '100%', height: '50px', cursor: 'pointer', fontFamily: 'inherit'
                 }}
               >
                 {category}
-                <ChevronDown size={17} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                <ChevronDown size={17} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', color: 'var(--pc-muted)' }} />
               </button>
               <AnimatePresence>
                 {isDropdownOpen && (
@@ -222,8 +222,8 @@ export default function BrowseCatalog() {
                     transition={{ duration: 0.15 }}
                     style={{
                       position: 'absolute', top: '100%', left: 0, width: '100%', 
-                      marginTop: '6px', background: '#18181B', // Dark theme background
-                      border: '1px solid var(--border)', borderRadius: '8px',
+                      marginTop: '6px', background: '#121421',
+                      border: '1px solid var(--pc-border)', borderRadius: '12px',
                       overflow: 'hidden', zIndex: 50, boxShadow: '0 15px 35px rgba(0,0,0,0.5)'
                     }}
                   >
@@ -232,9 +232,9 @@ export default function BrowseCatalog() {
                         key={c}
                         onClick={() => { setCategory(c); setIsDropdownOpen(false); }}
                         style={{
-                          padding: '10px 16px', cursor: 'pointer', fontSize: '14px',
+                          padding: '12px 16px', cursor: 'pointer', fontSize: '0.9rem',
                           background: category === c ? 'rgba(255,255,255,0.08)' : 'transparent',
-                          color: category === c ? 'var(--text-primary)' : 'var(--text-secondary)',
+                          color: category === c ? 'var(--text-primary)' : 'var(--pc-muted)',
                           transition: 'background 0.2s'
                         }}
                         onMouseEnter={(e) => {
@@ -243,7 +243,7 @@ export default function BrowseCatalog() {
                         }}
                         onMouseLeave={(e) => {
                           e.target.style.background = category === c ? 'rgba(255,255,255,0.08)' : 'transparent';
-                          if(category !== c) e.target.style.color = 'var(--text-secondary)';
+                          if(category !== c) e.target.style.color = 'var(--pc-muted)';
                         }}
                       >
                         {c}
