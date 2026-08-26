@@ -741,6 +741,9 @@ export default function LandingPage() {
           <source src={heroBgVideo} type="video/mp4" />
         </video>
         
+        {/* Dark overlay to ensure text readability regardless of image position */}
+        <div className="hero-video-gradient-overlay" aria-hidden="true"></div>
+        
         {showFallbackButton && (
           <div className="hero-video-fallback-overlay">
             <button 

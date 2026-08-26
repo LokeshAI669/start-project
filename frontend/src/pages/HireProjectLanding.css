@@ -966,22 +966,48 @@ background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), rgba(16,18
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  opacity: var(--video-opacity, 0.5);
-  filter: var(--video-filter, none);
+  opacity: 0.45;
   pointer-events: none;
 }
 
-/* Adjust object-position for mobile poster so robot is visible */
+/* Dark overlay gradient to guarantee text readability */
+.hero-video-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7));
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Ensure inner content sits above video and overlay */
+.hero-inner {
+  position: relative;
+  z-index: 2 !important;
+}
+
+/* Adjust object-position and scale for mobile so robot doesn't overlap text */
 @media (max-width: 768px) {
+  .hero-video-bg,
   .hero-poster-bg {
-    object-position: 85% center;
-    opacity: 0.45; /* slightly more visible on mobile */
+    object-position: center 70%;
+    transform: scale(0.9);
   }
 }
 @media (max-width: 480px) {
+  .hero-video-bg,
   .hero-poster-bg {
-    object-position: 85% center;
-    opacity: 0.4;
+    object-position: center 80%;
+    transform: scale(0.85);
+    opacity: 0.35;
+  }
+}
+@media (max-width: 360px) {
+  .hero-video-bg,
+  .hero-poster-bg {
+    opacity: 0.15;
   }
 }
 
