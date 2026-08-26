@@ -257,14 +257,15 @@ function AnimatedDashboard() {
           backdropFilter: 'blur(24px)',
           boxShadow: 'var(--glass-shadow)',
         }}
+        className="animated-dashboard-card"
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div className="animated-dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
             <p style={{ fontSize: 12, color: 'var(--text-faint)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Interview Readiness</p>
-            <p style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.04em', marginTop: 2 }}>86%</p>
+            <p className="animated-dashboard-percentage" style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.04em', marginTop: 2 }}>86%</p>
           </div>
-          <div style={{ background: 'rgba(16,185,129,0.15)', borderRadius: 14, padding: 10, color: '#10B981' }}>
+          <div className="animated-dashboard-icon" style={{ background: 'rgba(16,185,129,0.15)', borderRadius: 14, padding: 10, color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CheckCircle size={26} />
           </div>
         </div>
@@ -736,11 +737,11 @@ export default function LandingPage() {
               <span className="hero-delivery-icon"><Users size={16} /></span>
               We have successfully delivered projects to over <span className="highlight-text">250+ students</span>.
             </motion.div>
-            <div className="hero-ctas" style={{display:'flex',gap:'12px',flexWrap:'wrap'}}>
+            <div className="hero-ctas">
               <button onClick={() => navigate('/request')} className="btn btn-primary btn-lg">Submit Request →</button>
               <button onClick={() => navigate('/browse')} className="btn btn-outline btn-lg">Browse Projects</button>
             </div>
-            <div className="hero-trust" style={{display:'flex',alignItems:'center',gap:'12px',marginTop:'36px',flexWrap:'wrap'}}>
+            <div className="hero-trust">
               <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
                 <div style={{width:'8px',height:'8px',borderRadius:'50%',background:'var(--green)',boxShadow:'0 0 12px var(--green)',animation:'liveDot 2s infinite'}}></div>
                 <span style={{fontFamily:'JetBrains Mono, monospace',fontSize:'10.5px',color:'var(--text-faint)',textTransform:'uppercase',letterSpacing:'.07em'}}>System Online</span>
