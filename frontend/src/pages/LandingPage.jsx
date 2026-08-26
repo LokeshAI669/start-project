@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutList, Mail, Activity, CalendarDays, Sun, Moon, CheckCircle, Sparkles, ArrowRight, Mic, BriefcaseBusiness, Users, BrainCircuit, ChevronRight, Code2, Database } from 'lucide-react';
+import { LayoutList, Mail, Activity, CalendarDays, Sun, Moon, CheckCircle, Sparkles, ArrowRight, Mic, BriefcaseBusiness, Users, BrainCircuit, ChevronRight, Code2, Database, PlayCircle } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion/react';
 
 import JobZenLogo from '../components/JobZenLogo';
 import { AuthContext } from '../context/AuthContext';
 import './HireProjectLanding.css';
 import heroBgVideo from '../assets/hero-bg-robot-final.mp4';
+import heroBgMobileVideo from '../assets/hero-bg-robot.mp4';
 import heroBgPoster from '../assets/hero-bg-robot-poster.webp';
 
 /* ─────────────────────────────────────────────────────────────
@@ -561,6 +562,8 @@ export default function LandingPage() {
 
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
+  const videoRef = useRef(null);
+  const [showFallbackButton, setShowFallbackButton] = useState(false);
 
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(() => {
@@ -583,6 +586,29 @@ export default function LandingPage() {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize, { passive: true });
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Attempt programmatic autoplay with robust mobile fallback
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Check Data Saver mode on Android
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (connection && connection.saveData) {
+      console.warn("Data Saver mode enabled, skipping autoplay.");
+      setShowFallbackButton(true);
+      return;
+    }
+
+    video.muted = true; // Crucial for iOS Safari programmatic autoplay
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((err) => {
+        console.warn("Autoplay blocked by browser policy or low power mode:", err);
+        setShowFallbackButton(true);
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -700,24 +726,34 @@ export default function LandingPage() {
       </nav>
 
       <section className="hero" id="hero" style={{ position: 'relative', overflow: 'hidden' }}>
-        {!isMobile ? (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="hero-video-bg"
-            poster={heroBgPoster}
-            src={heroBgVideo}
-          />
-        ) : (
-          <img
-            src={heroBgPoster}
-            alt=""
-            aria-hidden="true"
-            className="hero-poster-bg"
-            loading="eager"
-          />
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          webkit-playsinline="true"
+          className="hero-video-bg"
+          poster={heroBgPoster}
+          preload={isMobile ? "metadata" : "auto"}
+        >
+          <source src={heroBgMobileVideo} media="(max-width: 768px)" type="video/mp4" />
+          <source src={heroBgVideo} type="video/mp4" />
+        </video>
+        
+        {showFallbackButton && (
+          <div className="hero-video-fallback-overlay">
+            <button 
+              onClick={() => { 
+                if(videoRef.current) videoRef.current.play(); 
+                setShowFallbackButton(false); 
+              }} 
+              className="btn-play-fallback"
+            >
+              <PlayCircle size={48} />
+              <span>Play Background Video</span>
+            </button>
+          </div>
         )}
         <div className="hero-inner" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-text">
