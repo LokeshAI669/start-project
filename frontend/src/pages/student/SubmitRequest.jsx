@@ -42,8 +42,8 @@ export default function SubmitRequest() {
 
   /* form state */
   const [step, setStep]                     = useState(1);
-  const [name, setName]                     = useState(user?.name || '');
-  const [email, setEmail]                   = useState(user?.email || '');
+  const [name, setName]                     = useState('');
+  const [email, setEmail]                   = useState('');
   const [projectName, setProjectName]       = useState('');
   const [budget, setBudget]                 = useState('');
   const [currency, setCurrency]             = useState('₹');
@@ -57,27 +57,61 @@ export default function SubmitRequest() {
   const [loading, setLoading]               = useState(false);
   const [success, setSuccess]               = useState(false);
 
-  /* pre-fill from user context */
-  useEffect(() => {
-    if (user) {
-      if (user.name  && !name)  setName(user.name);
-      if (user.email && !email) setEmail(user.email);
-    }
-  }, [user]);
+  /* pre-fill from user context - disabled to keep fields empty */
+  // useEffect(() => {
+  //   if (user) {
+  //     if (user.name  && !name)  setName(user.name);
+  //     if (user.email && !email) setEmail(user.email);
+  //   }
+  // }, [user]);
 
-  /* pre-fill from catalog */
+  /* pre-fill from catalog — auto-fill project name + AI-expanded description */
   useEffect(() => {
     if (!catalogId) return;
     setLoading(true);
     api('GET', `/api/catalog/${catalogId}`)
       .then(data => {
         if (!data) return;
+
+        // ── Auto-fill project name ──
         setProjectName(data.title || '');
-        let desc = data.short_description || '';
-        if (data.full_description) desc += '\n\n' + data.full_description;
-        if (data.objectives?.length) desc += '\n\nObjectives:\n- ' + data.objectives.join('\n- ');
-        if (data.tech_stack)        desc += '\n\nTech Stack: ' + data.tech_stack;
-        setDescription(desc);
+
+        // ── AI-expand description from all available fields ──
+        let desc = '';
+
+        if (data.short_description) {
+          desc += data.short_description;
+        }
+
+        if (data.full_description) {
+          desc += '\n\n' + data.full_description;
+        }
+
+        if (data.objectives?.length) {
+          desc += '\n\nKey Objectives:\n' + data.objectives.map(o => `• ${o}`).join('\n');
+        }
+
+        if (data.tech_stack) {
+          desc += '\n\nTech Stack: ' + data.tech_stack;
+        }
+
+        if (data.estimated_duration) {
+          desc += '\n\nEstimated Duration: ' + data.estimated_duration;
+        }
+
+        if (data.prerequisites) {
+          desc += '\n\nPrerequisites: ' + data.prerequisites;
+        }
+
+        // fallback if everything is null
+        if (!desc.trim()) {
+          desc = `This is a ${data.domain || 'technology'} project titled "${data.title}". Please describe your specific requirements and goals for this project.`;
+        }
+
+        setDescription(desc.trim());
+
+        // Stay on Step 1 so user fills in name & email first
+        // Project name + description are ready for Step 2
       })
       .catch(err => console.error('Catalog fetch failed:', err))
       .finally(() => setLoading(false));
@@ -198,13 +232,19 @@ export default function SubmitRequest() {
           </Link>
         </header>
 
-        {/* Step progress */}
+        {/* Step progress - clickable to navigate between steps */}
         <div className="sr-steps">
           {STEPS.map((s, i) => {
             const state = step > s.n ? 'done' : step === s.n ? 'active' : 'idle';
+            const isClickable = step > s.n || step === s.n; // can click done or active steps
             return (
               <React.Fragment key={s.n}>
-                <div className="sr-step">
+                <div
+                  className="sr-step"
+                  style={{ cursor: isClickable ? 'pointer' : 'default' }}
+                  onClick={() => isClickable && setStep(s.n)}
+                  title={isClickable ? `Go to ${s.label}` : ''}
+                >
                   <div className={`sr-step-circle ${state}`}>
                     {state === 'done' ? <CheckCircle2 size={17} /> : s.n}
                   </div>
@@ -246,7 +286,7 @@ export default function SubmitRequest() {
                     <input
                       className="sr-input"
                       type="text"
-                      placeholder="e.g. Priya Sharma"
+                      placeholder="Enter your name"
                       value={name}
                       onChange={e => setName(e.target.value)}
                     />
@@ -256,7 +296,7 @@ export default function SubmitRequest() {
                     <input
                       className="sr-input"
                       type="email"
-                      placeholder="e.g. priya@example.com"
+                      placeholder="Enter your email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                     />

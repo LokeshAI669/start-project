@@ -79,14 +79,22 @@ export default function BrowseCatalog() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api('GET', '/api/catalog?limit=200')
+    api('GET', '/api/catalog?limit=500')
       .then(res => {
-        const mapped = res.data.map(p => ({
+        // Deduplicate by title client-side (safety net)
+        const seen = new Set();
+        const unique = res.data.filter(p => {
+          const key = p.title.toLowerCase().trim();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        const mapped = unique.map(p => ({
           id: p.id,
           title: p.title,
           category: p.domain,
           level: p.difficulty,
-          description: p.short_description,
+          description: p.short_description || '',
           color: getDomainColor(p.domain),
           image: getDomainImage(p.domain),
           tools: getDomainTools(p.domain)
@@ -103,13 +111,13 @@ export default function BrowseCatalog() {
   const filtered = useMemo(() => {
     return projects.filter((p) => {
       const matchSearch =
-        p.title.toLowerCase().includes(search.toLowerCase()) ||
-        p.description.toLowerCase().includes(search.toLowerCase());
+        (p.title || '').toLowerCase().includes(search.toLowerCase()) ||
+        (p.description || '').toLowerCase().includes(search.toLowerCase());
       const matchCategory = category === 'All Domains' || p.category === category;
       const matchLevel    = level === 'All levels' || p.level === level;
       return matchSearch && matchCategory && matchLevel;
     });
-  }, [search, category, level]);
+  }, [projects, search, category, level]);
 
   return (
     <div className="pc-wrap">
@@ -296,18 +304,25 @@ export default function BrowseCatalog() {
                 key={project.id}
                 project={project}
                 index={i}
-                onRequest={() => navigate('/request')}
+                onRequest={() => navigate(`/request?catalog_id=${project.id}`)}
               />
             ))}
           </AnimatePresence>
         </motion.section>
 
         {/* Empty state */}
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="pc-empty">
             <Search size={36} />
             <h3>No projects found</h3>
             <p>Try another search term or choose a different category.</p>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {loading && (
+          <div className="pc-empty">
+            <h3 style={{ opacity: 0.5 }}>Loading projects...</h3>
           </div>
         )}
       </main>

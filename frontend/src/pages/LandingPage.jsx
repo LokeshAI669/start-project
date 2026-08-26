@@ -699,6 +699,8 @@ export default function LandingPage() {
           className="hero-video-bg"
           src={heroBgVideo}
         />
+        {/* Gradient overlay — darkens left/bottom on mobile so text stays readable */}
+        <div className="hero-video-overlay" />
         <div className="hero-inner" style={{ position: 'relative', zIndex: 1 }}>
           <div className="hero-text">
             <div className="hero-tag"> Project Request Platform</div>
