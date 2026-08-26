@@ -296,7 +296,7 @@ export default function BrowseCatalog() {
                 key={project.id}
                 project={project}
                 index={i}
-                onRequest={() => navigate('/request')}
+                onRequest={() => navigate(`/request?catalog_id=${project.id}`)}
               />
             ))}
           </AnimatePresence>

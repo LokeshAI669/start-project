@@ -343,6 +343,7 @@ const HP_CATEGORIES = [
    HP PROJECT CARD
    ───────────────────────────────────────────────────────────── */
 function HpProjectCard({ project, index }) {
+  const navigate = useNavigate();
   return (
     <motion.article
       className="hp-project-card"
@@ -361,7 +362,7 @@ function HpProjectCard({ project, index }) {
       <div className="hp-project-content">
         <p className="hp-project-category">{project.category}</p>
         <h3 className="hp-project-title">{project.title}</h3>
-        <button className="hp-project-btn">
+        <button className="hp-project-btn" onClick={() => navigate('/browse')}>
           View project <ArrowRight size={14} />
         </button>
       </div>
