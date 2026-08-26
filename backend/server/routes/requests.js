@@ -4,7 +4,7 @@ const { requireAuth, optionalAuth, requireStudent, requireAdmin } = require('../
 const mailer           = require('../mailer');
 const multer           = require('multer');
 const path             = require('path');
-const { Parser }       = require('json2csv');
+const { Parser }       = require('@json2csv/plainjs');
 
 const router = express.Router();
 
