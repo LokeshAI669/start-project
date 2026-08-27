@@ -146,18 +146,23 @@ function AnimatedFeatureCard({ Icon, title, desc, index }) {
 
   const [isHovered, setIsHovered] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
+  const rectRef = useRef(null);
 
   useEffect(() => {
     setIsTouch('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  const handleMouseMove = (e) => {
+  const handleMouseEnter = () => {
     if (isTouch || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    setIsHovered(true);
+    rectRef.current = cardRef.current.getBoundingClientRect();
+  };
+
+  const handleMouseMove = (e) => {
+    if (isTouch || !rectRef.current) return;
+    const { width, height, left, top } = rectRef.current;
+    const mouseX = e.clientX - left;
+    const mouseY = e.clientY - top;
     const xPct = mouseX / width - 0.5;
     const yPct = mouseY / height - 0.5;
     x.set(xPct);
@@ -188,7 +193,7 @@ function AnimatedFeatureCard({ Icon, title, desc, index }) {
         viewport={{ once: true, amount: 0.25 }}
         transition={{ type: "spring", stiffness: 100, damping: 15, delay: index * 0.12 }}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => !isTouch && setIsHovered(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{
           rotateX: isTouch ? 0 : rotateX,
@@ -380,14 +385,20 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
   const rotateX = useTransform(y, [-0.5, 0.5], [8, -8]);
   const rotateY = useTransform(x, [-0.5, 0.5], [-8, 8]);
   const [isHovered, setIsHovered] = useState(false);
+  const rectRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (cardRef.current) {
+      rectRef.current = cardRef.current.getBoundingClientRect();
+    }
+  };
 
   const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    if (!rectRef.current) return;
+    const { width, height, left, top } = rectRef.current;
+    const mouseX = e.clientX - left;
+    const mouseY = e.clientY - top;
     const xPct = mouseX / width - 0.5;
     const yPct = mouseY / height - 0.5;
     x.set(xPct);
@@ -420,7 +431,7 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
           willChange: 'transform'
         }}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         animate={isHovered ? { scale: 1.02 } : { scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
