@@ -517,6 +517,18 @@ function Sidebar({ active }) {
         <JobZenLogo theme="dark" size="sm" />
       </Link>
 
+      <div className="sr-sidebar-profile">
+        <div className="sr-profile-letter">
+          {user?.name 
+            ? user.name[0].toUpperCase() 
+            : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
+        </div>
+        <div>
+          <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
+          <small>{user?.email || anonUser?.email || 'Keep building'}</small>
+        </div>
+      </div>
+
       <nav className="sr-nav">
         <Link to="/dashboard" className={active === 'dashboard' ? 'sr-active' : ''}>
           <LayoutDashboard size={20} /> My Requests
@@ -529,17 +541,6 @@ function Sidebar({ active }) {
         </Link>
       </nav>
 
-      <div className="sr-sidebar-bottom">
-        <div className="sr-profile-letter">
-          {user?.name 
-            ? user.name[0].toUpperCase() 
-            : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
-        </div>
-        <div>
-          <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
-          <small>{user?.email || anonUser?.email || 'Keep building'}</small>
-        </div>
-      </div>
     </aside>
   );
 }

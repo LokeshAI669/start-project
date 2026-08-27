@@ -67,7 +67,7 @@
 .sr-nav {
   display: grid;
   gap: 10px;
-  padding: 32px 16px;
+  padding: 16px 16px;
 }
 .sr-nav a {
   display: flex;
@@ -87,19 +87,19 @@
   box-shadow: inset 3px 0 0 #748cff;
 }
 
-.sr-sidebar-bottom {
+.sr-sidebar-profile {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: auto 16px 24px;
+  margin: 24px 16px 0;
   padding: 15px;
   border: 1px solid var(--sr-border);
   border-radius: 15px;
   background: rgba(255,255,255,0.04);
 }
-.sr-sidebar-bottom strong, .sr-sidebar-bottom small { display: block; }
-.sr-sidebar-bottom strong { font-size: 0.85rem; }
-.sr-sidebar-bottom small { margin-top: 3px; color: var(--sr-muted); font-size: 0.72rem; }
+.sr-sidebar-profile strong, .sr-sidebar-profile small { display: block; }
+.sr-sidebar-profile strong { font-size: 0.85rem; }
+.sr-sidebar-profile small  { margin-top: 3px; color: var(--sr-muted); font-size: 0.72rem; }
 .sr-profile-letter {
   display: grid; place-items: center;
   width: 34px; height: 34px;

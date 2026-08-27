@@ -148,6 +148,18 @@ export default function BrowseCatalog() {
           <JobZenLogo theme="dark" size="sm" />
         </Link>
 
+        <div className="pc-sidebar-profile">
+          <div className="pc-profile-letter">
+            {user?.name 
+              ? user.name[0].toUpperCase() 
+              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
+          </div>
+          <div>
+            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
+            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
+          </div>
+        </div>
+
         <nav className="pc-nav">
           <Link to="/dashboard">
             <LayoutDashboard size={20} />
@@ -163,17 +175,6 @@ export default function BrowseCatalog() {
           </Link>
         </nav>
 
-        <div className="pc-sidebar-bottom">
-          <div className="pc-profile-letter">
-            {user?.name 
-              ? user.name[0].toUpperCase() 
-              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
-          </div>
-          <div>
-            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
-            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
-          </div>
-        </div>
       </aside>
 
       {/* ── Main ── */}

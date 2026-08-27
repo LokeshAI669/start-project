@@ -54,7 +54,7 @@
 .db-nav {
   display: grid;
   gap: 10px;
-  padding: 32px 16px;
+  padding: 16px 16px;
 }
 .db-nav a {
   display: flex;
@@ -74,19 +74,19 @@
   box-shadow: inset 3px 0 0 #748cff;
 }
 
-.db-sidebar-bottom {
+.db-sidebar-profile {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: auto 16px 24px;
+  margin: 24px 16px 0;
   padding: 15px;
   border: 1px solid var(--db-border);
   border-radius: 15px;
   background: rgba(255,255,255,0.04);
 }
-.db-sidebar-bottom strong, .db-sidebar-bottom small { display: block; }
-.db-sidebar-bottom strong { font-size: 0.85rem; }
-.db-sidebar-bottom small  { margin-top: 3px; color: var(--db-muted); font-size: 0.72rem; }
+.db-sidebar-profile strong, .db-sidebar-profile small { display: block; }
+.db-sidebar-profile strong { font-size: 0.85rem; }
+.db-sidebar-profile small  { margin-top: 3px; color: var(--db-muted); font-size: 0.72rem; }
 .db-profile-letter {
   display: grid; place-items: center;
   width: 34px; height: 34px;

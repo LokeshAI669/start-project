@@ -137,6 +137,18 @@ export default function Dashboard() {
           <JobZenLogo theme="dark" size="sm" />
         </Link>
 
+        <div className="db-sidebar-profile">
+          <div className="db-profile-letter">
+            {user?.name 
+              ? user.name[0].toUpperCase() 
+              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
+          </div>
+          <div>
+            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
+            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
+          </div>
+        </div>
+
         <nav className="db-nav">
           <Link to="/dashboard" className="db-active">
             <LayoutDashboard size={20} /> My Requests
@@ -149,17 +161,6 @@ export default function Dashboard() {
           </Link>
         </nav>
 
-        <div className="db-sidebar-bottom">
-          <div className="db-profile-letter">
-            {user?.name 
-              ? user.name[0].toUpperCase() 
-              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
-          </div>
-          <div>
-            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
-            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
-          </div>
-        </div>
       </aside>
 
       {/* ── Main ── */}
