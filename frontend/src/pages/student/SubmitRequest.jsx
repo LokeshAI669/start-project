@@ -502,6 +502,15 @@ export default function SubmitRequest() {
 function Sidebar({ active }) {
   const { user } = useContext(AuthContext);
 
+  const anonUser = React.useMemo(() => {
+    try {
+      const stored = localStorage.getItem('anon_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   return (
     <aside className="sr-sidebar">
       <Link to="/" className="sr-logo" style={{padding:'0 24px'}}>
