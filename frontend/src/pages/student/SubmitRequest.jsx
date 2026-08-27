@@ -165,7 +165,7 @@ export default function SubmitRequest() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
         >
-          <div className="sr-success-icon">ðŸŽ‰</div>
+          <div className="sr-success-icon">🎉</div>
           <h2>Request Submitted!</h2>
           <p>
             Thank you <strong style={{ color: '#f5f7ff' }}>{name}</strong>. Your project
@@ -173,8 +173,8 @@ export default function SubmitRequest() {
             We've sent a confirmation to <strong style={{ color: '#f5f7ff' }}>{email}</strong>.
           </p>
           <div className="sr-success-btns">
-            <Link to="/" className="sr-btn-primary">
-              <Home size={17} /> Return Home
+            <Link to="/dashboard" className="sr-btn-primary">
+              <LayoutDashboard size={17} /> Go to My Requests
             </Link>
             <button className="sr-btn-ghost" onClick={resetForm}>
               Submit Another
