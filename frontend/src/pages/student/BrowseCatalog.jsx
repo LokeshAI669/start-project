@@ -1,7 +1,8 @@
-import { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../utils/api';
 import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 import {
   ArrowRight,
   ChevronDown,
@@ -69,6 +70,17 @@ const LEVELS = ['All levels', 'Beginner', 'Intermediate', 'Advanced'];
    ───────────────────────────────────────────────────────────── */
 export default function BrowseCatalog() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
+  const anonUser = React.useMemo(() => {
+    try {
+      const stored = localStorage.getItem('anon_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const [search, setSearch]           = useState('');
   const [category, setCategory]       = useState('All Domains');
   const [level, setLevel]             = useState('All levels');
@@ -152,10 +164,14 @@ export default function BrowseCatalog() {
         </nav>
 
         <div className="pc-sidebar-bottom">
-          <div className="pc-profile-letter">U</div>
+          <div className="pc-profile-letter">
+            {user?.name 
+              ? user.name[0].toUpperCase() 
+              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
+          </div>
           <div>
-            <strong>Welcome back</strong>
-            <small>Keep building</small>
+            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
+            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
           </div>
         </div>
       </aside>

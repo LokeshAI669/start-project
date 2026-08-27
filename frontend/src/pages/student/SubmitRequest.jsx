@@ -40,6 +40,15 @@ export default function SubmitRequest() {
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
 
+  const anonUser = React.useMemo(() => {
+    try {
+      const stored = localStorage.getItem('anon_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
   /* form state */
   const [step, setStep]                     = useState(1);
   const [name, setName]                     = useState(user?.name || '');
@@ -513,11 +522,13 @@ function Sidebar({ active }) {
 
       <div className="sr-sidebar-bottom">
         <div className="sr-profile-letter">
-          {user?.name ? user.name[0].toUpperCase() : 'U'}
+          {user?.name 
+            ? user.name[0].toUpperCase() 
+            : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
         </div>
         <div>
-          <strong>{user?.name || 'Welcome back'}</strong>
-          <small>{user?.email || 'Keep building'}</small>
+          <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
+          <small>{user?.email || anonUser?.email || 'Keep building'}</small>
         </div>
       </div>
     </aside>
