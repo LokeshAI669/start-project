@@ -71,6 +71,16 @@ export default function Dashboard() {
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError]         = useState('');
+  
+  // Read anonymous user fallback from local storage
+  const anonUser = React.useMemo(() => {
+    try {
+      const stored = localStorage.getItem('anon_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, []);
 
   // Wait for auth to resolve before fetching — avoids spurious 401 on page load
   useEffect(() => {
@@ -85,7 +95,7 @@ export default function Dashboard() {
       // Build headers: JWT is injected automatically by api.js;
       // for public (no-account) users pass email in header
       const headers = {};
-      if (!user && !authLoading) {
+      if (!user && !anonUser && !authLoading) {
         // No session — show empty state rather than crashing
         setRequests([]);
         setLoading(false);
@@ -141,11 +151,13 @@ export default function Dashboard() {
 
         <div className="db-sidebar-bottom">
           <div className="db-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : 'U'}
+            {user?.name 
+              ? user.name[0].toUpperCase() 
+              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
           </div>
           <div>
-            <strong>{user?.name || 'Welcome back'}</strong>
-            <small>{user?.email || 'Keep building'}</small>
+            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
+            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
           </div>
         </div>
       </aside>

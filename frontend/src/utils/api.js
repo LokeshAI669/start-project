@@ -4,8 +4,8 @@ const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.V
 
 
 export async function api(method, endpoint, body = null) {
-  const token   = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
+  const token    = localStorage.getItem('token');
+  const anonStr  = localStorage.getItem('anon_user');
 
   const headers = { 'Content-Type': 'application/json' };
 
@@ -17,9 +17,9 @@ export async function api(method, endpoint, body = null) {
   // ── Email header fallback for anonymous student requests ────────────────
   // Used by the /api/requests/mine route for users who submitted a form
   // without creating an account.
-  if (userStr) {
+  if (!token && anonStr) {
     try {
-      const u = JSON.parse(userStr);
+      const u = JSON.parse(anonStr);
       if (u?.email) headers['x-user-email'] = u.email;
     } catch (_e) {}
   }

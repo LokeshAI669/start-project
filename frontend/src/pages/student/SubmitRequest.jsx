@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -127,6 +127,15 @@ export default function SubmitRequest() {
       if (catalogId)  fd.append('catalog_project_id', catalogId);
       if (attachment) fd.append('attachment', attachment);
       await api('POST', '/api/requests', fd);
+      
+      // Save anonymous session for tracking on Dashboard
+      if (!localStorage.getItem('token')) {
+        localStorage.setItem('anon_user', JSON.stringify({ 
+          name: name.trim(), 
+          email: email.trim() 
+        }));
+      }
+      
       setSuccess(true);
     } catch (e) {
       setError(e.message);
