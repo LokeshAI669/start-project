@@ -5,6 +5,7 @@ const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.V
 
 export async function api(method, endpoint, body = null) {
   const token    = localStorage.getItem('token');
+  const userStr  = localStorage.getItem('user');
   const anonStr  = localStorage.getItem('anon_user');
 
   const headers = { 'Content-Type': 'application/json' };
@@ -14,15 +15,21 @@ export async function api(method, endpoint, body = null) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // ── Email header fallback for anonymous student requests ────────────────
-  // Used by the /api/requests/mine route for users who submitted a form
-  // without creating an account.
-  if (!token && anonStr) {
-    try {
-      const u = JSON.parse(anonStr);
-      if (u?.email) headers['x-user-email'] = u.email;
-    } catch (_e) {}
-  }
+  // ── Email header fallback ──────────────────────────────────────────────
+  // Used by the backend's requireStudent middleware as a fallback if the 
+  // token is missing or invalid (e.g. JobZen main site token mismatch).
+  try {
+    let emailFallback = null;
+    if (userStr) {
+      const u = JSON.parse(userStr);
+      if (u?.email) emailFallback = u.email;
+    }
+    if (!emailFallback && anonStr) {
+      const au = JSON.parse(anonStr);
+      if (au?.email) emailFallback = au.email;
+    }
+    if (emailFallback) headers['x-user-email'] = emailFallback;
+  } catch (_e) {}
 
   const options = { method, headers };
   if (body) {

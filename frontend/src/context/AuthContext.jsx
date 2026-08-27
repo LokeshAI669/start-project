@@ -14,9 +14,11 @@ export const AuthProvider = ({ children }) => {
     const storedUser  = localStorage.getItem('user');
 
     if (!storedToken || storedToken === 'student' || storedToken === 'admin') {
-      // Old mock token — clear it
+      // Old mock token — clear token only, preserve user for UI
       localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      if (storedUser) {
+        try { setUser(JSON.parse(storedUser)); } catch (_e) {}
+      }
       setLoading(false);
       return;
     }
@@ -35,11 +37,15 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(data.user));
       })
       .catch(() => {
-        // Token expired or invalid — clear session
+        // Token expired or invalid for this backend.
+        // DO NOT clear localStorage.getItem('user') because it might belong to the main JobZen app!
+        // We just clear the token so api.js falls back to anon behavior.
         localStorage.removeItem('token');
-        localStorage.removeItem('user');
         setToken(null);
-        setUser(null);
+        // Keep the user in state for the UI!
+        if (storedUser) {
+          try { setUser(JSON.parse(storedUser)); } catch (_e) {}
+        }
       })
       .finally(() => setLoading(false));
   }, []);
