@@ -333,10 +333,10 @@ const HP_PROJECTS = [
 const HP_PROJECTS_DUP = [...HP_PROJECTS, ...HP_PROJECTS];
 
 const HP_CATEGORIES = [
-  { icon: <BrainCircuit size={22} />, title: 'Artificial Intelligence', count: '1,240 projects', color: '#9B5CFF' },
-  { icon: <Database size={22} />,     title: 'Data Science',            count: '860 projects',   color: '#5CFFE1' },
-  { icon: <Code2 size={22} />,        title: 'Web Development',         count: '2,430 projects', color: '#FF8A5B' },
-  { icon: <BriefcaseBusiness size={22} />, title: 'Career Projects',    count: '740 projects',   color: '#D8FF5C' },
+  { icon: <BrainCircuit size={22} />, title: 'Artificial Intelligence', color: '#9B5CFF' },
+  { icon: <Database size={22} />,     title: 'Data Science',            color: '#5CFFE1' },
+  { icon: <Code2 size={22} />,        title: 'Web Development',         color: '#FF8A5B' },
+  { icon: <BriefcaseBusiness size={22} />, title: 'Career Projects',    color: '#D8FF5C' },
 ];
 
 /* ─────────────────────────────────────────────────────────────
@@ -433,7 +433,6 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
           {icon}
         </motion.div>
         <h3 className="hp-category-title" style={{ transform: 'translateZ(20px)' }}>{title}</h3>
-        <p className="hp-category-count" style={{ transform: 'translateZ(10px)' }}>{count}</p>
         
         <motion.div 
           className="hp-category-arrow"
