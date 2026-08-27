@@ -416,7 +416,8 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
           rotateX,
           rotateY,
           transformStyle: 'preserve-3d',
-          position: 'relative'
+          position: 'relative',
+          willChange: 'transform'
         }}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHovered(true)}
@@ -452,7 +453,8 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
             filter: 'blur(45px)',
             zIndex: -1,
             pointerEvents: 'none',
-            borderRadius: '18px'
+            borderRadius: '18px',
+            willChange: 'opacity'
           }}
           animate={{ opacity: isHovered ? 0.15 : 0 }}
           transition={{ duration: 0.3 }}

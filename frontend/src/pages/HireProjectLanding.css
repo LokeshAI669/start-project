@@ -40,6 +40,7 @@
   filter: blur(120px);
   z-index: -1;
   opacity: 0.4;
+  will-change: transform;
 }
 
 .splash-orb-1 {
