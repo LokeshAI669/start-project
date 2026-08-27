@@ -150,13 +150,11 @@ export default function BrowseCatalog() {
 
         <div className="pc-sidebar-profile">
           <div className="pc-profile-letter">
-            {user?.name 
-              ? user.name[0].toUpperCase() 
-              : (anonUser?.name ? anonUser.name[0].toUpperCase() : 'U')}
+            {user?.name ? user.name[0].toUpperCase() : 'U'}
           </div>
           <div>
-            <strong>{user?.name || anonUser?.name || 'Welcome back'}</strong>
-            <small>{user?.email || anonUser?.email || 'Keep building'}</small>
+            <strong>{user?.name || 'Welcome back'}</strong>
+            <small>{user?.email || 'Keep building'}</small>
           </div>
         </div>
 
