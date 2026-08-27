@@ -1,89 +1,88 @@
+const jwt    = require('jsonwebtoken');
 const { pool } = require('./db');
 
 /**
- * Auth Middleware: reads 'x-user-email', 'x-user-id', or 'x-mock-role' header
+ * Resolve a verified JWT to a DB user.
+ * Returns the user row on success, null on any failure.
  */
-async function requireAuth(req, res, next) {
-  let role = req.headers['x-mock-role'];
-  if (role !== 'admin') {
-    role = 'student';
-  }
-  
-  const userEmail = req.headers['x-user-email'];
-  const userId = req.headers['x-user-id'];
-
+async function resolveJwt(authHeader) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  const token = authHeader.split(' ')[1];
   try {
-    let rows = [];
-
-    if (userEmail && typeof userEmail === 'string' && userEmail.trim()) {
-      const resData = await pool.query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [userEmail.trim()]);
-      rows = resData.rows;
-    } else if (userId && !isNaN(Number(userId))) {
-      const resData = await pool.query('SELECT * FROM users WHERE id = $1', [Number(userId)]);
-      rows = resData.rows;
-    }
-
-    if (!rows || rows.length === 0) {
-      const resData = await pool.query('SELECT * FROM users WHERE role = $1 ORDER BY id ASC LIMIT 1', [role]);
-      rows = resData.rows;
-    }
-
-    if (!rows || rows.length === 0) {
-      try {
-        const resData = await pool.query(
-          `INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, 'mock', $3) RETURNING *`,
-          [role === 'admin' ? 'Admin' : 'Student', role === 'admin' ? 'admin@jobzen.com' : 'student@jobzen.com', role]
-        );
-        rows = resData.rows;
-      } catch (_e) {
-        rows = [{ id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role: role }];
-      }
-    }
-    req.user = rows[0] || { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role: role };
-    next();
-  } catch (err) {
-    req.user = { id: 1, name: role === 'admin' ? 'Admin' : 'Student', email: `${role}@jobzen.com`, role: role };
-    next();
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return null;
+    const payload = jwt.verify(token, secret);
+    const { rows } = await pool.query(
+      'SELECT id, name, email, role FROM users WHERE id = $1',
+      [payload.id]
+    );
+    return rows[0] || null;
+  } catch (_e) {
+    return null;
   }
 }
 
 /**
- * Optional Auth Middleware: populates req.user if headers present, does not fail if unauthenticated
+ * requireAuth — strict JWT.
+ * Every request MUST carry a valid Bearer token.
  */
-async function optionalAuth(req, res, next) {
-  const role = req.headers['x-mock-role'];
-  const userEmail = req.headers['x-user-email'];
-  const userId = req.headers['x-user-id'];
-
-  if (role || userEmail || userId) {
-    return requireAuth(req, res, next);
-  }
+async function requireAuth(req, res, next) {
+  const user = await resolveJwt(req.headers['authorization']);
+  if (!user) return res.status(401).json({ error: 'Unauthorized — please log in.' });
+  req.user = user;
   next();
 }
 
 /**
- * Middleware: require admin role
+ * optionalAuth — populates req.user when a valid JWT is present; never blocks.
  */
-function requireAdmin(req, res, next) {
-  requireAuth(req, res, () => {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Forbidden — admin access required' });
-    }
-    next();
-  });
+async function optionalAuth(req, res, next) {
+  const user = await resolveJwt(req.headers['authorization']);
+  if (user) req.user = user;
+  next();
 }
 
 /**
- * Middleware: require student role
+ * requireAdmin — strict JWT + admin role.
  */
-function requireStudent(req, res, next) {
-  requireAuth(req, res, () => {
-    if (!req.user || req.user.role !== 'student') {
-      if (req.user) req.user.role = 'student';
+async function requireAdmin(req, res, next) {
+  const user = await resolveJwt(req.headers['authorization']);
+  if (!user) return res.status(401).json({ error: 'Unauthorized — please log in.' });
+  if (user.role !== 'admin') return res.status(403).json({ error: 'Forbidden — admin access required.' });
+  req.user = user;
+  next();
+}
+
+/**
+ * requireStudent — JWT preferred; falls back to x-user-email header for
+ * public (no-account) users so that the form-based student flow still works.
+ */
+async function requireStudent(req, res, next) {
+  // 1. Try JWT first
+  const user = await resolveJwt(req.headers['authorization']);
+  if (user) {
+    req.user = user;
+    return next();
+  }
+
+  // 2. Fall back to x-user-email header (anonymous public users)
+  const headerEmail = req.headers['x-user-email'];
+  if (headerEmail && typeof headerEmail === 'string' && headerEmail.trim()) {
+    const email = headerEmail.trim();
+    try {
+      const { rows } = await pool.query(
+        'SELECT id, name, email, role FROM users WHERE LOWER(email) = LOWER($1)',
+        [email]
+      );
+      req.user = rows[0] || { id: null, name: 'Guest', email, role: 'student' };
+      return next();
+    } catch (_e) {
+      req.user = { id: null, name: 'Guest', email, role: 'student' };
+      return next();
     }
-    next();
-  });
+  }
+
+  return res.status(401).json({ error: 'Unauthorized — please provide your email or log in.' });
 }
 
 module.exports = { requireAuth, optionalAuth, requireAdmin, requireStudent };
-

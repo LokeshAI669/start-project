@@ -1,0 +1,19 @@
+# editorconfig.org
+root = true
+
+# ── All files ─────────────────────────────────────────────────────────────────
+[*]
+charset             = utf-8
+end_of_line         = lf
+indent_style        = space
+indent_size         = 2
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# ── Markdown — preserve trailing spaces (they create line breaks) ─────────────
+[*.md]
+trim_trailing_whitespace = false
+
+# ── SQL — 4-space indent is conventional ─────────────────────────────────────
+[*.sql]
+indent_size = 4

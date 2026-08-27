@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
-const fs = require('fs');
+const fs   = require('fs');
+const { pool } = require('./db');
 
 const PLATFORM     = process.env.PLATFORM_NAME || 'JobZen';
 const PLATFORM_URL = process.env.PLATFORM_URL || process.env.FRONTEND_URL || 'https://start-project-mu.vercel.app';
@@ -116,9 +117,12 @@ const mailer = {
 
   // 3. New request alert — admin
   async notifyAdmin(student, project) {
-    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hlokeshreddy087@gmail.com';
+    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || null;
+    if (!adminEmail) {
+      console.warn('[MAIL] notifyAdmin: ADMIN_NOTIFY_EMAIL is not set — skipping admin alert.');
+      return;
+    }
     try {
-      const { pool } = require('./db');
       const { rows } = await pool.query("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
       if (rows.length > 0 && rows[0].email) adminEmail = rows[0].email;
     } catch (e) {
@@ -166,6 +170,10 @@ const mailer = {
 
   // 4. Request accepted — student
   async requestAccepted(user, project) {
+    if (!user?.email) {
+      console.warn('[MAIL] requestAccepted: no email for project', project.id, '— skipping');
+      return;
+    }
     const date = project.confirmed_date || project.preferred_date;
     const time = project.confirmed_time || project.preferred_time;
     const html = baseTemplate('Request Accepted!', `
@@ -184,6 +192,10 @@ const mailer = {
 
   // 5. Request denied — student
   async requestDenied(user, project) {
+    if (!user?.email) {
+      console.warn('[MAIL] requestDenied: no email for project', project.id, '— skipping');
+      return;
+    }
     const html = baseTemplate('Request Update', `
       <h2>Hi ${user.name},</h2>
       <p>Unfortunately your project request was <strong style="color:#b91c1c">not accepted</strong> at this time.</p>
@@ -200,9 +212,12 @@ const mailer = {
 
   // 6. Reschedule alert — admin
   async notifyAdminReschedule(student, project) {
-    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hlokeshreddy087@gmail.com';
+    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL || null;
+    if (!adminEmail) {
+      console.warn('[MAIL] notifyAdminReschedule: ADMIN_NOTIFY_EMAIL is not set — skipping admin alert.');
+      return;
+    }
     try {
-      const { pool } = require('./db');
       const { rows } = await pool.query("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
       if (rows.length > 0) adminEmail = rows[0].email;
     } catch (e) {

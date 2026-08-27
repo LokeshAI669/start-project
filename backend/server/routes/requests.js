@@ -193,34 +193,45 @@ router.get('/all', requireAdmin, async (req, res) => {
   try {
     const { status, search } = req.query;
 
-    let queryStr = `
-      SELECT p.*,
-             COALESCE(NULLIF(p.student_name, ''), u.name, 'Visitor') as student_name,
-             COALESCE(NULLIF(p.email, ''), u.email, 'N/A') as student_email
-      FROM projects p LEFT JOIN users u ON p.student_id = u.id
-      ORDER BY p.created_at DESC
-    `;
-    
-    const { rows } = await pool.query(queryStr);
-    let filteredRows = rows;
+    // ── Build WHERE clauses dynamically ──────────────────────────────────
+    const conditions = [];
+    const params     = [];
 
-    if (status && status !== 'All')
-      filteredRows = filteredRows.filter(r => r.status === status);
-    if (search) {
-      const q = search.toLowerCase();
-      filteredRows = filteredRows.filter(r =>
-        (r.student_name && r.student_name.toLowerCase().includes(q)) ||
-        (r.student_email && r.student_email.toLowerCase().includes(q)) ||
-        (r.project_name && r.project_name.toLowerCase().includes(q))
-      );
+    if (status && status !== 'All') {
+      params.push(status);
+      conditions.push(`p.status = $${params.length}`);
     }
 
-    res.json(filteredRows.map(fmt));
+    if (search && search.trim()) {
+      params.push(`%${search.trim()}%`);
+      const n = params.length;
+      // Search across resolved student name, email, and project name
+      conditions.push(`(
+        COALESCE(NULLIF(p.student_name, ''), u.name, 'Visitor') ILIKE $${n} OR
+        COALESCE(NULLIF(p.email, ''), u.email, 'N/A')           ILIKE $${n} OR
+        p.project_name                                           ILIKE $${n}
+      )`);
+    }
+
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const { rows } = await pool.query(`
+      SELECT p.*,
+             COALESCE(NULLIF(p.student_name, ''), u.name, 'Visitor') AS student_name,
+             COALESCE(NULLIF(p.email, ''), u.email, 'N/A')           AS student_email
+      FROM projects p
+      LEFT JOIN users u ON p.student_id = u.id
+      ${where}
+      ORDER BY p.created_at DESC
+    `, params);
+
+    res.json(rows.map(fmt));
   } catch (err) {
     console.error('[REQUESTS] all error:', err);
     res.status(500).json({ error: 'Failed to fetch requests' });
   }
 });
+
 
 // GET /api/requests/stats
 router.get('/stats', requireAdmin, async (req, res) => {
@@ -274,11 +285,31 @@ router.patch('/:id/decision', requireAdmin, async (req, res) => {
     }
 
     const updated = updatedRows[0];
-    const { rows: studentRows } = await pool.query('SELECT * FROM users WHERE id = $1', [project.student_id]);
-    const student = studentRows[0];
+
+    // ── Resolve student contact info ────────────────────────────────────────
+    // Public submissions (no account) have student_id = NULL.
+    // Fall back to the name/email stored directly on the project row.
+    let student = null;
+    if (project.student_id) {
+      const { rows: studentRows } = await pool.query(
+        'SELECT id, name, email FROM users WHERE id = $1',
+        [project.student_id]
+      );
+      student = studentRows[0] || null;
+    }
+
+    // Final fallback: use data stored on the project itself
+    if (!student) {
+      student = {
+        id:    null,
+        name:  updated.student_name || 'Student',
+        email: updated.email        || null,
+      };
+    }
 
     if (decision === 'accepted') await mailer.requestAccepted(student, updated).catch(e => console.error(e));
     else                         await mailer.requestDenied(student, updated).catch(e => console.error(e));
+
 
     if (req.io) req.io.emit('request_updated', fmt(updated));
 

@@ -3,6 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+
+
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : '');
 
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
@@ -29,23 +33,21 @@ export default function AdminDashboard() {
   const [confTime, setConfTime]   = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [decisionMsg, setDecisionMsg] = useState('');
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const isNarrow   = useMediaQuery('(max-width: 1024px)');
+  const isCompact  = useMediaQuery('(max-width: 600px)');
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  const { setRole } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      setRole('admin');
+    // Redirect to login if not authenticated as admin
+    if (!authLoading && (!user || user.role !== 'admin')) {
+      navigate('/hireproject_admin');
+      return;
     }
-    fetchAll();
-  }, []);
+    if (user && user.role === 'admin') fetchAll();
+  }, [user, authLoading]);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -91,13 +93,20 @@ export default function AdminDashboard() {
   };
 
   const handleExport = () => {
-    const link = document.createElement('a');
-    link.href = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/requests/export`;
-    const headers = new Headers({ 'Authorization': `Bearer ${token}` });
-    fetch(link.href, { headers }).then(res => res.blob()).then(blob => {
-      const url = URL.createObjectURL(blob);
-      link.href = url; link.download = 'jobzen-projects.csv'; link.click(); URL.revokeObjectURL(url);
-    });
+    const storedToken = localStorage.getItem('token');
+    const url = `${API_BASE}/api/requests/export`;
+    fetch(url, {
+      headers: { 'Authorization': `Bearer ${storedToken}` }
+    })
+      .then(res => res.blob())
+      .then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'jobzen-projects.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      })
+      .catch(err => console.error('[EXPORT]', err));
   };
 
 
@@ -106,7 +115,7 @@ export default function AdminDashboard() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: windowWidth > 1024 ? 'block' : 'none' }}>
+        <div className="sidebar-logo" style={{ display: isNarrow ? 'none' : 'block' }}>
           <Link to="/admin/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
@@ -118,7 +127,7 @@ export default function AdminDashboard() {
       {/* Main */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative' }}>
-          <div style={{display:'flex', flexDirection: windowWidth <= 1024 ? 'column' : 'row', alignItems: windowWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+          <div style={{display:'flex', flexDirection: isNarrow ? 'column' : 'row', alignItems: isNarrow ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
             <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
               <button 
                 className="mobile-menu-btn" 
@@ -127,7 +136,7 @@ export default function AdminDashboard() {
               >
                 ☰
               </button>
-              <Link to="/admin/dashboard" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/admin/dashboard" style={{ display: isNarrow ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title">Admin Dashboard</h1>
@@ -135,7 +144,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
-            <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: windowWidth > 600 ? 'block' : 'none'}}>Export CSV</button>
+            <button onClick={handleExport} className="btn btn-outline btn-sm" style={{display: isCompact ? 'none' : 'block'}}>Export CSV</button>
           </div>
         </div>
 

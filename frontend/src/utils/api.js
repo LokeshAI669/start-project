@@ -3,15 +3,23 @@ const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.V
   : (import.meta.env.DEV ? 'http://localhost:3000' : '');
 
 export async function api(method, endpoint, body = null) {
-  const token = localStorage.getItem('token');
+  const token   = localStorage.getItem('token');
   const userStr = localStorage.getItem('user');
+
   const headers = { 'Content-Type': 'application/json' };
-  if (token) headers['x-mock-role'] = token;
+
+  // ── Real JWT auth (admin and logged-in users) ──────────────────────────
+  if (token && token !== 'student' && token !== 'admin') {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // ── Email header fallback for anonymous student requests ────────────────
+  // Used by the /api/requests/mine route for users who submitted a form
+  // without creating an account.
   if (userStr) {
     try {
       const u = JSON.parse(userStr);
-      if (u && u.email) headers['x-user-email'] = u.email;
-      if (u && u.id) headers['x-user-id'] = String(u.id);
+      if (u?.email) headers['x-user-email'] = u.email;
     } catch (_e) {}
   }
 
@@ -32,9 +40,10 @@ export async function api(method, endpoint, body = null) {
   } catch (_e) {
     throw new Error('Server returned invalid response');
   }
-  
+
   if (!res.ok) {
     throw new Error(data.error || 'Something went wrong');
   }
   return data;
 }
+

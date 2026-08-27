@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -22,18 +22,18 @@ import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 import './SubmitRequest.css';
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    STEP DEFINITIONS
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const STEPS = [
   { n: 1, label: 'Your Info',     desc: 'Name & contact' },
   { n: 2, label: 'Project',       desc: 'Details & budget' },
   { n: 3, label: 'Meeting',       desc: 'Schedule & submit' },
 ];
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    MAIN COMPONENT
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function SubmitRequest() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -46,7 +46,7 @@ export default function SubmitRequest() {
   const [email, setEmail]                   = useState(user?.email || '');
   const [projectName, setProjectName]       = useState('');
   const [budget, setBudget]                 = useState('');
-  const [currency, setCurrency]             = useState('₹');
+  const [currency, setCurrency]             = useState('â‚¹');
   const [description, setDescription]       = useState('');
   const [timeVal, setTimeVal]               = useState('10:00');
   const [ampm, setAmpm]                     = useState('AM');
@@ -83,7 +83,7 @@ export default function SubmitRequest() {
       .finally(() => setLoading(false));
   }, [catalogId]);
 
-  /* ── Validation ── */
+  /* â”€â”€ Validation â”€â”€ */
   const validate = (s) => {
     if (s === 1) {
       if (!name.trim())  return 'Full name is required.';
@@ -143,9 +143,9 @@ export default function SubmitRequest() {
     setTimeVal('10:00'); setAmpm('AM'); setAttachment(null);
   };
 
-  /* ══════════════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      SUCCESS SCREEN
-     ══════════════════════════════════════════════════════════════ */
+     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   if (success) return (
     <div className="sr-wrap">
       <Sidebar active={null} />
@@ -156,7 +156,7 @@ export default function SubmitRequest() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 200, damping: 20 }}
         >
-          <div className="sr-success-icon">🎉</div>
+          <div className="sr-success-icon">ðŸŽ‰</div>
           <h2>Request Submitted!</h2>
           <p>
             Thank you <strong style={{ color: '#f5f7ff' }}>{name}</strong>. Your project
@@ -176,9 +176,9 @@ export default function SubmitRequest() {
     </div>
   );
 
-  /* ══════════════════════════════════════════════════════════════
+  /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      MAIN FORM
-     ══════════════════════════════════════════════════════════════ */
+     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
   return (
     <div className="sr-wrap">
       <Sidebar active="request" />
@@ -233,7 +233,7 @@ export default function SubmitRequest() {
             exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.28, ease: 'easeOut' }}
           >
-            {/* ── Step 1: Personal info ── */}
+            {/* â”€â”€ Step 1: Personal info â”€â”€ */}
             {step === 1 && (
               <>
                 <div className="sr-card-title">
@@ -265,7 +265,7 @@ export default function SubmitRequest() {
               </>
             )}
 
-            {/* ── Step 2: Project details ── */}
+            {/* â”€â”€ Step 2: Project details â”€â”€ */}
             {step === 2 && (
               <>
                 <div className="sr-card-title">
@@ -293,10 +293,10 @@ export default function SubmitRequest() {
                         value={currency}
                         onChange={e => setCurrency(e.target.value)}
                       >
-                        <option value="₹">₹ INR</option>
+                        <option value="â‚¹">â‚¹ INR</option>
                         <option value="$">$ USD</option>
-                        <option value="₦">₦ NGN</option>
-                        <option value="€">€ EUR</option>
+                        <option value="â‚¦">â‚¦ NGN</option>
+                        <option value="â‚¬">â‚¬ EUR</option>
                       </select>
                       <ChevronDown size={15} />
                     </div>
@@ -335,7 +335,7 @@ export default function SubmitRequest() {
                 <div className="sr-field">
                   <label className="sr-label">
                     <Paperclip size={13} /> Attachment
-                    <span className="sr-label-opt">— optional</span>
+                    <span className="sr-label-opt">â€” optional</span>
                   </label>
                   {attachment ? (
                     <div className="sr-file-chosen">
@@ -352,7 +352,7 @@ export default function SubmitRequest() {
                   ) : (
                     <label className="sr-file-drop">
                       <Paperclip size={17} />
-                      Click to upload a file (PDF, DOCX, image…)
+                      Click to upload a file (PDF, DOCX, imageâ€¦)
                       <input
                         type="file"
                         style={{ display: 'none' }}
@@ -364,7 +364,7 @@ export default function SubmitRequest() {
               </>
             )}
 
-            {/* ── Step 3: Meeting ── */}
+            {/* â”€â”€ Step 3: Meeting â”€â”€ */}
             {step === 3 && (
               <>
                 <div className="sr-card-title">
@@ -376,7 +376,7 @@ export default function SubmitRequest() {
                 <div className="sr-project-pill">
                   <div>
                     <div className="sr-project-pill-title">{projectName}</div>
-                    <div className="sr-project-pill-sub">Project · {name}</div>
+                    <div className="sr-project-pill-sub">Project Â· {name}</div>
                   </div>
                   <div className="sr-project-pill-budget">
                     {currency}{Number(budget || 0).toLocaleString('en-IN')}
@@ -427,7 +427,7 @@ export default function SubmitRequest() {
                   </div>
                   {preferredTime && (
                     <p style={{ fontSize: '0.78rem', color: '#748cff', margin: '6px 0 0', fontWeight: 600 }}>
-                      ✓ Selected: {preferredTime}
+                      âœ“ Selected: {preferredTime}
                     </p>
                   )}
                 </div>
@@ -453,7 +453,7 @@ export default function SubmitRequest() {
             <div className="sr-actions">
               {step > 1 && (
                 <button className="sr-btn-ghost" onClick={() => { setError(''); setStep(s => s - 1); }}>
-                  ← Back
+                  â† Back
                 </button>
               )}
               {step < 3 && (
@@ -467,7 +467,7 @@ export default function SubmitRequest() {
                   onClick={handleSubmit}
                   disabled={loading}
                 >
-                  {loading ? 'Submitting…' : <><CheckCircle2 size={17} /> Submit Request</>}
+                  {loading ? 'Submittingâ€¦' : <><CheckCircle2 size={17} /> Submit Request</>}
                 </button>
               )}
             </div>
@@ -478,10 +478,12 @@ export default function SubmitRequest() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    SIDEBAR
-   ───────────────────────────────────────────────────────────── */
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Sidebar({ active }) {
+  const { user } = useContext(AuthContext);
+
   return (
     <aside className="sr-sidebar">
       <Link to="/" className="sr-logo" style={{padding:'0 24px'}}>
@@ -501,12 +503,15 @@ function Sidebar({ active }) {
       </nav>
 
       <div className="sr-sidebar-bottom">
-        <div className="sr-profile-letter">U</div>
+        <div className="sr-profile-letter">
+          {user?.name ? user.name[0].toUpperCase() : 'U'}
+        </div>
         <div>
-          <strong>Welcome back</strong>
-          <small>Keep building</small>
+          <strong>{user?.name || 'Welcome back'}</strong>
+          <small>{user?.email || 'Keep building'}</small>
         </div>
       </div>
     </aside>
   );
 }
+

@@ -465,7 +465,6 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { setRole } = useContext(AuthContext);
 
   const [theme, setTheme] = useState(() => document.documentElement.getAttribute('data-theme') || 'dark');
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);

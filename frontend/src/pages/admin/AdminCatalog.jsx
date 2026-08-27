@@ -4,6 +4,8 @@ import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 import CustomSelect from '../../components/CustomSelect';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+
 
 const DOMAINS = ['Web Development','Mobile Development','AI/ML','Data Science','Cybersecurity','Cloud Computing','IoT','Blockchain','UI/UX Design','Game Development','Other'];
 const DIFFICULTIES = ['Beginner','Intermediate','Advanced'];
@@ -21,23 +23,19 @@ export default function AdminCatalog() {
   const [form, setForm]     = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const isNarrow = useMediaQuery('(max-width: 1024px)');
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  const { setRole } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      setRole('admin');
+    if (!authLoading && (!user || user.role !== 'admin')) {
+      navigate('/hireproject_admin');
+      return;
     }
-    fetchItems();
-  }, []);
+    if (user && user.role === 'admin') fetchItems();
+  }, [user, authLoading]);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -95,7 +93,7 @@ export default function AdminCatalog() {
     <div className="app-layout admin-portal">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-logo" style={{ display: windowWidth > 1024 ? 'block' : 'none' }}>
+        <div className="sidebar-logo" style={{ display: isNarrow ? 'none' : 'block' }}>
           <Link to="/admin/dashboard"><JobZenLogo theme={theme} size="sm" /></Link>
         </div>
         <nav className="sidebar-nav">
@@ -107,7 +105,7 @@ export default function AdminCatalog() {
       {/* Main Content */}
       <main className="main-content" onClick={() => isSidebarOpen && setIsSidebarOpen(false)}>
         <div className="topbar" style={{ position: 'relative', marginBottom: '28px' }}>
-          <div style={{display:'flex', flexDirection: windowWidth <= 1024 ? 'column' : 'row', alignItems: windowWidth <= 1024 ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
+          <div style={{display:'flex', flexDirection: isNarrow ? 'column' : 'row', alignItems: isNarrow ? 'flex-start' : 'center', gap:'16px', paddingRight:'50px'}}>
             <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
               <button 
                 className="mobile-menu-btn" 
@@ -116,7 +114,7 @@ export default function AdminCatalog() {
               >
                 ☰
               </button>
-              <Link to="/admin/dashboard" style={{ display: windowWidth <= 1024 ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
+              <Link to="/admin/dashboard" style={{ display: isNarrow ? 'block' : 'none' }}><JobZenLogo theme={theme} size="sm" /></Link>
             </div>
             <div>
               <h1 className="page-title">Manage Catalog</h1>

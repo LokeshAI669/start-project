@@ -52,14 +52,14 @@ function getDomainTools(domain) {
   }
 }
 
-const CATEGORIES = [
-  'All Domains',
+// CATEGORIES is now fetched dynamically — see useEffect in BrowseCatalog
+const FALLBACK_DOMAINS = [
   'Machine Learning',
   'Cyber Security',
   'Computer Vision',
   'NLP',
   'Deep Learning',
-  'Mixed'
+  'Mixed',
 ];
 
 const LEVELS = ['All levels', 'Beginner', 'Intermediate', 'Advanced'];
@@ -75,9 +75,11 @@ export default function BrowseCatalog() {
   const [showFilters, setShowFilters] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [categories, setCategories] = useState(['All Domains', ...FALLBACK_DOMAINS]);
 
+  // Fetch catalog projects
   useEffect(() => {
     api('GET', '/api/catalog?limit=200')
       .then(res => {
@@ -99,6 +101,21 @@ export default function BrowseCatalog() {
         setLoading(false);
       });
   }, []);
+
+  // Fetch live domain list from API — keeps filter tabs in sync with DB
+  useEffect(() => {
+    api('GET', '/api/catalog/domains')
+      .then(data => {
+        const domains = Array.isArray(data)
+          ? data.map(d => (typeof d === 'string' ? d : d.domain)).filter(Boolean)
+          : [];
+        if (domains.length > 0) {
+          setCategories(['All Domains', ...domains]);
+        }
+      })
+      .catch(() => { /* keep FALLBACK_DOMAINS */ });
+  }, []);
+
 
   const filtered = useMemo(() => {
     return projects.filter((p) => {
@@ -227,7 +244,7 @@ export default function BrowseCatalog() {
                       overflow: 'hidden', zIndex: 50, boxShadow: '0 15px 35px rgba(0,0,0,0.5)'
                     }}
                   >
-                    {CATEGORIES.map((c) => (
+                    {categories.map((c) => (
                       <div 
                         key={c}
                         onClick={() => { setCategory(c); setIsDropdownOpen(false); }}
