@@ -66,23 +66,41 @@ function RowSkeleton() {
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const [requests, setRequests]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError]         = useState('');
 
-  useEffect(() => { fetchRequests(); }, []);
+  // Wait for auth to resolve before fetching — avoids spurious 401 on page load
+  useEffect(() => {
+    if (!authLoading) fetchRequests();
+  }, [authLoading]);
 
   const fetchRequests = async (manual = false) => {
     if (manual) setRefreshing(true);
     else setLoading(true);
     setError('');
     try {
-      const data = await api('GET', '/api/requests/mine');
+      // Build headers: JWT is injected automatically by api.js;
+      // for public (no-account) users pass email in header
+      const headers = {};
+      if (!user && !authLoading) {
+        // No session — show empty state rather than crashing
+        setRequests([]);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+      const data = await api('GET', '/api/requests/mine', null, headers);
       setRequests(data || []);
     } catch (e) {
-      setError(e.message || 'Failed to load requests');
+      // 401 = not logged in, show empty rather than red error
+      if (e.message?.toLowerCase().includes('unauthorized')) {
+        setRequests([]);
+      } else {
+        setError(e.message || 'Failed to load requests');
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);

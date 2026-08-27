@@ -11,15 +11,26 @@ const { Server } = require('socket.io');
 async function start() {
   await initDB();
 
-  // ── Allowed origins ─────────────────────────────────────────
-  // In production, FRONTEND_URL / PLATFORM_URL must be set in .env.
-  // In development, localhost:5173 (Vite) is also allowed.
-  const FRONTEND_URL = process.env.FRONTEND_URL || process.env.PLATFORM_URL || 'https://start-project-mu.vercel.app';
+  // ── Allowed origins ─────────────────────────────────────────────────────────
+  // • CORS_ORIGINS — comma-separated list of extra allowed origins (set in .env)
+  // • FRONTEND_URL / PLATFORM_URL — single origin fallback
+  // • Known production domains are included by default
+  // • localhost ports are always allowed for local development
+  const FRONTEND_URL = process.env.FRONTEND_URL || process.env.PLATFORM_URL || '';
+  const extraOrigins = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
   const allowedOrigins = [
+    ...extraOrigins,
     FRONTEND_URL,
-    'http://localhost:5173',  // Vite dev server
-    'http://localhost:4173',  // Vite preview
-    'http://localhost:3000',  // backend itself (health checks)
+    'https://www.jobzen.co.in',          // production domain
+    'https://jobzen.co.in',              // production domain (no www)
+    'https://start-project-mu.vercel.app', // Vercel preview
+    'http://localhost:5173',             // Vite dev server
+    'http://localhost:4173',             // Vite preview
+    'http://localhost:3000',             // backend health checks
   ].filter(Boolean);
 
   const corsOptions = {
