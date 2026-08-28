@@ -4413,3 +4413,129 @@ h1, h2, h3, .page-title, .section-title, .stat-card-value {
     box-sizing: border-box !important;
   }
 }
+
+/* =========================================================================
+   GLOBAL RESPONSIVE ADDITIONS — All breakpoints, all devices
+   Covers: auth, modal, form, filter, calendar, table, toast, catalog
+   ========================================================================= */
+
+/* ── Auth card on very small screens ── */
+@media (max-width: 480px) {
+  .auth-page { padding: 16px; }
+  .auth-card { padding: 28px 20px; border-radius: 14px; max-width: 100%; }
+  .auth-card h2 { font-size: 1.6rem; }
+  .auth-subtitle { font-size: 13px; margin-bottom: 24px; }
+  .auth-logo { gap: 10px; margin-bottom: 20px; font-size: 1.25rem; }
+  .auth-logo .logo-mark { width: 44px; height: 44px; font-size: 22px; border-radius: 14px; }
+}
+@media (max-width: 360px) {
+  .auth-page { padding: 10px; }
+  .auth-card { padding: 22px 14px; border-radius: 12px; }
+  .auth-card h2 { font-size: 1.4rem; }
+  .auth-subtitle { font-size: 12px; }
+  .auth-form .form-input { font-size: 13.5px; padding: 12px 14px; }
+}
+
+/* ── Modal on small screens ── */
+@media (max-width: 480px) {
+  .modal-overlay { padding: 12px; align-items: flex-end; }
+  .modal { max-width: 100%; border-radius: 20px 20px 0 0; padding: 22px 18px; }
+  .modal-title { font-size: 1rem; }
+  .modal-footer { flex-direction: column-reverse; }
+  .modal-footer .btn { width: 100%; justify-content: center; }
+}
+@media (max-width: 360px) {
+  .modal-overlay { padding: 8px; }
+  .modal { padding: 18px 14px; }
+}
+
+/* ── Form elements on small screens ── */
+@media (max-width: 480px) {
+  .form-input, .form-textarea, .form-select {
+    font-size: 14px;
+    padding: 11px 14px;
+  }
+  .details-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .filter-bar { flex-direction: column; gap: 8px; }
+  .filter-search { min-width: 0; width: 100%; }
+  .filter-tabs { width: 100%; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; }
+  .filter-tab { white-space: nowrap; font-size: 12px; padding: 5px 12px; }
+  .time-slots { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; }
+  .time-slot { font-size: 12px; padding: 8px 4px; }
+}
+
+/* ── Table on small screens ── */
+@media (max-width: 480px) {
+  .table-wrap { border-radius: 10px; overflow-x: auto; }
+  table { min-width: 480px; }
+  thead th { padding: 10px 12px; font-size: 9px; }
+  tbody td { padding: 12px 12px; font-size: 13px; }
+}
+
+/* ── Toast notification on small screens ── */
+@media (max-width: 480px) {
+  .toast-container { top: 12px; right: 12px; left: 12px; }
+  .toast { max-width: 100%; font-size: 13px; padding: 11px 14px; }
+}
+@media (max-width: 360px) {
+  .toast-container { top: 8px; right: 8px; left: 8px; }
+  .toast { font-size: 12px; padding: 10px 12px; }
+}
+
+/* ── Stats row on small screens ── */
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 1.6rem; }
+  .stat-label { font-size: 9px; }
+}
+@media (max-width: 360px) {
+  .stats-row { gap: 8px; }
+  .stat-card { padding: 10px 12px; }
+  .stat-value { font-size: 1.4rem; }
+}
+
+/* ── Catalog / browse cards on small screens ── */
+@media (max-width: 480px) {
+  .project-catalog-card { padding: 18px; border-radius: 14px; }
+  .project-catalog-card h3 { font-size: 0.95rem; margin: 12px 0 8px; }
+  .project-catalog-card p { font-size: 13px; }
+}
+@media (max-width: 360px) {
+  .project-catalog-card { padding: 14px; border-radius: 12px; }
+  .project-catalog-card h3 { font-size: 0.88rem; }
+  .project-catalog-card p { font-size: 12.5px; }
+}
+
+/* ── Navbar landing page on 375px ── */
+@media (max-width: 375px) {
+  .pub-navbar { padding: 0 12px !important; height: 50px !important; }
+  .pub-navbar-logo .brand-logo-img { max-height: 22px !important; }
+  .theme-toggle-btn { width: 28px !important; height: 28px !important; }
+  .theme-toggle-btn svg { width: 13px !important; height: 13px !important; }
+}
+
+/* ── Stepper on small screens ── */
+@media (max-width: 480px) {
+  .stepper { flex-wrap: wrap; gap: 4px; margin-bottom: 20px; }
+  .step-seg { font-size: 9.5px; padding: 6px 12px; }
+  .step-line { display: none; }
+}
+
+/* ── Page container minimum width safety ── */
+html, body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+*, *::before, *::after {
+  max-width: 100%;
+}
+img, video, iframe, svg { max-width: 100%; height: auto; }
+
+/* ── Calendar on small screens ── */
+@media (max-width: 360px) {
+  .cal-grid { gap: 2px; }
+  .cal-day { font-size: 11px; }
+  .cal-day-name { font-size: 8.5px; }
+  .cal-title { font-size: 13px; }
+}

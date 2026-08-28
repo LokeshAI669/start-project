@@ -520,3 +520,82 @@
   .sr-footer { flex-direction: column; gap: 12px; }
   .sr-footer .btn { width: 100%; justify-content: center; }
 }
+
+/* ── 480px — Small phones ── */
+@media (max-width: 480px) {
+  .sr-logo { height: 52px; padding-left: 10px; }
+  .sr-main { padding-left: 12px; padding-right: 12px; padding-top: 14px; }
+  .sr-header { margin-bottom: 18px; }
+  .sr-header h1 { font-size: 1.5rem; }
+  .sr-kicker { font-size: 0.65rem; }
+  .sr-subtitle { font-size: 0.82rem; }
+  .sr-home-btn { padding: 9px 14px; font-size: 0.82rem; }
+
+  /* Step indicators compact */
+  .sr-steps { flex-wrap: wrap; gap: 6px; justify-content: flex-start; margin-bottom: 24px; }
+  .sr-step { flex: none; gap: 8px; }
+  .sr-step-line { display: none; }
+  .sr-step-circle { width: 32px; height: 32px; font-size: 0.78rem; }
+  .sr-step-label { font-size: 0.68rem; }
+  .sr-step-desc { font-size: 0.65rem; }
+
+  /* Form card */
+  .sr-card { padding: 18px 14px; border-radius: 16px; }
+  .sr-card-title { font-size: 1.05rem; margin-bottom: 20px; }
+  .sr-card-title-icon { width: 30px; height: 30px; border-radius: 8px; }
+
+  /* Fields */
+  .sr-grid-2 { grid-template-columns: 1fr; gap: 14px; }
+  .sr-grid-budget { grid-template-columns: 1fr; gap: 12px; }
+  .sr-label { font-size: 0.72rem; }
+  .sr-input, .sr-select, .sr-textarea { font-size: 0.85rem; padding: 11px 12px; border-radius: 9px; }
+  .sr-textarea { min-height: 110px; }
+  .sr-time-row { flex-wrap: wrap; }
+  .sr-time-row .sr-select-wrap { width: 100%; }
+  .sr-file-drop { padding: 12px 14px; font-size: 0.82rem; }
+
+  /* Project pill */
+  .sr-project-pill { flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 16px; }
+  .sr-project-pill-budget { font-size: 1rem; }
+
+  /* Actions */
+  .sr-actions { flex-direction: column-reverse; gap: 10px; margin-top: 24px; padding-top: 18px; }
+  .sr-btn-primary, .sr-btn-ghost { width: 100%; justify-content: center; padding: 12px 16px; font-size: 0.88rem; }
+
+  /* Success */
+  .sr-success { padding: 28px 14px; }
+  .sr-success-card { padding: 36px 22px; border-radius: 20px; }
+  .sr-success-card h2 { font-size: 1.4rem; }
+  .sr-success-icon { width: 60px; height: 60px; font-size: 1.6rem; margin-bottom: 18px; }
+  .sr-success-btns { flex-direction: column; gap: 10px; }
+  .sr-success-btns .sr-btn-primary,
+  .sr-success-btns .sr-btn-ghost { width: 100%; justify-content: center; }
+}
+
+/* ── 375px — iPhone SE / Small Android ── */
+@media (max-width: 375px) {
+  .sr-main { padding-left: 10px; padding-right: 10px; }
+  .sr-header h1 { font-size: 1.3rem; }
+  .sr-card { padding: 14px 12px; }
+  .sr-input, .sr-select, .sr-textarea { font-size: 0.82rem; padding: 10px 11px; }
+  .sr-step-circle { width: 28px; height: 28px; font-size: 0.72rem; }
+  .sr-success-card { padding: 28px 16px; }
+  .sr-success-card h2 { font-size: 1.25rem; }
+}
+
+/* ── 360px — Ultra-small ── */
+@media (max-width: 360px) {
+  .sr-main { padding-left: 8px; padding-right: 8px; }
+  .sr-header h1 { font-size: 1.2rem; }
+  .sr-card { padding: 12px 10px; border-radius: 12px; }
+  .sr-card-title { font-size: 0.95rem; }
+  .sr-input, .sr-select, .sr-textarea { font-size: 0.78rem; padding: 9px 10px; }
+  .sr-btn-primary, .sr-btn-ghost { padding: 10px 14px; font-size: 0.82rem; }
+  .sr-success-card { padding: 24px 12px; }
+  .sr-success-icon { width: 52px; height: 52px; font-size: 1.4rem; }
+}
+
+/* ── Universal overflow guard ── */
+.sr-wrap { box-sizing: border-box; overflow-x: hidden; max-width: 100vw; }
+.sr-main { box-sizing: border-box; max-width: 100%; min-width: 0; }
+.sr-card { box-sizing: border-box; max-width: 100%; }

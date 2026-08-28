@@ -595,3 +595,84 @@
   .pc-orbit-wrap { align-self: center; margin-top: 16px; transform: scale(0.7); }
   .pc-grid { grid-template-columns: 1fr; }
 }
+
+  /* Fix advanced filters overflow on mobile */
+  /* Applied via PowerShell append */
+
+/* ── 760px fix: advanced filter overflow ── */
+@media (max-width: 760px) {
+  .pc-adv-filters {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    flex-wrap: nowrap;
+  }
+  .pc-adv-filters::-webkit-scrollbar { display: none; }
+  .pc-adv-filters button { white-space: nowrap; flex-shrink: 0; }
+}
+
+/* ── 480px — Small phones (iPhone SE, Galaxy S8) ── */
+@media (max-width: 480px) {
+  .pc-logo { height: 52px; padding-left: 10px; font-size: 1.1rem; }
+  .pc-logo-www { top: 6px; left: 72px; }
+  .pc-main { padding: 14px 12px 60px; }
+  .pc-header h1 { font-size: 1.5rem; }
+  .pc-kicker { font-size: 0.65rem; }
+  .pc-subtitle { font-size: 0.85rem; }
+  .pc-home-btn { padding: 9px 14px; font-size: 0.82rem; }
+  .pc-hero { padding: 18px 16px; border-radius: 16px; margin: 20px 0; }
+  .pc-hero h2 { font-size: clamp(1.4rem, 7vw, 2rem); margin: 10px 0 8px; }
+  .pc-hero p { font-size: 0.82rem; }
+  .pc-live-dot { width: 6px; height: 6px; margin-right: 6px; }
+  .pc-orbit-wrap { display: none; }
+  .pc-toolbar { gap: 10px; margin-bottom: 18px; }
+  .pc-search { height: 44px; }
+  .pc-select-wrap { height: 44px; min-width: 0; }
+  .pc-filter-btn { height: 44px; font-size: 0.82rem; padding: 0 14px; }
+  .pc-count { font-size: 0.82rem; }
+  .pc-adv-filters button { font-size: 0.78rem; padding: 7px 12px; }
+  .pc-grid { gap: 14px; }
+  .pc-card { border-radius: 16px; }
+  .pc-cover { height: 150px; }
+  .pc-body { padding: 16px; }
+  .pc-body h3 { font-size: 1rem; min-height: auto; }
+  .pc-body p { font-size: 0.82rem; min-height: auto; margin: 10px 0; }
+  .pc-tools { gap: 5px; margin-bottom: 14px; }
+  .pc-tools span { font-size: 0.65rem; padding: 5px 7px; }
+  .pc-request-btn { padding: 11px 12px; font-size: 0.82rem; }
+  .pc-empty { padding: 50px 16px; }
+}
+
+/* ── 375px — iPhone SE / Small Android ── */
+@media (max-width: 375px) {
+  .pc-main { padding: 10px 10px 60px; }
+  .pc-header h1 { font-size: 1.3rem; }
+  .pc-hero { padding: 14px 12px; }
+  .pc-hero h2 { font-size: clamp(1.2rem, 8vw, 1.6rem); }
+  .pc-search { height: 42px; }
+  .pc-cover { height: 135px; }
+  .pc-body { padding: 12px; }
+  .pc-body h3 { font-size: 0.95rem; }
+  .pc-request-btn { padding: 10px; font-size: 0.78rem; }
+}
+
+/* ── 360px — Ultra-small (Galaxy Fold, older Android) ── */
+@media (max-width: 360px) {
+  .pc-logo { font-size: 1rem; }
+  .pc-main { padding: 8px 8px 50px; }
+  .pc-header h1 { font-size: 1.2rem; }
+  .pc-grid { gap: 10px; }
+  .pc-cover { height: 120px; }
+  .pc-body { padding: 10px; }
+  .pc-body h3 { font-size: 0.88rem; }
+  .pc-tools span { font-size: 0.6rem; padding: 4px 6px; }
+  .pc-request-btn { font-size: 0.75rem; padding: 9px 8px; }
+  .pc-nav a { padding: 8px 10px; font-size: 0.82rem; }
+}
+
+/* ── Universal overflow guard ── */
+.pc-wrap { box-sizing: border-box; overflow-x: hidden; max-width: 100vw; }
+.pc-main { box-sizing: border-box; max-width: 100%; }
+.pc-hero, .pc-grid, .pc-card { box-sizing: border-box; max-width: 100%; }

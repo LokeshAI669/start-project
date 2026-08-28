@@ -1365,3 +1365,123 @@
   70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
   100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
+
+/* =========================================================================
+   ADDITIONAL RESPONSIVE OVERHAUL — 480px / 375px / 360px
+   ========================================================================= */
+
+/* ── hp-flow-section responsive ── */
+@media (max-width: 480px) {
+  .hp-flow-section { padding: 0 0 50px; }
+  .hp-flow-header { padding: 0 16px; font-size: 9.5px; }
+  .hp-flow-fade { width: 60px; }
+  .hp-project-card { width: 230px; }
+  .hp-project-image-wrap { height: 140px; }
+  .hp-project-content { padding: 12px 14px 14px; }
+  .hp-project-title { font-size: 13px; }
+}
+
+/* ── hp-category-section responsive ── */
+@media (max-width: 480px) {
+  .hp-category-section { padding: 50px 14px 60px; }
+  .hp-section-h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+  .hp-section-label { font-size: 10px; }
+  .hp-category-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hp-category-card { padding: 20px 16px 28px; border-radius: 14px; }
+  .hp-category-icon { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px; }
+  .hp-category-title { font-size: 13.5px; }
+  .hp-category-count { font-size: 10px; }
+}
+
+@media (max-width: 360px) {
+  .hp-category-section { padding: 40px 10px 50px; }
+  .hp-category-grid { grid-template-columns: 1fr; gap: 10px; }
+  .hp-category-card { padding: 18px 14px 24px; }
+  .hp-section-h2 { font-size: clamp(1.3rem, 7vw, 1.7rem); }
+}
+
+/* ── hp-featured-section responsive ── */
+@media (max-width: 480px) {
+  .hp-featured-section { padding: 0 14px 60px; }
+  .hp-featured-grid { grid-template-columns: 1fr; gap: 14px; }
+  .hp-featured-grid .hp-project-image-wrap { height: 160px; }
+}
+
+@media (max-width: 360px) {
+  .hp-featured-section { padding: 0 10px 48px; }
+}
+
+/* ── hp-final-cta responsive ── */
+@media (max-width: 375px) {
+  .hp-final-cta { padding: 24px 14px; margin: 0 10px 36px; border-radius: 20px; }
+  .hp-final-cta h2 { font-size: clamp(1.4rem, 7vw, 2rem); margin-bottom: 24px; }
+  .hp-final-cta-label { font-size: 10px; margin-bottom: 12px; }
+  .hp-primary-btn { padding: 12px 20px; font-size: 13px; }
+  .hp-secondary-btn { padding: 11px 18px; font-size: 13px; }
+}
+
+@media (max-width: 360px) {
+  .hp-final-cta { padding: 20px 12px; margin: 0 8px 30px; }
+  .hp-final-cta h2 { font-size: clamp(1.3rem, 8vw, 1.8rem); }
+  .hp-primary-btn, .hp-secondary-btn { width: 100%; justify-content: center; }
+}
+
+/* ── splash responsive ── */
+@media (max-width: 360px) {
+  .splash-overlay { padding: 12px; }
+  .splash-logo-wrap { margin-bottom: 22px; }
+  .splash-logo-tag { font-size: 10px; }
+  .splash-progress-wrap { max-width: 100%; margin-bottom: 22px; }
+  .splash-cards { max-width: 100%; }
+  .splash-card { padding: 10px 12px; gap: 10px; }
+  .splash-card-icon { width: 34px; height: 34px; font-size: 18px; }
+  .splash-card-name { font-size: 13px; }
+  .splash-card-meta { font-size: 10px; }
+  .splash-badge { font-size: 9px; padding: 3px 7px; }
+  .splash-status { bottom: 18px; font-size: 9px; }
+}
+
+/* ── Hero delivery badge full responsive ── */
+@media (max-width: 375px) {
+  .hero-delivery-badge { font-size: 11px !important; padding: 7px 10px !important; gap: 5px !important; }
+  .hero-delivery-icon svg { width: 13px; height: 13px; }
+}
+@media (max-width: 360px) {
+  .hero-delivery-badge { font-size: 10px !important; padding: 6px 8px !important; }
+}
+
+/* ── Hero CTA buttons full-width on extra small ── */
+@media (max-width: 375px) {
+  .hero-ctas { flex-direction: column !important; gap: 8px !important; }
+  .hero-ctas .btn { width: 100% !important; justify-content: center !important; height: 44px !important; }
+}
+
+/* ── Animated dashboard card responsive ── */
+@media (max-width: 480px) {
+  .animated-dashboard-card { padding: 16px; border-radius: 18px; }
+  .animated-dashboard-percentage { font-size: clamp(1.5rem, 7vw, 2rem) !important; }
+  .animated-dashboard-stat-row { font-size: 12px; padding: 9px 12px; }
+  .animated-dashboard-badge { font-size: 10px; padding: 6px 10px; }
+}
+
+@media (max-width: 360px) {
+  .animated-dashboard-card { padding: 12px; }
+  .animated-dashboard-percentage { font-size: clamp(1.3rem, 8vw, 1.8rem) !important; }
+  .animated-dashboard-stat-row { font-size: 11px; padding: 8px 10px; }
+}
+
+/* ── hp-hero-trust on very small screens ── */
+@media (max-width: 360px) {
+  .hp-hero-trust { gap: 4px; margin-top: 14px; }
+  .hp-hero-trust p { font-size: 11px; }
+}
+
+/* ── Universal overflow guard ── */
+.hp-flow-section,
+.hp-category-section,
+.hp-featured-section,
+.hp-final-cta {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
+}
