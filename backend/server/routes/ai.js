@@ -1,16 +1,19 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const { pool } = require('../db');
 const { optionalAuth } = require('../auth');
 
 const router = express.Router();
 
-// ── Gemini client (lazy-initialised so missing key doesn't crash start) ────────
-function getGemini() {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY is not set in environment variables.');
-  return new GoogleGenerativeAI(key);
+// ── Groq client (lazy-initialised so missing key doesn't crash start) ────────
+function getGroq() {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) throw new Error('GROQ_API_KEY is not set in environment variables.');
+  return new Groq({ apiKey: key });
 }
+
+// Default model — free, fast, and highly capable
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 /* ════════════════════════════════════════════════════════════════════════════
    1. AI CHATBOT
@@ -55,35 +58,30 @@ Platform info:
 - Budgets are in INR (₹) by default but USD/EUR also supported
 - Dashboard at /dashboard to track all submissions`;
 
-    const genAI = getGemini();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Build messages array for Groq (OpenAI-compatible format)
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...history.map(h => ({
+        role: h.role === 'model' ? 'assistant' : h.role,
+        content: h.parts,
+      })),
+      { role: 'user', content: message },
+    ];
 
-    // Build conversation history for multi-turn chat
-    const chat = model.startChat({
-      history: [
-        {
-          role: 'user',
-          parts: [{ text: systemPrompt }],
-        },
-        {
-          role: 'model',
-          parts: [{ text: "Hello! I'm HireBot 👋 I'm here to help you find the perfect project or answer any questions about HireProject. What can I help you with today?" }],
-        },
-        ...history.map(h => ({
-          role: h.role,
-          parts: [{ text: h.parts }],
-        })),
-      ],
+    const groq = getGroq();
+    const completion = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages,
+      max_tokens: 1024,
+      temperature: 0.7,
     });
 
-    const result = await chat.sendMessage(message);
-    const text = result.response.text();
-
+    const text = completion.choices[0]?.message?.content || '';
     res.json({ reply: text });
   } catch (err) {
     console.error('[AI] chat error:', err.message);
-    if (err.message?.includes('GEMINI_API_KEY')) {
-      return res.status(503).json({ error: 'AI service not configured. Please add GEMINI_API_KEY to your .env file.' });
+    if (err.message?.includes('GROQ_API_KEY')) {
+      return res.status(503).json({ error: 'AI service not configured. Please add GROQ_API_KEY to your .env file.' });
     }
     res.status(500).json({ error: 'AI chat failed. Please try again.' });
   }
@@ -99,9 +97,7 @@ router.post('/generate-description', async (req, res) => {
     const { projectName, roughIdea = '' } = req.body;
     if (!projectName?.trim()) return res.status(400).json({ error: 'Project name is required' });
 
-    const prompt = `You are a professional technical project writer. A student wants to hire developers for a project.
-
-Project Name: "${projectName}"
+    const userPrompt = `Project Name: "${projectName}"
 ${roughIdea ? `Student's rough idea: "${roughIdea}"` : ''}
 
 Write a clear, professional project description (150–250 words) that includes:
@@ -112,15 +108,25 @@ Write a clear, professional project description (150–250 words) that includes:
 
 Keep the tone professional but approachable. Write it as if the student is describing their vision to a development team. Do NOT include any headers or markdown — just plain, well-structured paragraphs and a bulleted list for features.`;
 
-    const genAI = getGemini();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const result = await model.generateContent(prompt);
-    const description = result.response.text().trim();
+    const groq = getGroq();
+    const completion = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a professional technical project writer. A student wants to hire developers for a project.',
+        },
+        { role: 'user', content: userPrompt },
+      ],
+      max_tokens: 512,
+      temperature: 0.6,
+    });
 
+    const description = completion.choices[0]?.message?.content?.trim() || '';
     res.json({ description });
   } catch (err) {
     console.error('[AI] generate-description error:', err.message);
-    if (err.message?.includes('GEMINI_API_KEY')) {
+    if (err.message?.includes('GROQ_API_KEY')) {
       return res.status(503).json({ error: 'AI service not configured.' });
     }
     res.status(500).json({ error: 'Failed to generate description. Please try again.' });
@@ -147,7 +153,7 @@ router.get('/semantic-search', async (req, res) => {
 
     if (catalog.length === 0) return res.json({ data: [], query: q, semantic: true });
 
-    // Ask Gemini to rank projects by relevance to the query
+    // Ask Groq to rank projects by relevance to the query
     const catalogList = catalog.map((p, i) =>
       `[${i}] ${p.title} | Domain: ${p.domain} | Level: ${p.difficulty} | ${p.short_description || ''} | Stack: ${p.tech_stack || ''}`
     ).join('\n');
@@ -164,15 +170,19 @@ Return ONLY a JSON array of the most relevant project indices (0-based), ordered
 Example output: [3, 0, 7, 2]
 Return ONLY the JSON array, no other text.`;
 
-    const genAI = getGemini();
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const result = await model.generateContent(prompt);
-    const rawText = result.response.text().trim();
+    const groq = getGroq();
+    const completion = await groq.chat.completions.create({
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 256,
+      temperature: 0.1,
+    });
+
+    const rawText = completion.choices[0]?.message?.content?.trim() || '';
 
     // Parse the returned indices
     let indices = [];
     try {
-      // Extract JSON array from response (handles cases where Gemini adds backticks)
       const match = rawText.match(/\[[\d,\s]*\]/);
       if (match) indices = JSON.parse(match[0]);
     } catch (_) {
@@ -257,7 +267,7 @@ router.get('/recommendations', optionalAuth, async (req, res) => {
         request_count: Number(p.request_count),
       }));
     } else {
-      // Has history → use Gemini to recommend based on interests
+      // Has history → use Groq to recommend based on interests
       reason = 'personalized';
 
       const pastSummary = pastProjects
@@ -285,10 +295,15 @@ Return ONLY a JSON array in this exact format, nothing else:
 ]`;
 
       try {
-        const genAI = getGemini();
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(prompt);
-        const rawText = result.response.text().trim();
+        const groq = getGroq();
+        const completion = await groq.chat.completions.create({
+          model: GROQ_MODEL,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 512,
+          temperature: 0.4,
+        });
+
+        const rawText = completion.choices[0]?.message?.content?.trim() || '';
 
         // Extract JSON from response
         const match = rawText.match(/\[[\s\S]*\]/);
@@ -303,8 +318,8 @@ Return ONLY a JSON array in this exact format, nothing else:
               request_count: Number(popular[r.index].request_count),
             }));
         }
-      } catch (_geminiErr) {
-        // Gemini failed → fallback to popular
+      } catch (_groqErr) {
+        // Groq failed → fallback to popular
         reason = 'popular';
         recommendations = popular.slice(0, Number(limit)).map(p => ({
           ...p,
