@@ -72,8 +72,21 @@ export default function AIChatbot() {
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'AI chat failed');
+      // Safe JSON parse — Vercel may return HTML if env vars are missing
+      let data;
+      try {
+        data = await res.json();
+      } catch (_) {
+        throw new Error('AI service not configured yet. Please add GEMINI_API_KEY in Vercel → Settings → Environment Variables.');
+      }
+
+      if (!res.ok) {
+        throw new Error(
+          data.error?.includes('GEMINI_API_KEY')
+            ? '⚙️ GEMINI_API_KEY is not set. Go to Vercel → Settings → Environment Variables and add it.'
+            : data.error || 'AI chat failed'
+        );
+      }
 
       setHistory(prev => [
         ...prev,
@@ -82,12 +95,13 @@ export default function AIChatbot() {
     } catch (err) {
       setHistory(prev => [
         ...prev,
-        { role: 'model', parts: `Sorry, I ran into an issue: ${err.message}`, display: `⚠️ ${err.message}` },
+        { role: 'model', parts: err.message, display: `⚠️ ${err.message}` },
       ]);
     } finally {
       setLoading(false);
     }
   };
+
 
   const clearChat = () => setHistory([]);
 
