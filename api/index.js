@@ -33,7 +33,9 @@ app.use((req, res, next) => {
 app.use('/api/requests', require('../backend/server/routes/requests'));
 app.use('/api/catalog', require('../backend/server/routes/catalog'));
 app.use('/api/auth', require('../backend/server/routes/auth'));
+app.use('/api/ai', require('../backend/server/routes/ai'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
 
 module.exports = app;
+
