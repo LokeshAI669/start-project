@@ -1,10 +1,11 @@
-import React, { useMemo, useState, useEffect, useContext } from 'react';
+import React, { useMemo, useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { api } from '../../utils/api';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import {
   ArrowRight,
+  Bot,
   ChevronDown,
   FolderKanban,
   Grid2X2,
@@ -87,6 +88,57 @@ export default function BrowseCatalog() {
   const [showFilters, setShowFilters] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Semantic search state
+  const [semanticResults, setSemanticResults]     = useState([]);
+  const [isSemanticSearch, setIsSemanticSearch]   = useState(false);
+  const [semanticLoading, setSemanticLoading]     = useState(false);
+  const debounceRef = useRef(null);
+
+  const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+    ? import.meta.env.VITE_API_URL
+    : (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app');
+
+  // Debounced semantic search — fires 600ms after user stops typing
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (search.trim().length < 3) {
+      setIsSemanticSearch(false);
+      setSemanticResults([]);
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      setSemanticLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/ai/semantic-search?q=${encodeURIComponent(search.trim())}&limit=30`);
+        const data = await res.json();
+        if (data.semantic && Array.isArray(data.data)) {
+          const mapped = data.data.map(p => ({
+            id: p.id,
+            title: p.title,
+            category: p.domain,
+            level: p.difficulty,
+            description: p.short_description,
+            color: getDomainColor(p.domain),
+            image: getDomainImage(p.domain),
+            tools: getDomainTools(p.domain),
+          }));
+          setSemanticResults(mapped);
+          setIsSemanticSearch(true);
+        } else {
+          setIsSemanticSearch(false);
+        }
+      } catch (_) {
+        setIsSemanticSearch(false);
+      } finally {
+        setSemanticLoading(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [search]);
+
   const [projects, setProjects]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [categories, setCategories] = useState(['All Domains', ...FALLBACK_DOMAINS]);
@@ -130,15 +182,18 @@ export default function BrowseCatalog() {
 
 
   const filtered = useMemo(() => {
-    return projects.filter((p) => {
-      const matchSearch =
-        p.title.toLowerCase().includes(search.toLowerCase()) ||
-        p.description.toLowerCase().includes(search.toLowerCase());
+    // When semantic search is active, apply only category + level filters on top of semantic results
+    const base = isSemanticSearch ? semanticResults : projects;
+    return base.filter((p) => {
+      const matchSearch = isSemanticSearch
+        ? true // semantic already ranked by relevance
+        : (p.title.toLowerCase().includes(search.toLowerCase()) ||
+           (p.description || '').toLowerCase().includes(search.toLowerCase()));
       const matchCategory = category === 'All Domains' || p.category === category;
       const matchLevel    = level === 'All levels' || p.level === level;
       return matchSearch && matchCategory && matchLevel;
     });
-  }, [search, category, level, projects]);
+  }, [search, category, level, projects, isSemanticSearch, semanticResults]);
 
   return (
     <div className="pc-wrap">
@@ -216,18 +271,25 @@ export default function BrowseCatalog() {
         {/* Toolbar */}
         <section className="pc-toolbar">
           <div className="pc-count">
-            <strong>{filtered.length}</strong> projects available
-          </div>
+          <strong>{filtered.length}</strong> projects {isSemanticSearch ? <><span className="pc-semantic-label"><Bot size={12} /> AI ranked</span></> : 'available'}
+        </div>
 
           <div className="pc-controls">
             {/* Search */}
-            <div className="pc-search">
-              <Search size={18} />
+            <div className={`pc-search ${semanticLoading ? 'pc-search--loading' : ''}`}>
+              {semanticLoading
+                ? <div className="pc-search-spinner" />
+                : isSemanticSearch
+                ? <Bot size={18} style={{ color: '#a259ff' }} />
+                : <Search size={18} />}
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search projects..."
+                placeholder="AI-powered search — try 'stock price prediction'…"
               />
+              {isSemanticSearch && (
+                <span className="pc-ai-badge">AI</span>
+              )}
             </div>
 
             {/* Custom Category select */}

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
+  ArrowRight,
+  Bot,
   CheckCircle2,
   Clock,
   FileText,
@@ -12,6 +14,7 @@ import {
   Plus,
   PlusCircle,
   RefreshCw,
+  Sparkles,
   X,
   XCircle,
 } from 'lucide-react';
@@ -67,10 +70,16 @@ function RowSkeleton() {
    ───────────────────────────────────────────────────────────── */
 export default function Dashboard() {
   const { user, loading: authLoading } = useContext(AuthContext);
-  const [requests, setRequests]   = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError]         = useState('');
+  const [requests, setRequests]         = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [refreshing, setRefreshing]     = useState(false);
+  const [error, setError]               = useState('');
+  const [recs, setRecs]                 = useState([]);
+  const [recsLoading, setRecsLoading]   = useState(true);
+
+  const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+    ? import.meta.env.VITE_API_URL
+    : (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app');
   
   // Read anonymous user fallback from local storage
   const anonUser = React.useMemo(() => {
@@ -84,8 +93,33 @@ export default function Dashboard() {
 
   // Wait for auth to resolve before fetching — avoids spurious 401 on page load
   useEffect(() => {
-    if (!authLoading) fetchRequests();
+    if (!authLoading) {
+      fetchRequests();
+      fetchRecommendations();
+    }
   }, [authLoading]);
+
+  const fetchRecommendations = async () => {
+    setRecsLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token && token !== 'student' && token !== 'admin') {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const anonStr = localStorage.getItem('anon_user');
+      if (anonStr) {
+        try { headers['x-user-email'] = JSON.parse(anonStr)?.email || ''; } catch (_) {}
+      }
+      const res = await fetch(`${API_BASE}/api/ai/recommendations?limit=3`, { headers });
+      const data = await res.json();
+      if (data.recommendations) setRecs(data.recommendations);
+    } catch (_) {
+      // silently fail — recommendations are non-critical
+    } finally {
+      setRecsLoading(false);
+    }
+  };
 
   const fetchRequests = async (manual = false) => {
     if (manual) setRefreshing(true);
@@ -197,6 +231,41 @@ export default function Dashboard() {
               ))
           }
         </div>
+
+        {/* Recommendations */}
+        {(recsLoading || recs.length > 0) && (
+          <div className="db-recs-section">
+            <div className="db-recs-header">
+              <div className="db-recs-title">
+                <Sparkles size={16} style={{ color: '#a259ff' }} />
+                Recommended For You
+              </div>
+              <span className="db-recs-badge"><Bot size={11} /> AI-Powered</span>
+            </div>
+            <div className="db-recs-grid">
+              {recsLoading
+                ? [1, 2, 3].map(i => <div key={i} className="db-rec-skel" />)
+                : recs.map((rec, i) => (
+                  <motion.div
+                    key={rec.id}
+                    className="db-rec-card"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.08, duration: 0.35 }}
+                    whileHover={{ y: -3 }}
+                  >
+                    <div className="db-rec-domain">{rec.domain}</div>
+                    <div className="db-rec-title">{rec.title}</div>
+                    <div className="db-rec-reason">{rec.match_reason}</div>
+                    <Link to={`/request?catalog_id=${rec.id}`} className="db-rec-btn">
+                      Request <ArrowRight size={13} />
+                    </Link>
+                  </motion.div>
+                ))
+              }
+            </div>
+          </div>
+        )}
 
         {/* Submissions card */}
         <div className="db-content-card">

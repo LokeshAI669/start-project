@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import LandingPage    from './pages/LandingPage';
 import Login          from './pages/auth/Login';
@@ -13,36 +13,51 @@ import AdminLogin     from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCatalog   from './pages/admin/AdminCatalog';
 import NotFound       from './pages/NotFound';
+import AIChatbot      from './components/AIChatbot';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          {/* ── Public ─────────────────────────────── */}
-          <Route path="/"               element={<LandingPage />} />
-          <Route path="/login"          element={<Login />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-
-          {/* ── Student ────────────────────────────── */}
-          <Route path="/dashboard"      element={<Dashboard />} />
-          <Route path="/request"        element={<SubmitRequest />} />
-          <Route path="/browse"         element={<BrowseCatalog />} />
-          <Route path="/catalog/:id"    element={<CatalogDetail />} />
-          <Route path="/project"        element={<ProjectDetails />} />
-
-          {/* ── Admin ──────────────────────────────── */}
-          <Route path="/hireproject_admin"  element={<AdminLogin />} />
-          <Route path="/admin/dashboard"    element={<AdminDashboard />} />
-          <Route path="/admin/catalog"      element={<AdminCatalog />} />
-
-          {/* ── 404 — catches all unknown URLs ─────── */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
   );
 }
 
-export default App;
+/* Separate component so useLocation works inside BrowserRouter */
+function AppRoutes() {
+  const location = useLocation();
+  // Show chatbot on all student-facing pages (not admin pages or landing)
+  const isAdminPage = location.pathname.startsWith('/admin') || location.pathname === '/hireproject_admin';
+  const showChatbot = !isAdminPage;
 
+  return (
+    <>
+      <Routes>
+        {/* ── Public ────────────────────────────────────── */}
+        <Route path="/"               element={<LandingPage />} />
+        <Route path="/login"          element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        {/* ── Student ────────────────────────────────────── */}
+        <Route path="/dashboard"      element={<Dashboard />} />
+        <Route path="/request"        element={<SubmitRequest />} />
+        <Route path="/browse"         element={<BrowseCatalog />} />
+        <Route path="/catalog/:id"    element={<CatalogDetail />} />
+        <Route path="/project"        element={<ProjectDetails />} />
+
+        {/* ── Admin ────────────────────────────────────── */}
+        <Route path="/hireproject_admin"  element={<AdminLogin />} />
+        <Route path="/admin/dashboard"    element={<AdminDashboard />} />
+        <Route path="/admin/catalog"      element={<AdminCatalog />} />
+
+        {/* ── 404 — catches all unknown URLs ─────────────────── */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {showChatbot && <AIChatbot />}
+    </>
+  );
+}
+
+export default App;

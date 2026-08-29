@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { PlayCircle, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import StatsBadge from './StatsBadge';
 import CTAButtons from './CTAButtons';
 import StatusBar from './StatusBar';
@@ -13,7 +13,6 @@ import heroBgPoster from '../../assets/hero-bg-robot-poster.webp';
 export default function Hero({ navigate }) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
   const videoRef = useRef(null);
-  const [showFallbackButton, setShowFallbackButton] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -24,22 +23,8 @@ export default function Hero({ navigate }) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (connection && connection.saveData) {
-      console.warn("Data Saver mode enabled, skipping autoplay.");
-      setShowFallbackButton(true);
-      return;
-    }
-
     video.muted = true;
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((err) => {
-        console.warn("Autoplay blocked:", err);
-        setShowFallbackButton(true);
-      });
-    }
+    video.play().catch(() => {});
   }, []);
 
   return (
@@ -60,21 +45,6 @@ export default function Hero({ navigate }) {
       </video>
       
       <div className="hero-video-gradient-overlay" aria-hidden="true"></div>
-      
-      {showFallbackButton && (
-        <div className="hero-video-fallback-overlay">
-          <button 
-            onClick={() => { 
-              if(videoRef.current) videoRef.current.play(); 
-              setShowFallbackButton(false); 
-            }} 
-            className="btn-play-fallback"
-          >
-            <PlayCircle size={48} />
-            <span>Play Background Video</span>
-          </button>
-        </div>
-      )}
 
       <div className="hero-inner">
         <motion.div 

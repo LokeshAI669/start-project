@@ -1,11 +1,11 @@
-/* ═══════════════════════════════════════════════════════════════
-   HireProjectLanding — Premium Section Styles
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   HireProjectLanding â€” Premium Section Styles
    Injected into LandingPage as independent self-contained sections
-   ═══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-/* ══════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SPLASH INTRO
-   ══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .splash-overlay {
   position: fixed;
   inset: 0;
@@ -275,7 +275,7 @@
   }
 }
 
-/* ── Noise texture overlay ───────────────────────────────────── */
+/* â”€â”€ Noise texture overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hp-noise {
   position: fixed;
   inset: 0;
@@ -286,9 +286,9 @@
   background-size: 180px 180px;
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FLOWING PROJECTS BELT
-   ══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hp-flow-section {
   padding: 0 0 80px;
   overflow: hidden;
@@ -364,9 +364,9 @@
   background: linear-gradient(to left, var(--bg, #09090B), transparent);
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PROJECT CARD
-   ══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hp-project-card {
   width: 280px;
   flex-shrink: 0;
@@ -465,9 +465,9 @@
   gap: 8px;
 }
 
-/* ══════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    CATEGORY SECTION
-   ══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hp-category-section {
   padding: 80px 52px 100px;
   max-width: 1200px;
@@ -604,9 +604,9 @@
 }
 .hp-category-card:hover .hp-category-arrow { opacity: 1; transform: translateX(0); }
 
-/* ══════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FEATURED SECTION
-   ══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hp-featured-section {
   padding: 0 52px 100px;
   max-width: 1200px;
@@ -620,9 +620,9 @@
 .hp-featured-grid .hp-project-card { width: auto; }
 .hp-featured-grid .hp-project-image-wrap { height: 200px; }
 
-/* ══════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FINAL CTA BAND
-   ══════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hp-final-cta {
   margin: 0 52px 100px;
   border-radius: 28px;
@@ -679,7 +679,7 @@
   line-height: 1.15;
 }
 
-/* ── Shared buttons ─────────────────────────────────────────── */
+/* â”€â”€ Shared buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hp-primary-btn {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--orange, #3B82F6);
@@ -712,7 +712,7 @@
   border-color: rgba(255,255,255,0.22);
 }
 
-/* ── Avatar stack ───────────────────────────────────────────── */
+/* â”€â”€ Avatar stack â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hp-avatar-stack {
   display: flex; align-items: center;
   margin-right: 12px;
@@ -741,7 +741,7 @@
 }
 .hp-hero-trust strong { color: var(--text-primary, #FAFAFA); }
 
-/* ── Responsive ─────────────────────────────────────────────── */
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1024px) {
   .hp-category-section, .hp-featured-section { padding-left: 24px; padding-right: 24px; }
   .hp-final-cta { margin: 0 24px 80px; padding: 48px 32px; }
@@ -760,7 +760,7 @@
   .hp-final-cta-h2 { font-size: 1.8rem; }
 }
 
-/* ── Hero Video Background ───────────────────────────────────── */
+/* â”€â”€ Hero Video Background â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero { background-color: var(--bg); }
 
 .hero-video-bg,
@@ -791,7 +791,7 @@
   }
 }
 
-/* ── Hero Delivery Badge ───────────────────────────────────── */
+/* â”€â”€ Hero Delivery Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero-delivery-badge {
   display: inline-flex;
   align-items: center;
@@ -873,7 +873,7 @@
   line-height: 1.15;
 }
 
-/* ── Shared buttons ─────────────────────────────────────────── */
+/* â”€â”€ Shared buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hp-primary-btn {
   display: inline-flex; align-items: center; gap: 8px;
   background: var(--orange, #3B82F6);
@@ -906,7 +906,7 @@
   border-color: rgba(255,255,255,0.22);
 }
 
-/* ── Avatar stack ───────────────────────────────────────────── */
+/* â”€â”€ Avatar stack â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hp-avatar-stack {
   display: flex; align-items: center;
   margin-right: 12px;
@@ -935,7 +935,7 @@
 }
 .hp-hero-trust strong { color: var(--text-primary, #FAFAFA); }
 
-/* ── Responsive ─────────────────────────────────────────────── */
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 1024px) {
   .hp-category-section, .hp-featured-section { padding-left: 24px; padding-right: 24px; }
   .hp-final-cta { margin: 0 24px 80px; padding: 48px 32px; }
@@ -954,7 +954,7 @@
   .hp-final-cta-h2 { font-size: 1.8rem; }
 }
 
-/* ── Hero Video Background ───────────────────────────────────── */
+/* â”€â”€ Hero Video Background â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero { background-color: var(--bg); }
 
 .hero-video-bg,
@@ -1019,7 +1019,7 @@
   }
 }
 
-/* ── Hero Delivery Badge ───────────────────────────────────── */
+/* â”€â”€ Hero Delivery Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero-delivery-badge {
   display: inline-flex;
   align-items: center;
@@ -1367,10 +1367,10 @@
 }
 
 /* =========================================================================
-   ADDITIONAL RESPONSIVE OVERHAUL — 480px / 375px / 360px
+   ADDITIONAL RESPONSIVE OVERHAUL â€” 480px / 375px / 360px
    ========================================================================= */
 
-/* ── hp-flow-section responsive ── */
+/* â”€â”€ hp-flow-section responsive â”€â”€ */
 @media (max-width: 480px) {
   .hp-flow-section { padding: 0 0 50px; }
   .hp-flow-header { padding: 0 16px; font-size: 9.5px; }
@@ -1381,7 +1381,7 @@
   .hp-project-title { font-size: 13px; }
 }
 
-/* ── hp-category-section responsive ── */
+/* â”€â”€ hp-category-section responsive â”€â”€ */
 @media (max-width: 480px) {
   .hp-category-section { padding: 50px 14px 60px; }
   .hp-section-h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
@@ -1400,7 +1400,7 @@
   .hp-section-h2 { font-size: clamp(1.3rem, 7vw, 1.7rem); }
 }
 
-/* ── hp-featured-section responsive ── */
+/* â”€â”€ hp-featured-section responsive â”€â”€ */
 @media (max-width: 480px) {
   .hp-featured-section { padding: 0 14px 60px; }
   .hp-featured-grid { grid-template-columns: 1fr; gap: 14px; }
@@ -1411,7 +1411,7 @@
   .hp-featured-section { padding: 0 10px 48px; }
 }
 
-/* ── hp-final-cta responsive ── */
+/* â”€â”€ hp-final-cta responsive â”€â”€ */
 @media (max-width: 375px) {
   .hp-final-cta { padding: 24px 14px; margin: 0 10px 36px; border-radius: 20px; }
   .hp-final-cta h2 { font-size: clamp(1.4rem, 7vw, 2rem); margin-bottom: 24px; }
@@ -1426,7 +1426,7 @@
   .hp-primary-btn, .hp-secondary-btn { width: 100%; justify-content: center; }
 }
 
-/* ── splash responsive ── */
+/* â”€â”€ splash responsive â”€â”€ */
 @media (max-width: 360px) {
   .splash-overlay { padding: 12px; }
   .splash-logo-wrap { margin-bottom: 22px; }
@@ -1441,7 +1441,7 @@
   .splash-status { bottom: 18px; font-size: 9px; }
 }
 
-/* ── Hero delivery badge full responsive ── */
+/* â”€â”€ Hero delivery badge full responsive â”€â”€ */
 @media (max-width: 375px) {
   .hero-delivery-badge { font-size: 11px !important; padding: 7px 10px !important; gap: 5px !important; }
   .hero-delivery-icon svg { width: 13px; height: 13px; }
@@ -1450,13 +1450,13 @@
   .hero-delivery-badge { font-size: 10px !important; padding: 6px 8px !important; }
 }
 
-/* ── Hero CTA buttons full-width on extra small ── */
+/* â”€â”€ Hero CTA buttons full-width on extra small â”€â”€ */
 @media (max-width: 375px) {
   .hero-ctas { flex-direction: column !important; gap: 8px !important; }
   .hero-ctas .btn { width: 100% !important; justify-content: center !important; height: 44px !important; }
 }
 
-/* ── Animated dashboard card responsive ── */
+/* â”€â”€ Animated dashboard card responsive â”€â”€ */
 @media (max-width: 480px) {
   .animated-dashboard-card { padding: 16px; border-radius: 18px; }
   .animated-dashboard-percentage { font-size: clamp(1.5rem, 7vw, 2rem) !important; }
@@ -1470,13 +1470,13 @@
   .animated-dashboard-stat-row { font-size: 11px; padding: 8px 10px; }
 }
 
-/* ── hp-hero-trust on very small screens ── */
+/* â”€â”€ hp-hero-trust on very small screens â”€â”€ */
 @media (max-width: 360px) {
   .hp-hero-trust { gap: 4px; margin-top: 14px; }
   .hp-hero-trust p { font-size: 11px; }
 }
 
-/* ── Universal overflow guard ── */
+/* â”€â”€ Universal overflow guard â”€â”€ */
 .hp-flow-section,
 .hp-category-section,
 .hp-featured-section,
@@ -1485,3 +1485,4 @@
   max-width: 100%;
   overflow-x: hidden;
 }
+

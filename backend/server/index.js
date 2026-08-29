@@ -79,6 +79,7 @@ async function start() {
   app.use('/api/auth',     require('./routes/auth'));
   app.use('/api/requests', require('./routes/requests'));
   app.use('/api/catalog',  require('./routes/catalog'));
+  app.use('/api/ai',       require('./routes/ai'));
 
 
   // ── Health ──────────────────────────────────────────────────

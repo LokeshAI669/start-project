@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Paperclip,
   PlusCircle,
+  Sparkles,
   User,
   Wallet,
   X,
@@ -65,6 +66,7 @@ export default function SubmitRequest() {
   const [error, setError]                   = useState('');
   const [loading, setLoading]               = useState(false);
   const [success, setSuccess]               = useState(false);
+  const [aiLoading, setAiLoading]           = useState(false);
 
   /* pre-fill from user context */
   useEffect(() => {
@@ -91,6 +93,34 @@ export default function SubmitRequest() {
       .catch(err => console.error('Catalog fetch failed:', err))
       .finally(() => setLoading(false));
   }, [catalogId]);
+
+  /* ── AI Description Generator ── */
+  const generateDescription = async () => {
+    if (!projectName.trim()) {
+      setError('Please enter a project name first to generate a description.');
+      return;
+    }
+    setAiLoading(true);
+    setError('');
+    try {
+      const res = await fetch(
+        (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app'))
+        + '/api/ai/generate-description',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectName: projectName.trim(), roughIdea: description }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to generate description');
+      setDescription(data.description);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   /* ── Validation ── */
   const validate = (s) => {
@@ -335,15 +365,28 @@ export default function SubmitRequest() {
                 </div>
 
                 <div className="sr-field" style={{ marginTop: 18 }}>
-                  <label className="sr-label">
-                    <FileText size={13} /> Project Description *
-                    <span className="sr-label-opt">(min 20 chars)</span>
-                  </label>
+                  <div className="sr-label-row">
+                    <label className="sr-label">
+                      <FileText size={13} /> Project Description *
+                      <span className="sr-label-opt">(min 20 chars)</span>
+                    </label>
+                    <button
+                      type="button"
+                      className={`sr-ai-btn ${aiLoading ? 'sr-ai-btn--loading' : ''}`}
+                      onClick={generateDescription}
+                      disabled={aiLoading}
+                      title="Generate description with AI"
+                    >
+                      <Sparkles size={13} />
+                      {aiLoading ? 'Generating…' : 'AI Generate'}
+                    </button>
+                  </div>
                   <textarea
-                    className="sr-textarea"
-                    placeholder="Describe your project goals, features, and requirements..."
-                    value={description}
+                    className={`sr-textarea ${aiLoading ? 'sr-textarea--ai-loading' : ''}`}
+                    placeholder="Describe your project goals, features, and requirements… or use AI Generate above!"
+                    value={aiLoading ? '' : description}
                     onChange={e => setDescription(e.target.value)}
+                    disabled={aiLoading}
                   />
                   <div className={`sr-char-hint ${description.length === 0 ? '' : description.length < 20 ? 'warn' : 'ok'}`}>
                     {description.length} / 20 min characters

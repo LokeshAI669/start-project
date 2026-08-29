@@ -599,3 +599,78 @@
 .sr-wrap { box-sizing: border-box; overflow-x: hidden; max-width: 100vw; }
 .sr-main { box-sizing: border-box; max-width: 100%; min-width: 0; }
 .sr-card { box-sizing: border-box; max-width: 100%; }
+
+/* ══════════════════════════════════════════════════════════════
+   AI DESCRIPTION GENERATOR — styles
+   ══════════════════════════════════════════════════════════════ */
+
+/* Label row: label on left, AI button on right */
+.sr-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.sr-label-row .sr-label {
+  margin-bottom: 0;
+}
+
+/* AI Generate button */
+.sr-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(162, 89, 255, 0.45);
+  background: linear-gradient(135deg, rgba(124,92,252,0.15), rgba(162,89,255,0.1));
+  color: #c4b5fd;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.sr-ai-btn:hover:not(:disabled) {
+  border-color: #a259ff;
+  background: linear-gradient(135deg, rgba(124,92,252,0.28), rgba(162,89,255,0.2));
+  color: #fff;
+  box-shadow: 0 0 16px rgba(162,89,255,0.3);
+}
+
+.sr-ai-btn--loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  animation: sr-ai-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes sr-ai-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(162,89,255,0.3); }
+  50% { box-shadow: 0 0 14px 3px rgba(162,89,255,0.25); }
+}
+
+/* Textarea shimmer when AI is loading */
+.sr-textarea--ai-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(124,92,252,0.06) 0%,
+    rgba(162,89,255,0.12) 40%,
+    rgba(124,92,252,0.06) 80%
+  );
+  background-size: 200% 100%;
+  animation: sr-shimmer 1.5s linear infinite;
+  cursor: not-allowed;
+  border-color: rgba(162,89,255,0.35) !important;
+}
+
+@keyframes sr-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+

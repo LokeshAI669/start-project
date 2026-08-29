@@ -8,6 +8,7 @@
     "dev": "nodemon server/index.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@json2csv/plainjs": "^7.0.8",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
