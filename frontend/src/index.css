@@ -1,4 +1,4 @@
-
+﻿
 /* ═══════════════════════════════════════════════════════════
    JobZen — Premium Professional UI
    Fonts: Inter (UI), JetBrains Mono (code/labels)
@@ -212,7 +212,7 @@
 
 /* ══ RESET ════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background: var(--bg);
@@ -221,7 +221,6 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
 a { color: var(--orange); text-decoration: none; transition: color var(--t); }
@@ -1711,6 +1710,7 @@ input[type="password"]::-ms-clear {
       position: fixed; inset: 0;
       pointer-events: none; z-index: 0;
       overflow: hidden;
+      transform: translateZ(0);
     }
     .orb {
       position: absolute;
@@ -1769,6 +1769,7 @@ input[type="password"]::-ms-clear {
       background-size: 64px 64px;
       mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 0%, transparent 80%);
       -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 0%, transparent 80%);
+      transform: translateZ(0);
     }
 
     /* ── HERO ANIMATION ────────────────────────────────── */
@@ -2055,9 +2056,10 @@ input[type="password"]::-ms-clear {
     #scroll-progress {
       position: fixed; top: 0; left: 0;
       height: 3px; width: 0%;
-      background: #3B82F6;
+      background: linear-gradient(90deg, #3B82F6, #10B981);
       z-index: 9998;
-      transition: width 0.1s linear;
+      pointer-events: none;
+      will-change: width;
     }
 
     /* ── SECTION HEADERS ───────────────────────────────── */

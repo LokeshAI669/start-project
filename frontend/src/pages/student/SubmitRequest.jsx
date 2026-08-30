@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
+  ArrowLeft,
   ArrowRight,
   CalendarDays,
   CheckCircle2,
@@ -13,7 +14,6 @@ import {
   LayoutDashboard,
   Paperclip,
   PlusCircle,
-  Sparkles,
   User,
   Wallet,
   X,
@@ -66,7 +66,6 @@ export default function SubmitRequest() {
   const [error, setError]                   = useState('');
   const [loading, setLoading]               = useState(false);
   const [success, setSuccess]               = useState(false);
-  const [aiLoading, setAiLoading]           = useState(false);
 
   /* pre-fill from user context */
   useEffect(() => {
@@ -94,33 +93,6 @@ export default function SubmitRequest() {
       .finally(() => setLoading(false));
   }, [catalogId]);
 
-  /* ── AI Description Generator ── */
-  const generateDescription = async () => {
-    if (!projectName.trim()) {
-      setError('Please enter a project name first to generate a description.');
-      return;
-    }
-    setAiLoading(true);
-    setError('');
-    try {
-      const res = await fetch(
-        (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app'))
-        + '/api/ai/generate-description',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ projectName: projectName.trim(), roughIdea: description }),
-        }
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate description');
-      setDescription(data.description);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
   /* ── Validation ── */
   const validate = (s) => {
@@ -365,28 +337,15 @@ export default function SubmitRequest() {
                 </div>
 
                 <div className="sr-field" style={{ marginTop: 18 }}>
-                  <div className="sr-label-row">
-                    <label className="sr-label">
-                      <FileText size={13} /> Project Description *
-                      <span className="sr-label-opt">(min 20 chars)</span>
-                    </label>
-                    <button
-                      type="button"
-                      className={`sr-ai-btn ${aiLoading ? 'sr-ai-btn--loading' : ''}`}
-                      onClick={generateDescription}
-                      disabled={aiLoading}
-                      title="Generate description with AI"
-                    >
-                      <Sparkles size={13} />
-                      {aiLoading ? 'Generating…' : 'AI Generate'}
-                    </button>
-                  </div>
+                  <label className="sr-label">
+                    <FileText size={13} /> Project Description *
+                    <span className="sr-label-opt">(min 20 chars)</span>
+                  </label>
                   <textarea
-                    className={`sr-textarea ${aiLoading ? 'sr-textarea--ai-loading' : ''}`}
-                    placeholder="Describe your project goals, features, and requirements… or use AI Generate above!"
-                    value={aiLoading ? '' : description}
+                    className="sr-textarea"
+                    placeholder="Describe your project goals, features, and requirements…"
+                    value={description}
                     onChange={e => setDescription(e.target.value)}
-                    disabled={aiLoading}
                   />
                   <div className={`sr-char-hint ${description.length === 0 ? '' : description.length < 20 ? 'warn' : 'ok'}`}>
                     {description.length} / 20 min characters
@@ -514,7 +473,7 @@ export default function SubmitRequest() {
             <div className="sr-actions">
               {step > 1 && (
                 <button className="sr-btn-ghost" onClick={() => { setError(''); setStep(s => s - 1); }}>
-                  ← Back
+                  <ArrowLeft size={16} /> Back
                 </button>
               )}
               {step < 3 && (
@@ -560,16 +519,6 @@ function Sidebar({ active }) {
         <JobZenLogo theme="dark" size="sm" />
       </Link>
 
-      <div className="sr-sidebar-profile">
-        <div className="sr-profile-letter">
-          {user?.name ? user.name[0].toUpperCase() : 'U'}
-        </div>
-        <div>
-          <strong>{user?.name || 'Welcome back'}</strong>
-          <small>{user?.email || 'Keep building'}</small>
-        </div>
-      </div>
-
       <nav className="sr-nav">
         <Link to="/dashboard" className={active === 'dashboard' ? 'sr-active' : ''}>
           <LayoutDashboard size={20} /> My Requests
@@ -582,6 +531,15 @@ function Sidebar({ active }) {
         </Link>
       </nav>
 
+      <div className="sr-sidebar-profile">
+        <div className="sr-profile-letter">
+          {user?.name ? user.name[0].toUpperCase() : 'U'}
+        </div>
+        <div>
+          <strong>{user?.name || 'Welcome back'}</strong>
+          <small>{user?.email || 'Keep building'}</small>
+        </div>
+      </div>
     </aside>
   );
 }

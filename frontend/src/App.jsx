@@ -13,7 +13,7 @@ import AdminLogin     from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCatalog   from './pages/admin/AdminCatalog';
 import NotFound       from './pages/NotFound';
-import AIChatbot      from './components/AIChatbot';
+
 
 function App() {
   return (
@@ -28,9 +28,6 @@ function App() {
 /* Separate component so useLocation works inside BrowserRouter */
 function AppRoutes() {
   const location = useLocation();
-  // Show chatbot on all student-facing pages (not admin pages or landing)
-  const isAdminPage = location.pathname.startsWith('/admin') || location.pathname === '/hireproject_admin';
-  const showChatbot = !isAdminPage;
 
   return (
     <>
@@ -55,7 +52,6 @@ function AppRoutes() {
         {/* ── 404 — catches all unknown URLs ─────────────────── */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {showChatbot && <AIChatbot />}
     </>
   );
 }

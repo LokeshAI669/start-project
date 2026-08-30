@@ -79,7 +79,6 @@ async function start() {
   app.use('/api/auth',     require('./routes/auth'));
   app.use('/api/requests', require('./routes/requests'));
   app.use('/api/catalog',  require('./routes/catalog'));
-  app.use('/api/ai',       require('./routes/ai'));
 
 
   // ── Health ──────────────────────────────────────────────────
@@ -95,9 +94,28 @@ async function start() {
   });
 
   const PORT = process.env.PORT || 3000;
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n❌  Port ${PORT} is already in use.`);
+      console.error(`   Run: npx kill-port ${PORT}  — then restart the server.\n`);
+      process.exit(1); // exit so nodemon can show a clean message
+    } else {
+      throw err;
+    }
+  });
+
   server.listen(PORT, () => {
     console.log(`\n🌿 JobZen API running at http://localhost:${PORT}\n`);
   });
+
+  // ── Graceful shutdown ────────────────────────────────────────
+  const shutdown = (signal) => {
+    console.log(`\n[${signal}] Shutting down gracefully…`);
+    server.close(() => process.exit(0));
+  };
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT',  () => shutdown('SIGINT'));
 }
 
 start().catch(err => { console.error('Failed to start:', err); process.exit(1); });

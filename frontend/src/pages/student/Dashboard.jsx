@@ -2,8 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ArrowRight,
-  Bot,
   CheckCircle2,
   Clock,
   FileText,
@@ -14,7 +12,6 @@ import {
   Plus,
   PlusCircle,
   RefreshCw,
-  Sparkles,
   X,
   XCircle,
 } from 'lucide-react';
@@ -74,8 +71,6 @@ export default function Dashboard() {
   const [loading, setLoading]           = useState(true);
   const [refreshing, setRefreshing]     = useState(false);
   const [error, setError]               = useState('');
-  const [recs, setRecs]                 = useState([]);
-  const [recsLoading, setRecsLoading]   = useState(true);
 
   const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
     ? import.meta.env.VITE_API_URL
@@ -95,31 +90,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!authLoading) {
       fetchRequests();
-      fetchRecommendations();
     }
   }, [authLoading]);
-
-  const fetchRecommendations = async () => {
-    setRecsLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (token && token !== 'student' && token !== 'admin') {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      const anonStr = localStorage.getItem('anon_user');
-      if (anonStr) {
-        try { headers['x-user-email'] = JSON.parse(anonStr)?.email || ''; } catch (_) {}
-      }
-      const res = await fetch(`${API_BASE}/api/ai/recommendations?limit=3`, { headers });
-      const data = await res.json();
-      if (data.recommendations) setRecs(data.recommendations);
-    } catch (_) {
-      // silently fail — recommendations are non-critical
-    } finally {
-      setRecsLoading(false);
-    }
-  };
 
   const fetchRequests = async (manual = false) => {
     if (manual) setRefreshing(true);
@@ -171,16 +143,6 @@ export default function Dashboard() {
           <JobZenLogo theme="dark" size="sm" />
         </Link>
 
-        <div className="db-sidebar-profile">
-          <div className="db-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : 'U'}
-          </div>
-          <div>
-            <strong>{user?.name || 'Welcome back'}</strong>
-            <small>{user?.email || 'Keep building'}</small>
-          </div>
-        </div>
-
         <nav className="db-nav">
           <Link to="/dashboard" className="db-active">
             <LayoutDashboard size={20} /> My Requests
@@ -193,6 +155,15 @@ export default function Dashboard() {
           </Link>
         </nav>
 
+        <div className="db-sidebar-profile">
+          <div className="db-profile-letter">
+            {user?.name ? user.name[0].toUpperCase() : 'U'}
+          </div>
+          <div>
+            <strong>{user?.name || 'Welcome back'}</strong>
+            <small>{user?.email || 'Keep building'}</small>
+          </div>
+        </div>
       </aside>
 
       {/* ── Main ── */}
@@ -232,42 +203,7 @@ export default function Dashboard() {
           }
         </div>
 
-        {/* Recommendations */}
-        {(recsLoading || recs.length > 0) && (
-          <div className="db-recs-section">
-            <div className="db-recs-header">
-              <div className="db-recs-title">
-                <Sparkles size={16} style={{ color: '#a259ff' }} />
-                Recommended For You
-              </div>
-              <span className="db-recs-badge"><Bot size={11} /> AI-Powered</span>
-            </div>
-            <div className="db-recs-grid">
-              {recsLoading
-                ? [1, 2, 3].map(i => <div key={i} className="db-rec-skel" />)
-                : recs.map((rec, i) => (
-                  <motion.div
-                    key={rec.id}
-                    className="db-rec-card"
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.08, duration: 0.35 }}
-                    whileHover={{ y: -3 }}
-                  >
-                    <div className="db-rec-domain">{rec.domain}</div>
-                    <div className="db-rec-title">{rec.title}</div>
-                    <div className="db-rec-reason">{rec.match_reason}</div>
-                    <Link to={`/request?catalog_id=${rec.id}`} className="db-rec-btn">
-                      Request <ArrowRight size={13} />
-                    </Link>
-                  </motion.div>
-                ))
-              }
-            </div>
-          </div>
-        )}
 
-        {/* Submissions card */}
         <div className="db-content-card">
           <div className="db-content-header">
             <div>
@@ -331,44 +267,46 @@ export default function Dashboard() {
           {/* Desktop table */}
           {!loading && !error && requests.length > 0 && (
             <>
-              <table className="db-table">
-                <thead>
-                  <tr>
-                    <th>Project</th>
-                    <th>Budget</th>
-                    <th>Meeting</th>
-                    <th>Submitted</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <AnimatePresence>
-                    {requests.map((req, i) => (
-                      <motion.tr
-                        key={req.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.04 }}
-                      >
-                        <td>
-                          <div className="db-project-name">{req.project_name || '—'}</div>
-                          <div className="db-project-email">{req.email}</div>
-                        </td>
-                        <td className="db-budget-cell">
-                          {formatBudget(req.budget, req.currency)}
-                        </td>
-                        <td>{req.preferred_date ? formatDate(req.preferred_date) : '—'}</td>
-                        <td>{formatDate(req.created_at)}</td>
-                        <td>
-                          <span className={statusBadgeClass(req.status)}>
-                            {req.status || 'Pending'}
-                          </span>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </AnimatePresence>
-                </tbody>
-              </table>
+              <div className="db-table-wrap">
+                <table className="db-table">
+                  <thead>
+                    <tr>
+                      <th>Project</th>
+                      <th>Budget</th>
+                      <th>Meeting</th>
+                      <th>Submitted</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <AnimatePresence>
+                      {requests.map((req, i) => (
+                        <motion.tr
+                          key={req.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.04 }}
+                        >
+                          <td>
+                            <div className="db-project-name">{req.project_name || '—'}</div>
+                            <div className="db-project-email">{req.email}</div>
+                          </td>
+                          <td className="db-budget-cell">
+                            {formatBudget(req.budget, req.currency)}
+                          </td>
+                          <td>{req.preferred_date ? formatDate(req.preferred_date) : '—'}</td>
+                          <td>{formatDate(req.created_at)}</td>
+                          <td>
+                            <span className={statusBadgeClass(req.status)}>
+                              {req.status || 'Pending'}
+                            </span>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </AnimatePresence>
+                  </tbody>
+                </table>
+              </div>
 
               {/* Mobile card view */}
               <div className="db-mobile-cards">

@@ -18,6 +18,7 @@
   overflow: hidden;
   transition: opacity 0.75s ease, visibility 0.75s;
   padding: 20px;
+  transform: translateZ(0);
 }
 
 .splash-overlay.splash-exit {
@@ -284,6 +285,8 @@
   opacity: 0.022;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
+  transform: translateZ(0);
+  contain: strict;
 }
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -327,6 +330,7 @@
   position: relative;
   overflow: hidden;
   padding: 16px 0;
+  -webkit-overflow-scrolling: touch;
   mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
 }
@@ -1486,3 +1490,126 @@
   overflow-x: hidden;
 }
 
+
+/* ==========================================================================
+   SMOOTH SCROLL & PERFORMANCE — Appended block
+   Ensures buttery smooth scrolling across all dimensions and devices
+   ========================================================================== */
+
+/* ── 1. Scroll-reveal animations (IntersectionObserver sets .visible) ─── */
+.reveal,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
+  opacity: 0;
+  /* Use transform instead of separate top/left changes to stay on GPU */
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal          { transform: translateY(28px); }
+.reveal-left     { transform: translateX(-28px); }
+.reveal-right    { transform: translateX(28px); }
+.reveal-scale    { transform: scale(0.94); }
+
+.reveal.visible,
+.reveal-left.visible,
+.reveal-right.visible,
+.reveal-scale.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── 2. Section scroll-margin so fixed navbar never overlaps anchors ─── */
+section,
+[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ── 3. Sticky / fixed elements — force own GPU compositor layer ─────── */
+.pub-navbar,
+.splash-overlay,
+#scroll-progress,
+.hp-noise {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ── 4. Framer-Motion animated elements — opt them into compositing ───── */
+.feature-card,
+.stat-showcase-item,
+.hp-project-card,
+.hp-category-card {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* ── 5. Belt track — GPU-only animation, no layout thrashing ─────────── */
+.hp-project-track {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ── 6. iOS rubber-band touch scroll on overflow containers ──────────── */
+.hp-flow-area,
+.pc-wrap,
+.db-wrap {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── 7. Reduced-motion respect ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .reveal,
+  .reveal-left,
+  .reveal-right,
+  .reveal-scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .orb,
+  .splash-orb,
+  .hp-project-track {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .feature-card,
+  .stat-showcase-item,
+  .hp-project-card,
+  .hp-category-card {
+    transition: none !important;
+    will-change: unset;
+  }
+}
+
+/* ── 8. Responsive scroll-padding so anchors land below fixed navbar ─── */
+@media (max-width: 768px) {
+  html { scroll-padding-top: 64px; }
+  section, [id] { scroll-margin-top: 64px; }
+}
+@media (min-width: 769px) {
+  html { scroll-padding-top: 80px; }
+}
+
+/* ── 9. Prevent horizontal scroll on all section containers ──────────── */
+.stats-section-wrap,
+.hp-flow-section,
+.hp-category-section,
+.hp-featured-section {
+  overflow-x: hidden;
+  /* contain:content = browser can skip layout of content outside viewport */
+  contain: content;
+}
+
+/* ── 10. Smooth image loading — prevent layout shift during lazy load ── */
+.hp-project-image-wrap img,
+.hero-video-bg,
+.hero-poster-bg {
+  /* Reserve space before image loads to prevent scroll jumps */
+  content-visibility: auto;
+}
