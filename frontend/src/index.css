@@ -4747,3 +4747,113 @@ img, video, iframe, svg { max-width: 100%; height: auto; }
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ANIMATED ROBOT VIDEO — Hero foreground overlay
+   The Kling-generated robot animation sits in the right column of the hero.
+   It blends with the background using mix-blend-mode so the dark video bg
+   becomes visually transparent.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Wrapper — controls positioning and entrance animation */
+.hero-robot-video-wrap {
+  position: relative;
+  width: 100%;
+  /* 
+    Aspect ratio: 9:16 (portrait video from Kling) or 16:9 — auto-detected.
+    Using aspect-ratio property for fluid sizing without fixed px.
+  */
+  aspect-ratio: 9 / 16;
+  max-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Sits in front of the rings but behind the FeatureCard */
+  z-index: 2;
+  margin: 0 auto;
+  /* Subtle drop shadow to give depth */
+  filter: drop-shadow(0 20px 60px rgba(59, 130, 246, 0.15));
+}
+
+/* The actual <video> element */
+.hero-robot-video {
+  width: 100%;
+  height: 100%;
+  /*
+    object-fit: contain — keeps FULL robot in frame.
+    Never crops the plant, book stack, laptop, or speech bubble.
+    This is the correct value for portrait content in a container.
+  */
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  border-radius: 0;
+  /*
+    mix-blend-mode: lighten — makes near-black pixels in the video
+    visually transparent, allowing the hero background to show through.
+    The robot (brighter pixels) remains fully visible.
+
+    If you have a WebM with a true alpha channel, remove mix-blend-mode
+    and add: background: transparent;
+  */
+  mix-blend-mode: lighten;
+  /*
+    GPU compositing layer — prevents repaint during blend calculation
+    and keeps the animation buttery smooth.
+  */
+  will-change: transform;
+  transform: translateZ(0);
+  /* No fixed width/height — fully fluid and responsive */
+  pointer-events: none;
+}
+
+/* ── RESPONSIVE BREAKPOINTS ─────────────────────────────────────────────── */
+
+/* Desktop (1025px+) — full size robot */
+@media (min-width: 1025px) {
+  .hero-robot-video-wrap {
+    max-height: 580px;
+  }
+}
+
+/* Tablet (768px–1024px) — slightly smaller, centred */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero-robot-video-wrap {
+    max-height: 420px;
+    aspect-ratio: 9 / 14;
+  }
+  .hero-dashboard-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+}
+
+/* Mobile (below 768px) — robot video is hidden entirely */
+/* (controlled in JSX via shouldSkipRobotVideo) */
+@media (max-width: 767px) {
+  .hero-robot-video-wrap {
+    display: none;
+  }
+}
+
+/* ── Light mode: adjust blend mode for light backgrounds ─────────────────── */
+[data-theme="light"] .hero-robot-video {
+  /*
+    On light backgrounds, 'lighten' would make the robot disappear.
+    Switch to 'multiply' which keeps the robot visible on light bg,
+    or use 'normal' if the video has a true alpha channel (WebM).
+  */
+  mix-blend-mode: multiply;
+}
+
+/* ── Reduced motion: freeze the robot video ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-robot-video {
+    /* Pause the video for users who prefer no motion */
+    animation-play-state: paused;
+  }
+  /* Note: to truly pause a video you'd need JS — this is a CSS hint only */
+}
+

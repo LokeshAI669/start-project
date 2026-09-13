@@ -6,144 +6,104 @@ import CTAButtons from './CTAButtons';
 import StatusBar from './StatusBar';
 import FeatureCard from './FeatureCard';
 
-import heroBgVideo    from '../../assets/hero-bg-robot-final.mp4';
+import heroBgVideo       from '../../assets/hero-bg-robot-final.mp4';
 import heroBgMobileVideo from '../../assets/hero-bg-robot.mp4';
-import heroBgPoster   from '../../assets/hero-bg-robot-poster.webp';
+import heroBgPoster      from '../../assets/hero-bg-robot-poster.webp';
+// The new animated robot video — plays as a foreground overlay element
+import heroRobotAnimated from '../../assets/hero-robot-animated.mp4';
 
 // ─── matchMedia hook ──────────────────────────────────────────────────────────
-// Uses the browser's native matchMedia API for accurate, reactive breakpoints.
-// Server-side safe (returns false when window is undefined).
 function useMediaQuery(query) {
   const [matches, setMatches] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia(query).matches;
   });
-
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mql = window.matchMedia(query);
     const onChange = (e) => setMatches(e.matches);
     mql.addEventListener('change', onChange);
-    setMatches(mql.matches); // sync on mount in case it changed during SSR
+    setMatches(mql.matches);
     return () => mql.removeEventListener('change', onChange);
   }, [query]);
-
   return matches;
 }
 
-// ─── Detect iOS/Safari — needs special HEVC .mov handling ────────────────────
-function isIOS() {
-  if (typeof navigator === 'undefined') return false;
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
-
-function isSafari() {
-  if (typeof navigator === 'undefined') return false;
-  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-}
-
 export default function Hero({ navigate }) {
-  // ── Breakpoints via matchMedia (accurate & reactive) ─────────────────────
   const isMobile  = useMediaQuery('(max-width: 767px)');
   const isTablet  = useMediaQuery('(min-width: 768px) and (max-width: 1024px)');
   const isDesktop = useMediaQuery('(min-width: 1025px)');
 
-  // ── Video state ───────────────────────────────────────────────────────────
-  const [videoFailed, setVideoFailed] = useState(false);
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const videoRef = useRef(null);
+  // ── Background video state ────────────────────────────────────────────────
+  const [bgVideoFailed, setBgVideoFailed]     = useState(false);
+  const [bgVideoPlaying, setBgVideoPlaying]   = useState(false);
+  const bgVideoRef = useRef(null);
 
-  // ── Detect slow network ───────────────────────────────────────────────────
+  // ── Animated robot video state ────────────────────────────────────────────
+  const [robotVideoFailed, setRobotVideoFailed] = useState(false);
+  const robotVideoRef = useRef(null);
+
+  // ── Slow network check ────────────────────────────────────────────────────
   const isSlowConnection = (() => {
     if (typeof navigator === 'undefined') return false;
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     return !!(conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g'));
   })();
 
-  // ── Mobile: always skip video to save battery + bandwidth ────────────────
-  // On mobile screens we render a static poster image — no video at all.
-  // This is the primary fix for Android lag.
-  const shouldSkipVideo = isMobile || isSlowConnection;
+  // Mobile: skip the heavy background video entirely (use poster instead)
+  const shouldSkipBgVideo = isMobile || isSlowConnection;
+  // Robot animation video: show on tablet + desktop only
+  const shouldSkipRobotVideo = isMobile;
 
+  // ── Play background video ──────────────────────────────────────────────────
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || shouldSkipVideo) return;
-
-    // Ensure muted (required by all browsers for autoplay)
+    const video = bgVideoRef.current;
+    if (!video || shouldSkipBgVideo) return;
     video.muted = true;
+    video.play()
+      .then(() => setBgVideoPlaying(true))
+      .catch(() => setBgVideoFailed(true));
+  }, [shouldSkipBgVideo]);
 
-    const playPromise = video.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => setVideoPlaying(true))
-        .catch(() => {
-          // Autoplay blocked (e.g. browser policy, low power mode)
-          // Gracefully fall back to poster image
-          setVideoFailed(true);
-        });
-    }
-  }, [shouldSkipVideo]);
+  // ── Play robot animated video ──────────────────────────────────────────────
+  useEffect(() => {
+    const video = robotVideoRef.current;
+    if (!video || shouldSkipRobotVideo) return;
+    video.muted = true;
+    video.play().catch(() => setRobotVideoFailed(true));
+  }, [shouldSkipRobotVideo]);
 
-  // ── Determine if video element should render at all ───────────────────────
-  const showVideo = !shouldSkipVideo && !videoFailed;
+  const showBgVideo    = !shouldSkipBgVideo && !bgVideoFailed;
+  const showRobotVideo = !shouldSkipRobotVideo && !robotVideoFailed;
 
   return (
     <section className="hero" id="hero" aria-label="Hero section">
 
-      {/* ── Background Layer ── */}
+      {/* ══ Background Layer ══════════════════════════════════════════════════ */}
       <div className="hero-bg-layer" aria-hidden="true">
-        {showVideo ? (
+        {showBgVideo ? (
           <video
-            ref={videoRef}
+            ref={bgVideoRef}
             className="hero-video-bg"
             poster={heroBgPoster}
             autoPlay
             loop
             muted
             playsInline
-            /* iOS Safari requires this attribute to autoplay inline */
             x-webkit-airplay="allow"
-            /* Preload: metadata-only on tablet, full on desktop */
             preload={isTablet ? 'metadata' : 'auto'}
-            onError={() => setVideoFailed(true)}
-            onCanPlayThrough={() => {
-              if (!videoPlaying && videoRef.current) {
-                videoRef.current.play().catch(() => setVideoFailed(true));
-              }
-            }}
+            onError={() => setBgVideoFailed(true)}
           >
-            {/*
-              Source order matters:
-              1. Safari/iOS: needs HEVC .mov for alpha-channel video
-                 (WebM VP9 alpha is NOT supported by Safari/iOS at all)
-              2. Modern browsers: WebM VP9 with alpha channel
-              3. Tablet: smaller optimised mp4
-              4. Desktop: full-quality mp4
-            */}
-            {/* HEVC .mov for Safari/iOS — served only if the browser accepts it */}
-            <source
-              src={heroBgVideo.replace('.mp4', '.mov')}
-              type='video/mp4; codecs="hvc1"'
-            />
-            {/* WebM VP9 alpha — Chrome, Firefox, Edge */}
-            <source
-              src={heroBgVideo.replace('.mp4', '.webm')}
-              type="video/webm"
-            />
-            {/* MP4 fallback — tablet gets smaller file */}
-            {isTablet && (
-              <source src={heroBgMobileVideo} type="video/mp4" />
-            )}
-            {/* MP4 fallback — desktop full quality */}
+            {/* Safari/iOS: HEVC .mov (WebM alpha not supported in Safari) */}
+            <source src={heroBgVideo.replace('.mp4', '.mov')} type='video/mp4; codecs="hvc1"' />
+            {/* Chrome/Firefox/Edge: WebM VP9 */}
+            <source src={heroBgVideo.replace('.mp4', '.webm')} type="video/webm" />
+            {/* Tablet: smaller file */}
+            {isTablet && <source src={heroBgMobileVideo} type="video/mp4" />}
+            {/* Desktop: full quality */}
             <source src={heroBgVideo} type="video/mp4" />
           </video>
         ) : (
-          /*
-            Mobile / slow connection / video-failed fallback.
-            Uses the poster WebP as a static background — zero JS cost,
-            no network request for a 26MB video file.
-          */
           <div
             className="hero-poster-bg"
             style={{ backgroundImage: `url(${heroBgPoster})` }}
@@ -152,12 +112,14 @@ export default function Hero({ navigate }) {
           />
         )}
 
-        {/* Gradient overlay — darkens bottom so text stays readable */}
+        {/* Gradient overlay */}
         <div className="hero-video-gradient-overlay" />
       </div>
 
-      {/* ── Hero Content ── */}
+      {/* ══ Hero Content ══════════════════════════════════════════════════════ */}
       <div className="hero-inner">
+
+        {/* ── Left: text + CTAs ── */}
         <motion.div
           className="hero-text"
           initial="hidden"
@@ -195,8 +157,10 @@ export default function Hero({ navigate }) {
           <StatusBar />
         </motion.div>
 
+        {/* ── Right: animated robot + dashboard card ── */}
         <div className="hero-dashboard-wrapper">
-          {/* Spinning rings — desktop only (too heavy for mobile GPU) */}
+
+          {/* ── Spinning rings — desktop only ── */}
           {isDesktop && (
             <>
               <motion.div
@@ -211,6 +175,58 @@ export default function Hero({ navigate }) {
               />
             </>
           )}
+
+          {/*
+            ══ ANIMATED ROBOT VIDEO ══════════════════════════════════════════
+            The Kling-generated animated robot sits here as an overlay element.
+
+            Styling approach:
+            - mix-blend-mode: lighten  → makes the dark background of the video
+              transparent visually, letting the hero bg show through.
+              Works best when the video has a near-black background.
+            - object-fit: contain      → keeps full robot in frame, never crops
+            - No fixed height/width    → fluid, responsive
+            - pointer-events: none     → clicks pass through to content below
+            - loop + muted + playsInline → required for cross-browser autoplay
+
+            If the video has a transparent/alpha channel (WebM with alpha),
+            mix-blend-mode is not needed and can be removed.
+          */}
+          {showRobotVideo && (
+            <motion.div
+              className="hero-robot-video-wrap"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, ease: 'easeOut', delay: 0.4 }}
+            >
+              <video
+                ref={robotVideoRef}
+                className="hero-robot-video"
+                autoPlay
+                loop
+                muted
+                playsInline
+                x-webkit-airplay="allow"
+                preload="auto"
+                onError={() => setRobotVideoFailed(true)}
+              >
+                {/* HEVC mov for Safari/iOS alpha support */}
+                <source
+                  src={heroRobotAnimated.replace('.mp4', '.mov')}
+                  type='video/mp4; codecs="hvc1"'
+                />
+                {/* WebM for Chrome/Firefox (if available) */}
+                <source
+                  src={heroRobotAnimated.replace('.mp4', '.webm')}
+                  type="video/webm"
+                />
+                {/* MP4 universal fallback */}
+                <source src={heroRobotAnimated} type="video/mp4" />
+              </video>
+            </motion.div>
+          )}
+
+          {/* Dashboard stats card — shown below robot or as fallback */}
           <FeatureCard
             title="Project Approval Rate"
             percentage="94%"
