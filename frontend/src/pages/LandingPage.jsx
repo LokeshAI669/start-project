@@ -110,7 +110,7 @@ function SplashIntro({ onDone }) {
       <div className="splash-cards">
         {PROJECTS.map((p, i) => (
           <div
-            key={i}
+            key={p.name}
             className="splash-card"
             ref={el => cardRefs.current[i] = el}
           >
@@ -325,10 +325,10 @@ function AnimatedStat({ value, label, index = 0 }) {
    HP PROJECTS DATA
    ───────────────────────────────────────────────────────────── */
 const HP_PROJECTS = [
-  { title: 'COVID-19 Analysis',    category: 'Data Analytics',         image: '/projects/covid-dashboard.jpg', color: '#5CFFE1', stat: 'Python + Power BI' },
-  { title: 'Netflix EDA',    category: 'Exploratory Data Analysis', image: '/projects/netflix-analysis.jpg', color: '#FF8A5B', stat: 'Pandas + Seaborn' },
-  { title: 'AI Interview Coach',     category: 'Artificial Intelligence',      image: '/projects/ai-coach.jpg', color: '#9B5CFF', stat: '92% accuracy' },
-  { title: 'Fintech Dashboard', category: 'Web Application',     image: '/projects/fintech.jpg', color: '#D8FF5C', stat: '12K users' },
+  { title: 'COVID-19 Analysis',    category: 'Data Analytics',             image: '/projects/covid-dashboard.jpg',  color: '#5CFFE1', stat: 'Python + Power BI',   accent: '#00FFCC' },
+  { title: 'Netflix EDA',          category: 'Exploratory Data Analysis',  image: '/projects/netflix-analysis.jpg', color: '#FF4C4C', stat: 'Pandas + Seaborn',    accent: '#FF4C4C' },
+  { title: 'AI Interview Coach',   category: 'Artificial Intelligence',    image: '/projects/ai-coach.jpg',         color: '#9B5CFF', stat: '92% accuracy',        accent: '#9B5CFF' },
+  { title: 'Fintech Dashboard',    category: 'Web Application',            image: '/projects/fintech.jpg',          color: '#F59E0B', stat: '12K users',            accent: '#F59E0B' },
 ];
 const HP_PROJECTS_DUP = [...HP_PROJECTS, ...HP_PROJECTS];
 
@@ -344,25 +344,32 @@ const HP_CATEGORIES = [
    ───────────────────────────────────────────────────────────── */
 function HpProjectCard({ project, index }) {
   const navigate = useNavigate();
+  const accentColor = project.accent || project.color || '#3B82F6';
   return (
     <motion.article
       className="hp-project-card"
-      style={{ '--accent': project.color }}
+      style={{ '--accent': accentColor }}
       initial={{ opacity: 0, y: 35 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       whileHover={{ y: -14, rotate: index % 2 === 0 ? 1.5 : -1.5, scale: 1.03 }}
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
     >
-      <div className="hp-project-image-wrap">
-        <img src={project.image} alt={project.title} loading="lazy" />
+      {/* 16:9 aspect ratio wrapper — ensures all images display correctly */}
+      <div className="hp-project-image-wrap" style={{ paddingBottom: '56.25%', height: 0, position: 'relative' }}>
+        <img
+          src={project.image}
+          alt={project.title}
+          loading="lazy"
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
         <div className="hp-image-overlay" />
-        <span className="hp-project-stat">{project.stat}</span>
+        <span className="hp-project-stat" style={{ color: accentColor }}>{project.stat}</span>
       </div>
       <div className="hp-project-content">
-        <p className="hp-project-category">{project.category}</p>
+        <p className="hp-project-category" style={{ color: accentColor }}>{project.category}</p>
         <h3 className="hp-project-title">{project.title}</h3>
-        <button className="hp-project-btn" onClick={() => navigate('/browse')}>
+        <button className="hp-project-btn" style={{ '--btn-accent': accentColor }} onClick={() => navigate('/browse')}>
           View project <ArrowRight size={14} />
         </button>
       </div>
@@ -467,7 +474,19 @@ function HpCategoryCard({ icon, title, count, color, index = 0 }) {
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState(() => {
+    // Persist theme across page visits using localStorage
+    return localStorage.getItem('jz_theme') || 'dark';
+  });
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('jz_theme', next);
+      document.documentElement.setAttribute('data-theme', next);
+      return next;
+    });
+  }, []);
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
 
   // Show splash only once per browser session
@@ -482,8 +501,9 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }, []);
+    // Apply persisted theme on mount
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -564,8 +584,10 @@ export default function LandingPage() {
     });
 
     return () => {
-      window.removeEventListener('scroll', onScroll, { passive: true });
-      window.removeEventListener('scroll', onScrollProgress, { passive: true });
+      // NOTE: Do NOT pass { passive: true } to removeEventListener—it is not a valid option
+      // and causes the listener to NOT be removed (memory leak). Only addEventListener accepts it.
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScrollProgress);
       if (rafId) cancelAnimationFrame(rafId);
       revealObserver.disconnect();
       clearTimeout(twTimeout);
@@ -592,7 +614,7 @@ export default function LandingPage() {
       <div style={{ position: 'relative', isolation: 'isolate' }}>
       <div className="grid-overlay"></div>
 
-      <Header theme={theme} navigate={navigate} />
+      <Header theme={theme} toggleTheme={toggleTheme} navigate={navigate} />
       
       <Hero navigate={navigate} />
 
@@ -600,9 +622,9 @@ export default function LandingPage() {
         <div style={{maxWidth:'1200px',margin:'0 auto'}}>
           <div className="stats-showcase">
             <AnimatedStat value="250+" label="Students Helped" index={0} />
-            <AnimatedStat value="7"    label="Auto Emails" index={1} />
+            <AnimatedStat value="24hr" label="Response Time" index={1} />
             <AnimatedStat value="99%"  label="Uptime" index={2} />
-            <AnimatedStat value="2 Days" label="To Submit" index={3} />
+            <AnimatedStat value="Free" label="Platform" index={3} />
           </div>
         </div>
       </section>
@@ -814,7 +836,7 @@ export default function LandingPage() {
             </a>
 
             {/* Website */}
-            <a href="https://wwwJobZen.co.in" target="_blank" rel="noreferrer" className="footer-social-link" title="Website">
+            <a href="https://www.jobzen.co.in" target="_blank" rel="noreferrer" className="footer-social-link" title="Website">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="2" y1="12" x2="22" y2="12"/>

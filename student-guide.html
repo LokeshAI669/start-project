@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProjectHub — Student Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Print config ── */
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    @media print {
+      #print-btn { display: none !important; }
+      body { background: #fff !important; }
+      .page-break { page-break-before: always; }
+      .no-break { page-break-inside: avoid; }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f6fb;
+      color: #1a1a2e;
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    /* ── Print button ── */
+    #print-btn {
+      position: fixed; bottom: 30px; right: 30px; z-index: 999;
+      background: linear-gradient(135deg, #7C5CFC, #5CFFE1);
+      color: #fff; border: none; cursor: pointer;
+      padding: 14px 28px; border-radius: 50px;
+      font-size: 15px; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      box-shadow: 0 8px 32px rgba(124,92,252,0.4);
+      display: flex; align-items: center; gap: 10px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #print-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(124,92,252,0.5);
+    }
+
+    /* ── Document wrapper ── */
+    .doc {
+      max-width: 800px; margin: 40px auto 80px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    @media print { .doc { box-shadow: none; border-radius: 0; margin: 0; max-width: 100%; } }
+
+    /* ── Cover / Header ── */
+    .cover {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      padding: 52px 52px 44px;
+      position: relative; overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,92,252,0.35) 0%, transparent 70%);
+    }
+    .cover::after {
+      content: '';
+      position: absolute; bottom: -60px; left: -60px;
+      width: 240px; height: 240px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(92,255,225,0.2) 0%, transparent 70%);
+    }
+    .cover-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(124,92,252,0.2);
+      border: 1px solid rgba(124,92,252,0.4);
+      border-radius: 100px; padding: 5px 14px;
+      font-size: 11px; font-weight: 600; color: #a78bfa;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .cover h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 38px; font-weight: 800; color: #fff;
+      line-height: 1.1; margin-bottom: 14px;
+    }
+    .cover h1 span {
+      background: linear-gradient(135deg, #7C5CFC, #5CFFE1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cover p {
+      color: rgba(255,255,255,0.6); font-size: 15px;
+      max-width: 520px; line-height: 1.7; margin-bottom: 28px;
+    }
+    .cover-tags {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .cover-tag {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 6px 12px;
+      font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500;
+    }
+    .cover-meta {
+      margin-top: 32px; padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cover-meta span { font-size: 12px; color: rgba(255,255,255,0.4); }
+
+    /* ── Body content ── */
+    .body { padding: 44px 52px; }
+    @media print { .body { padding: 32px 44px; } }
+
+    /* ── Section headings ── */
+    .section-label {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #7C5CFC;
+      margin-bottom: 8px;
+    }
+    .section-label.lime  { color: #5a8a00; }
+    .section-label.pink  { color: #d63a6a; }
+    .section-label.cyan  { color: #0097a7; }
+    .section-label.amber { color: #b86000; }
+
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px; font-weight: 700; color: #1a1a2e;
+      margin-bottom: 16px; line-height: 1.2;
+    }
+    h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px; font-weight: 700; color: #1a1a2e;
+      margin-bottom: 10px; margin-top: 4px;
+    }
+    p { color: #444; margin-bottom: 12px; }
+
+    /* ── Divider ── */
+    .divider {
+      border: none; border-top: 1px solid #eef0f6;
+      margin: 36px 0;
+    }
+
+    /* ── Intro box ── */
+    .intro-box {
+      background: linear-gradient(135deg, rgba(124,92,252,0.06) 0%, rgba(92,255,225,0.04) 100%);
+      border: 1.5px solid rgba(124,92,252,0.18);
+      border-radius: 14px; padding: 24px 28px;
+      margin-bottom: 32px;
+    }
+    .intro-box h3 { color: #5a3ec8; margin-bottom: 10px; }
+    .intro-box ul { padding-left: 20px; }
+    .intro-box li { color: #555; margin-bottom: 6px; font-size: 13.5px; }
+
+    /* ── Benefits table ── */
+    .benefits-table {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 8px; font-size: 13px;
+    }
+    .benefits-table th {
+      background: #f8f5ff; color: #7C5CFC;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 10px 14px; text-align: left;
+      border-bottom: 2px solid #e8e0ff;
+    }
+    .benefits-table td {
+      padding: 11px 14px; border-bottom: 1px solid #f0f0f8;
+      color: #444; vertical-align: top;
+    }
+    .benefits-table tr:last-child td { border-bottom: none; }
+    .benefits-table tr:nth-child(even) td { background: #faf9ff; }
+    .benefits-table td:first-child { font-weight: 600; color: #2d2d4e; white-space: nowrap; }
+
+    /* ── Step card ── */
+    .step-card {
+      display: flex; gap: 18px; align-items: flex-start;
+      background: #fafafa; border: 1px solid #eef0f6;
+      border-radius: 12px; padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+    .step-card:hover { border-color: #c4b5fd; }
+    .step-num {
+      width: 36px; height: 36px; flex-shrink: 0;
+      border-radius: 50%; display: flex;
+      align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px;
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(135deg, #7C5CFC, #5CFFE1);
+      color: #fff;
+    }
+    .step-body h4 { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 5px; }
+    .step-body p  { font-size: 13px; color: #666; margin: 0; }
+    .step-body ul { padding-left: 18px; margin-top: 6px; }
+    .step-body li { font-size: 13px; color: #555; margin-bottom: 4px; }
+
+    /* ── Sub-steps (form wizard) ── */
+    .wizard-step {
+      border-left: 3px solid;
+      padding: 12px 16px; margin-bottom: 10px;
+      border-radius: 0 10px 10px 0;
+      background: #fafafa;
+    }
+    .wizard-step.blue  { border-color: #7C5CFC; background: #f8f5ff; }
+    .wizard-step.amber { border-color: #d97706; background: #fffbf0; }
+    .wizard-step.green { border-color: #16a34a; background: #f0fdf4; }
+    .wizard-step h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .wizard-step.blue  h4 { color: #5a3ec8; }
+    .wizard-step.amber h4 { color: #92400e; }
+    .wizard-step.green h4 { color: #14532d; }
+    .wizard-step ul { padding-left: 18px; }
+    .wizard-step li { font-size: 12.5px; color: #555; margin-bottom: 3px; }
+
+    /* ── Alert boxes ── */
+    .alert {
+      border-radius: 10px; padding: 12px 16px;
+      margin: 12px 0; display: flex; gap: 10px;
+      align-items: flex-start; font-size: 13px;
+    }
+    .alert-tip    { background:#f0fdf4; border-left:3px solid #16a34a; color:#14532d; }
+    .alert-note   { background:#eff6ff; border-left:3px solid #3b82f6; color:#1e40af; }
+    .alert-important { background:#fffbeb; border-left:3px solid #d97706; color:#92400e; }
+    .alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Flow diagram ── */
+    .flow-row {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 0; margin: 20px 0; justify-content: center;
+    }
+    .flow-box {
+      background: #f8f5ff; border: 1.5px solid #c4b5fd;
+      border-radius: 10px; padding: 10px 14px;
+      text-align: center; font-size: 12px; font-weight: 700;
+      color: #5a3ec8;
+    }
+    .flow-arrow { color: #9ca3af; font-size: 18px; padding: 0 6px; }
+
+    /* ── Code / URL block ── */
+    .code-block {
+      background: #1a1a2e; color: #d8ff5c;
+      border-radius: 10px; padding: 16px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px; line-height: 1.9;
+      margin: 14px 0; white-space: pre-wrap;
+    }
+
+    /* ── Status table ── */
+    .status-row {
+      display: flex; gap: 10px; margin-bottom: 10px;
+    }
+    .status-box {
+      flex: 1; border-radius: 11px; padding: 14px 16px;
+      text-align: center;
+    }
+    .status-box .sb-icon { font-size: 22px; margin-bottom: 4px; }
+    .status-box .sb-label { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .status-box .sb-desc  { font-size: 11.5px; color: #666; }
+    .status-pending  { background: #fffbeb; border: 1.5px solid #fbbf24; }
+    .status-pending  .sb-label { color: #92400e; }
+    .status-accepted { background: #f0fdf4; border: 1.5px solid #4ade80; }
+    .status-accepted .sb-label { color: #14532d; }
+    .status-denied   { background: #fff1f2; border: 1.5px solid #fb7185; }
+    .status-denied   .sb-label { color: #9f1239; }
+
+    /* ── Email table ── */
+    .email-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .email-table th {
+      background: #f0fdf4; color: #14532d;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; padding: 9px 14px; text-align: left;
+      border-bottom: 2px solid #bbf7d0;
+    }
+    .email-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f8; color: #444; }
+    .email-table tr:last-child td { border-bottom: none; }
+
+    /* ── URL map table ── */
+    .url-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .url-table th {
+      background: #f8f5ff; color: #5a3ec8;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; padding: 9px 14px; text-align: left;
+      border-bottom: 2px solid #e8e0ff;
+    }
+    .url-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f8; color: #444; }
+    .url-table tr:last-child td { border-bottom: none; }
+    .url-table td:nth-child(2) { font-family: 'Courier New', monospace; font-size: 12px; color: #7C5CFC; font-weight: 600; }
+
+    /* ── FAQ ── */
+    .faq-item { margin-bottom: 14px; }
+    .faq-q { font-weight: 700; color: #1a1a2e; font-size: 14px; margin-bottom: 4px; display: flex; gap: 8px; }
+    .faq-a { color: #555; font-size: 13px; padding-left: 24px; }
+
+    /* ── Footer ── */
+    .footer {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      padding: 28px 52px; text-align: center;
+    }
+    .footer p { color: rgba(255,255,255,0.4); font-size: 12px; margin: 0; }
+    .footer strong { color: rgba(255,255,255,0.7); }
+
+    /* ── Page TOC ── */
+    .toc { background: #f8f9ff; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+    .toc h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #7C5CFC; margin-bottom: 12px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<!-- Save as PDF button -->
+<button id="print-btn" onclick="window.print()">
+  🖨️ Save as PDF
+</button>
+
+<div class="doc">
+
+  <!-- ══ COVER ══ -->
+  <div class="cover">
+    <div class="cover-badge">🎓 Official Student Guide</div>
+    <h1>ProjectHub<br><span>Student Platform</span></h1>
+    <p>A complete walkthrough of what this platform offers students and how to use every feature — step by step.</p>
+    <div class="cover-tags">
+      <span class="cover-tag">🗂️ Project Catalog</span>
+      <span class="cover-tag">📝 Custom Requests</span>
+      <span class="cover-tag">📅 Meeting Scheduler</span>
+      <span class="cover-tag">📊 Live Dashboard</span>
+      <span class="cover-tag">📧 Auto Email Alerts</span>
+      <span class="cover-tag">🔐 Secure Login</span>
+    </div>
+    <div class="cover-meta">
+      <span>📅 September 2026</span>
+      <span>🌐 start-project-mu.vercel.app</span>
+    </div>
+  </div>
+
+  <!-- ══ BODY ══ -->
+  <div class="body">
+
+    <!-- Table of Contents -->
+    <div class="toc no-break">
+      <h4>📋 Table of Contents</h4>
+      <ol>
+        <li>What is ProjectHub?</li>
+        <li>Benefits for Students</li>
+        <li>How to Use — Step-by-Step Guide (7 Steps)</li>
+        <li>Email Notifications You'll Receive</li>
+        <li>Page Map (URLs)</li>
+        <li>Pro Tips for Students</li>
+        <li>Frequently Asked Questions</li>
+      </ol>
+    </div>
+
+    <!-- ── SECTION 1: What is it ── -->
+    <div class="no-break">
+      <div class="section-label">🌟 Section 1</div>
+      <h2>What is ProjectHub?</h2>
+
+      <div class="intro-box">
+        <h3>🚀 A Platform Built for Students</h3>
+        <p style="color:#555;margin-bottom:10px;"><strong>ProjectHub</strong> is a full-stack web platform that connects <strong>students</strong> with an <strong>admin/mentor team</strong>. It handles everything from project discovery to meeting scheduling — all in one place.</p>
+        <ul>
+          <li>Browse a catalog of ready-made project ideas</li>
+          <li>Submit custom project requests with your own ideas</li>
+          <li>Schedule a 1:1 meeting with the team</li>
+          <li>Track the status of every submission in real time</li>
+        </ul>
+      </div>
+
+      <div class="flow-row">
+        <div class="flow-box">🎓 Student</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">📝 Submit Request</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">👨‍💼 Admin Reviews</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">📅 Meeting Set</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box">🚀 Project Starts</div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── SECTION 2: Benefits ── -->
+    <div class="no-break page-break">
+      <div class="section-label lime">✅ Section 2</div>
+      <h2>Benefits for Students</h2>
+      <table class="benefits-table">
+        <thead>
+          <tr><th>Benefit</th><th>What it means for you</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🗂️ Project Catalog</td><td>Browse 100+ pre-built project ideas across domains — no need to start from scratch</td></tr>
+          <tr><td>📝 Custom Request</td><td>Have a unique idea? Submit it with budget, description &amp; timeline</td></tr>
+          <tr><td>📅 Meeting Scheduler</td><td>Pick your preferred date &amp; time for a 1:1 consultation — built right into the form</td></tr>
+          <tr><td>📧 Automated Emails</td><td>Get instant email confirmations, acceptance/denial notices, and meeting details</td></tr>
+          <tr><td>📊 Live Status Dashboard</td><td>See all your requests: Pending → Accepted / Denied at a glance</td></tr>
+          <tr><td>🔄 Reschedule Option</td><td>If a request is denied, you can reschedule and resubmit without starting over</td></tr>
+          <tr><td>🔐 Secure Account</td><td>JWT-based login keeps your data private and safe</td></tr>
+          <tr><td>📱 Mobile Friendly</td><td>Works seamlessly on phones and tablets</td></tr>
+          <tr><td>💰 Budget Flexibility</td><td>Set your budget in ₹ or other currencies — no one-size-fits-all pricing</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── SECTION 3: How to use ── -->
+    <div class="section-label pink">🚀 Section 3</div>
+    <h2>How to Use — Step-by-Step Guide</h2>
+
+    <!-- Step 1 -->
+    <div class="step-card no-break">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Create Your Account</h4>
+        <ul>
+          <li>Go to the <strong>Home Page</strong> and click <strong>"Get Started"</strong> or <strong>"Sign Up"</strong></li>
+          <li>Fill in your <strong>Full Name</strong>, <strong>Email address</strong>, and <strong>Password</strong></li>
+          <li>Click <strong>Register</strong> — you'll get a Welcome Email instantly ✅</li>
+        </ul>
+        <div class="alert alert-tip" style="margin-top:10px;">
+          <span class="alert-icon">💡</span>
+          <span><strong>Tip:</strong> Use a real email address — all notifications (accepted, denied, meeting details) are sent there!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card no-break">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Log In to Your Account</h4>
+        <ul>
+          <li>Go to the Home Page and click <strong>"Login"</strong></li>
+          <li>Enter your <strong>email</strong> and <strong>password</strong></li>
+          <li>You'll be redirected to your <strong>Student Dashboard</strong> (<code>/dashboard</code>)</li>
+        </ul>
+        <div class="alert alert-note" style="margin-top:10px;">
+          <span class="alert-icon">ℹ️</span>
+          <span><strong>Note:</strong> Forgot your password? Click "Forgot Password" on the login page. A secure reset link (valid for 1 hour) will be sent to your email.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card no-break">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Explore Your Dashboard <code style="font-size:12px;color:#7C5CFC;">/dashboard</code></h4>
+        <p style="margin-bottom:10px;">Once logged in, your dashboard shows four stat cards:</p>
+        <div class="status-row">
+          <div class="status-box status-pending">
+            <div class="sb-icon">🟡</div>
+            <div class="sb-label">Pending</div>
+            <div class="sb-desc">Awaiting admin review</div>
+          </div>
+          <div class="status-box status-accepted">
+            <div class="sb-icon">🟢</div>
+            <div class="sb-label">Accepted</div>
+            <div class="sb-desc">Check email for meeting</div>
+          </div>
+          <div class="status-box status-denied">
+            <div class="sb-icon">🔴</div>
+            <div class="sb-label">Denied</div>
+            <div class="sb-desc">You can reschedule!</div>
+          </div>
+        </div>
+        <p style="font-size:12.5px;color:#555;margin-top:8px;">
+          📌 Use <strong>"New Request"</strong> to submit • <strong>"Projects"</strong> to browse catalog • <strong>"Refresh"</strong> for latest status
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card no-break">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Browse the Project Catalog <code style="font-size:12px;color:#7C5CFC;">/browse</code></h4>
+        <ul>
+          <li>Click <strong>"Projects"</strong> in the sidebar</li>
+          <li>Browse 100+ pre-defined project ideas across ML, AI, Web Dev, Cyber Security &amp; more</li>
+          <li>Use <strong>filters</strong> to narrow down by type, technology, or domain</li>
+          <li>Click any project card to see <strong>full details</strong></li>
+        </ul>
+        <div class="alert alert-tip" style="margin-top:10px;">
+          <span class="alert-icon">💡</span>
+          <span><strong>Tip:</strong> Found a project you like? Click <strong>"Request This Project"</strong> on the detail page — it pre-fills the request form for you automatically!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card no-break page-break">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Submit a Project Request <code style="font-size:12px;color:#7C5CFC;">/request</code></h4>
+        <p style="margin-bottom:10px;">The request form is a <strong>3-step wizard</strong>:</p>
+
+        <div class="wizard-step blue">
+          <h4>🔵 Step 1 — Your Info</h4>
+          <ul>
+            <li><strong>Full Name</strong> (auto-filled if logged in)</li>
+            <li><strong>Email address</strong> (auto-filled if logged in)</li>
+          </ul>
+        </div>
+
+        <div class="wizard-step amber">
+          <h4>🟡 Step 2 — Project Details</h4>
+          <ul>
+            <li><strong>Project Name</strong> — Give your project a clear title</li>
+            <li><strong>Budget</strong> — Enter your budget + select currency (₹, $, €, etc.)</li>
+            <li><strong>Description</strong> — Explain what you want to build</li>
+            <li><strong>Attachment</strong> (optional) — Upload a reference file (PDF, image, doc)</li>
+          </ul>
+        </div>
+
+        <div class="wizard-step green">
+          <h4>🟢 Step 3 — Schedule a Meeting</h4>
+          <ul>
+            <li><strong>Preferred Date</strong> — Pick a date from the calendar</li>
+            <li><strong>Preferred Time</strong> — Choose a time slot (AM/PM)</li>
+            <li>Review your details and click <strong>"Submit Request"</strong></li>
+          </ul>
+        </div>
+
+        <div class="alert alert-important" style="margin-top:10px;">
+          <span class="alert-icon">⚠️</span>
+          <span><strong>Important:</strong> After submission, you receive two emails: (1) A confirmation email to you, (2) A notification email to the admin team.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-card no-break">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h4>Track Your Request Status</h4>
+        <p style="margin-bottom:10px;">Go back to your Dashboard any time to see the current status:</p>
+        <div class="code-block">Submitted → Pending → Accepted ✅  (Email with meeting time)
+                         → Denied ❌    (Email with reason)
+                              ↓
+                         Reschedule → Re-submit</div>
+        <table class="benefits-table" style="margin-top:0;">
+          <tbody>
+            <tr><td>🟡 <strong>Pending</strong></td><td>Wait — admin is reviewing your request</td></tr>
+            <tr><td>🟢 <strong>Accepted</strong></td><td>Check your email for meeting date &amp; time details</td></tr>
+            <tr><td>🔴 <strong>Denied</strong></td><td>Read the reason in the email, then reschedule</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-card no-break">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <h4>Reschedule a Denied Request</h4>
+        <ul>
+          <li>Open your <strong>Dashboard</strong></li>
+          <li>Find the denied request</li>
+          <li>Click <strong>"Reschedule"</strong></li>
+          <li>Update the date/time and resubmit</li>
+          <li>✅ Admin receives a notification with your updated request</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── SECTION 4: Emails ── -->
+    <div class="no-break page-break">
+      <div class="section-label cyan">📧 Section 4</div>
+      <h2>Email Notifications You'll Receive</h2>
+      <table class="email-table">
+        <thead>
+          <tr><th>When it happens</th><th>Email you receive</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>After Registration</td><td>👋 Welcome email with your account details</td></tr>
+          <tr><td>After Submitting a Request</td><td>✅ Submission confirmation to your inbox</td></tr>
+          <tr><td>Request Accepted</td><td>🎉 Acceptance notice + meeting date &amp; time</td></tr>
+          <tr><td>Request Denied</td><td>❌ Denial notice + reason (if given)</td></tr>
+          <tr><td>Forgot Password</td><td>🔑 Secure reset link valid for 1 hour</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── SECTION 5: URL Map ── -->
+    <div class="no-break">
+      <div class="section-label">🗺️ Section 5</div>
+      <h2>Page Map (URLs)</h2>
+      <table class="url-table">
+        <thead>
+          <tr><th>Page</th><th>URL</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Home / Landing</td><td>/</td><td>Overview &amp; entry point</td></tr>
+          <tr><td>Login</td><td>/login</td><td>Student sign-in</td></tr>
+          <tr><td>Reset Password</td><td>/reset-password</td><td>Change forgotten password</td></tr>
+          <tr><td>Dashboard</td><td>/dashboard</td><td>View all your requests &amp; stats</td></tr>
+          <tr><td>Submit Request</td><td>/request</td><td>3-step project request wizard</td></tr>
+          <tr><td>Browse Catalog</td><td>/browse</td><td>Explore pre-built project ideas</td></tr>
+          <tr><td>Catalog Detail</td><td>/catalog/:id</td><td>Full details of a single project</td></tr>
+          <tr><td>Project Details</td><td>/project</td><td>Your submitted project details</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── SECTION 6: Pro Tips ── -->
+    <div class="no-break">
+      <div class="section-label lime">💡 Section 6</div>
+      <h2>Pro Tips for Students</h2>
+
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <span><strong>Be detailed in your description</strong> — the more context you give (tech stack, purpose, deadline), the faster your request gets approved.</span>
+      </div>
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <span><strong>Browse the catalog first</strong> — there may already be a project matching your needs. Requesting from the catalog auto-fills the form, saving you time.</span>
+      </div>
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <span><strong>Check your email inbox (and spam folder)</strong> after every action — all status updates are sent via email.</span>
+      </div>
+      <div class="alert alert-tip">
+        <span class="alert-icon">💡</span>
+        <span><strong>Pick a realistic meeting time</strong> — choose a date at least 2–3 days ahead to give the admin team time to review.</span>
+      </div>
+      <div class="alert alert-note">
+        <span class="alert-icon">ℹ️</span>
+        <span>You don't need to be a tech expert to use this platform. Just describe what you want to build in plain language — the team will handle the technical planning.</span>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── SECTION 7: FAQ ── -->
+    <div class="no-break page-break">
+      <div class="section-label amber">❓ Section 7</div>
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">❓ Do I need to pay upfront?</div>
+        <div class="faq-a">No. You only provide a budget estimate. Payment is discussed after your request is accepted.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">❓ Can I submit multiple projects?</div>
+        <div class="faq-a">Yes! You can submit as many project requests as you want. Track them all from your dashboard.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">❓ What if I forget my password?</div>
+        <div class="faq-a">Use the "Forgot Password" link on the login page. A reset link will be emailed to you within minutes.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">❓ Can I edit a request after submitting?</div>
+        <div class="faq-a">If your request is denied, you can reschedule and update details. Pending requests cannot be edited — contact the admin via email if urgent.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">❓ Is my data safe?</div>
+        <div class="faq-a">Yes. The platform uses JWT (JSON Web Token) authentication. Admins and students have completely separate, secure access.</div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- ══ FOOTER ══ -->
+  <div class="footer">
+    <p>Built with <strong>React + Node.js + SQLite</strong> | Deployed on <strong>Vercel</strong></p>
+    <p style="margin-top:6px;">🌐 <strong>start-project-mu.vercel.app</strong></p>
+  </div>
+
+</div><!-- /doc -->
+
+</body>
+</html>

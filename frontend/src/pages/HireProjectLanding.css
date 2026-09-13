@@ -1,4 +1,4 @@
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    HireProjectLanding â€” Premium Section Styles
    Injected into LandingPage as independent self-contained sections
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
@@ -401,8 +401,9 @@
 
 .hp-project-image-wrap {
   position: relative;
-  height: 170px;
+  /* Height is controlled by 16:9 padding-bottom in JSX inline style */
   overflow: hidden;
+  background: #0d0d0d; /* Placeholder bg while image loads */
 }
 .hp-project-image-wrap img {
   width: 100%; height: 100%;
@@ -465,13 +466,14 @@
   transition: color 0.2s ease, gap 0.2s ease;
 }
 .hp-project-btn:hover {
-  color: var(--accent, #3B82F6);
+  /* Use per-card accent color if available, fallback to blue */
+  color: var(--btn-accent, var(--accent, #3B82F6));
   gap: 8px;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• 
    CATEGORY SECTION
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â• â•  */
 .hp-category-section {
   padding: 80px 52px 100px;
   max-width: 1200px;
@@ -1613,3 +1615,256 @@ section,
   /* Reserve space before image loads to prevent scroll jumps */
   content-visibility: auto;
 }
+
+/* ==========================================================================
+   MOBILE PERFORMANCE — Fixes laggy Android experience
+   ========================================================================== */
+
+/* ── 1. Disable expensive backdrop-filter blur on mobile ─────────────────────
+   backdrop-filter: blur() triggers GPU compositing for every element it's on.
+   On low-to-mid-range Android phones, this kills frame rate. We disable it
+   on all screens <= 768px and fall back to solid/semi-opaque backgrounds.      */
+@media (max-width: 768px) {
+  .splash-card,
+  .animated-dashboard-card,
+  .feature-card,
+  .step-card,
+  .hp-category-card,
+  .pub-navbar {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* ── 2. Replace glass blur with opaque fallback ─────────────────────────── */
+  .splash-card {
+    background: rgba(20, 20, 25, 0.95) !important;
+  }
+  .animated-dashboard-card {
+    background: rgba(18, 18, 24, 0.98) !important;
+  }
+  .feature-card {
+    background: rgba(20, 20, 28, 0.97) !important;
+  }
+
+  /* ── 3. Disable 3D perspective transforms on mobile ─────────────────────── */
+  /* 3D transforms like preserve-3d, rotateX/Y are very GPU-expensive on mobile.
+     Flat 2D transitions are far more performant.                               */
+  .feature-card,
+  .stat-showcase-item,
+  .hp-category-card,
+  .hp-project-card {
+    transform-style: flat !important;
+    perspective: none !important;
+  }
+
+  /* ── 4. Disable the noise texture on mobile — it forces a repaint every frame */
+  .hp-noise {
+    display: none !important;
+  }
+
+  /* ── 5. Reduce orb blur radius — blur(120px) is very expensive on mobile ── */
+  .orb,
+  .splash-orb {
+    filter: blur(60px) !important;
+    opacity: 0.25 !important;
+  }
+
+  /* ── 6. Prevent horizontal overflow causing reflow ─────────────────────── */
+  body {
+    overflow-x: hidden;
+  }
+  .hero,
+  .stats-section-wrap,
+  .hp-flow-section,
+  .hp-category-section,
+  .hp-featured-section {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* ── 7. Optimise touch scrolling ──────────────────────────────────────── */
+  .hp-flow-area {
+    touch-action: pan-x; /* enable native horizontal scroll */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* hide scrollbar */
+  }
+  .hp-flow-area::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ── 8. Cap animation durations on mobile for snappier feel ────────────── */
+  * {
+    --t: 0.1s ease !important;
+    --t-slow: 0.2s ease !important;
+  }
+
+  /* ── 9. Hero video — ensure it's contained and doesn't cause reflow ─────── */
+  .hero-video-bg {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    will-change: unset; /* Remove will-change — it wastes GPU memory on mobile */
+  }
+
+  /* ── 10. Reduce box-shadow complexity on mobile ─────────────────────────── */
+  .animated-dashboard-card,
+  .feature-card,
+  .hp-category-card {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  }
+}
+
+/* ── Very small Android screens (360px and below) ────────────────────────── */
+@media (max-width: 360px) {
+  /* Ensure nothing overflows on very small screens */
+  .hero-inner {
+    padding: 0 12px !important;
+  }
+  .section-inner {
+    padding: 0 12px !important;
+  }
+  .hp-section-heading {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .hp-view-all {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── 11. Remove all animations on devices that request reduced motion ──────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hp-project-track {
+    animation: none !important;
+  }
+
+  .orb,
+  .splash-orb,
+  .dashboard-ring,
+  .hp-dot,
+  .splash-status-dot {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DIMENSIONS — Ensuring correct layout at every breakpoint
+   ========================================================================== */
+
+/* ── Navbar responsive ──────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .pub-navbar {
+    padding: 0 16px;
+    height: 56px;
+  }
+  .pub-navbar-links {
+    gap: 8px;
+  }
+  .btn-sm {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* ── Stats showcase ──────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .stats-showcase {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+  .stat-showcase-item {
+    min-height: 90px !important;
+  }
+  .stat-showcase-num {
+    font-size: clamp(1.4rem, 8vw, 1.8rem) !important;
+  }
+  .stat-showcase-label {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .stats-showcase {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 0 12px;
+  }
+}
+
+/* ── Features grid ───────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .features-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .feature-card {
+    padding: 20px !important;
+  }
+}
+
+/* ── Steps grid ──────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .steps-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .steps-connector {
+    display: none !important;
+  }
+  .step-card {
+    padding: 24px 20px !important;
+  }
+}
+
+/* ── Section titles ──────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .section-title {
+    font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
+  }
+  .section-desc {
+    font-size: 14px !important;
+  }
+  .section-tag {
+    font-size: 11px !important;
+  }
+}
+
+/* ── CTA section ─────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .cta-section {
+    padding: 60px 16px !important;
+  }
+  .gradient-text-cta {
+    display: inline;
+  }
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .footer-inner {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+    text-align: center !important;
+    padding: 28px 16px !important;
+  }
+  .footer-links {
+    gap: 16px !important;
+  }
+  .footer-copy {
+    font-size: 11px !important;
+  }
+}
+

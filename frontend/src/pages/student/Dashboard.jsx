@@ -16,7 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
-import { api } from '../../utils/api';
+import { api, API_BASE } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 import './Dashboard.css';
 
@@ -72,10 +72,6 @@ export default function Dashboard() {
   const [refreshing, setRefreshing]     = useState(false);
   const [error, setError]               = useState('');
 
-  const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
-    ? import.meta.env.VITE_API_URL
-    : (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app');
-  
   // Read anonymous user fallback from local storage
   const anonUser = React.useMemo(() => {
     try {

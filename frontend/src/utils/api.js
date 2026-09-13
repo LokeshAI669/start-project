@@ -1,6 +1,11 @@
-const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
-  ? import.meta.env.VITE_API_URL
-  : (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app');
+// Centralised API base URL — used everywhere in the app.
+// Priority: VITE_API_URL env var > dev localhost > production backend
+export const API_BASE =
+  (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '')
+    ? import.meta.env.VITE_API_URL
+    : import.meta.env.DEV
+      ? 'http://localhost:3000'
+      : 'https://hire-project-backend.vercel.app'; // production backend
 
 
 export async function api(method, endpoint, body = null) {

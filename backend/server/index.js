@@ -61,6 +61,25 @@ async function start() {
 
   io.on('connection', (socket) => {
     console.log('[SOCKET] Client connected:', socket.id);
+
+    // Client should emit 'join' with their user info after connecting
+    // so they receive only their own real-time events.
+    socket.on('join', ({ userId, email, role } = {}) => {
+      if (role === 'admin') {
+        socket.join('admin');
+        console.log(`[SOCKET] Admin joined admin room: ${socket.id}`);
+      } else if (userId) {
+        socket.join(`user_${userId}`);
+        console.log(`[SOCKET] User ${userId} joined user room: ${socket.id}`);
+      } else if (email) {
+        socket.join(`email_${email}`);
+        console.log(`[SOCKET] Anonymous user ${email} joined email room: ${socket.id}`);
+      }
+    });
+
+    socket.on('disconnect', () => {
+      console.log('[SOCKET] Client disconnected:', socket.id);
+    });
   });
 
   // Attach io to req object so routes can broadcast

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /hireproject_admin
+Disallow: /api/
+
+Sitemap: https://hire.jobzen.co.in/sitemap.xml

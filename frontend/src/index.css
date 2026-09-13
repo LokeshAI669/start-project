@@ -1,4 +1,4 @@
-﻿
+
 /* ═══════════════════════════════════════════════════════════
    JobZen — Premium Professional UI
    Fonts: Inter (UI), JetBrains Mono (code/labels)
@@ -4541,3 +4541,209 @@ img, video, iframe, svg { max-width: 100%; height: auto; }
   .cal-day-name { font-size: 8.5px; }
   .cal-title { font-size: 13px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   HERO VIDEO BACKGROUND — Full responsive system
+   Appended by fix. Works on: Chrome, Firefox, Edge, Safari, iOS.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Background layer wrapper ──────────────────────────────────────
+   Absolutely fills the .hero section. Holds both video + poster.
+   pointer-events:none so clicks go through to the content above.  */
+.hero-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── Video element ─────────────────────────────────────────────────
+   KEY RULES:
+   width/height 100% + object-fit:cover = fluid full-bleed video.
+   No fixed px dimensions — scales on every viewport automatically.
+   object-position: center top — keeps the robot/face visible.
+   transform:translateZ(0) — forces its own GPU compositing layer. */
+.hero-video-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  border: none;
+  outline: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ── Static poster fallback ────────────────────────────────────────
+   Shown on mobile (<768px), slow connections, or when autoplay
+   is blocked. Identical size/position to .hero-video-bg.          */
+.hero-poster-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+/* ── Gradient overlay ──────────────────────────────────────────────
+   Two-gradient system:
+   1. Bottom-up fade — keeps lower-hero text readable
+   2. Left-side vignette — left column text always pops            */
+.hero-video-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top,
+      rgba(9, 9, 11, 0.80) 0%,
+      rgba(9, 9, 11, 0.40) 40%,
+      rgba(9, 9, 11, 0.12) 65%,
+      transparent 100%
+    ),
+    linear-gradient(to right,
+      rgba(9, 9, 11, 0.60) 0%,
+      rgba(9, 9, 11, 0.25) 45%,
+      transparent 100%
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Ensure hero-inner is always above bg layers ─────────────────── */
+.hero-inner {
+  position: relative;
+  z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── DESKTOP (1025px+) ────────────────────────────────────────────── */
+@media (min-width: 1025px) {
+  .hero {
+    min-height: 90vh;
+    padding: 120px 52px 80px;
+  }
+  /* Full-quality desktop video plays normally */
+}
+
+/* ── TABLET (768px – 1024px) ──────────────────────────────────────── */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero {
+    min-height: 80vh;
+    padding: 100px 36px 60px;
+  }
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    max-width: 680px;
+  }
+  /* Tablet: preload=metadata, plays if autoplay allowed */
+  /* video stays visible but smaller file is chosen via <source> */
+  .hero-video-bg {
+    /* Tablet: show video centred — no position adjustment needed */
+    object-position: center center;
+  }
+  /* Dashboard card goes below text on tablet */
+  .hero-dashboard-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* ── MOBILE (below 768px) ─────────────────────────────────────────── */
+/*
+  CRITICAL: On mobile we do NOT render the <video> element at all
+  (controlled in Hero.jsx via shouldSkipVideo check).
+  These CSS rules ensure the .hero-poster-bg fallback looks great
+  and the layout reflows correctly for small screens.
+*/
+@media (max-width: 767px) {
+  .hero {
+    min-height: 100svh; /* svh = small viewport height (accounts for browser chrome) */
+    padding: 90px 20px 60px;
+    align-items: flex-start;
+  }
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .hero-text h1 {
+    font-size: clamp(2rem, 8vw, 2.8rem) !important;
+  }
+  .hero-text p {
+    font-size: 0.95rem !important;
+    max-width: 100%;
+  }
+  /* Poster image: shift position so subject stays visible above the fold */
+  .hero-poster-bg {
+    background-position: 65% top;
+  }
+  /* Stronger gradient on mobile so white text is readable over poster image */
+  .hero-video-gradient-overlay {
+    background:
+      linear-gradient(to top,
+        rgba(9, 9, 11, 0.92) 0%,
+        rgba(9, 9, 11, 0.70) 40%,
+        rgba(9, 9, 11, 0.35) 70%,
+        rgba(9, 9, 11, 0.10) 100%
+      );
+  }
+  /* Hide the dashboard card on mobile to avoid overlap with content */
+  .hero-dashboard-wrapper {
+    display: none;
+  }
+  /* Full-width CTA buttons */
+  .hero-ctas {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero-ctas .btn {
+    width: 100%;
+    justify-content: center;
+    height: 48px;
+  }
+}
+
+/* ── SMALL MOBILE (below 480px) ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hero {
+    padding: 80px 16px 50px;
+  }
+  .hero-text h1 {
+    font-size: clamp(1.8rem, 9vw, 2.4rem) !important;
+  }
+  .hero-tag {
+    font-size: 10px !important;
+  }
+}
+
+/* ── VERY SMALL (below 375px — small Android phones) ─────────────── */
+@media (max-width: 375px) {
+  .hero {
+    padding: 72px 14px 44px;
+  }
+  .hero-text h1 {
+    font-size: clamp(1.65rem, 9.5vw, 2.1rem) !important;
+  }
+}
+
+/* ── Safari / WebKit-specific ─────────────────────────────────────────
+   Safari on macOS and iOS requires -webkit-mask-image instead of
+   mask-image for the grid overlay, and needs explicit playsinline
+   attribute (handled in JSX).                                          */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari — ensure video fills correctly without gaps */
+  .hero-video-bg {
+    /* iOS sometimes adds letterboxing; this forces full coverage */
+    min-height: 100%;
+    min-width: 100%;
+  }
+}
+

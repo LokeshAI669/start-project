@@ -5,15 +5,62 @@ const mailer           = require('../mailer');
 const multer           = require('multer');
 const path             = require('path');
 const { Parser }       = require('@json2csv/plainjs');
+const rateLimit        = require('express-rate-limit');
 
 const router = express.Router();
 
-// ── Multer Setup ─────────────────────────────────────────────────────────────
+// ── Rate Limiting — public submission endpoint ────────────────────────────────
+// Prevents abuse: max 5 requests per 15 minutes per IP
+const submitLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many submissions. Please wait 15 minutes and try again.' },
+  skip: (req) => {
+    // Skip rate limiting for authenticated users (they already have accounts)
+    const token = (req.headers['authorization'] || '').split(' ')[1];
+    return !!token;
+  },
+});
+
+// ── Multer Setup — with file size & type validation ───────────────────────────
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '../../uploads')),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
-const upload = multer({ storage });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images and PDF/Word documents are allowed.'));
+    }
+  },
+});
+
+// ── Multer error handler ──────────────────────────────────────────────────────
+function handleMulterError(err, req, res, next) {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE')
+      return res.status(400).json({ error: 'File too large. Maximum size is 10 MB.' });
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  }
+  if (err && err.message) {
+    return res.status(400).json({ error: err.message });
+  }
+  next(err);
+}
 
 // ── Helper: format row timestamps ────────────────────────────────────────────
 function fmt(p) {
@@ -57,7 +104,12 @@ router.get('/mine', requireStudent, async (req, res) => {
 });
 
 // POST /api/requests (Public submission)
-router.post('/', upload.single('attachment'), optionalAuth, async (req, res) => {
+router.post('/', submitLimiter, (req, res, next) => {
+  upload.single('attachment')(req, res, (err) => {
+    if (err) return handleMulterError(err, req, res, next);
+    next();
+  });
+}, optionalAuth, async (req, res) => {
   try {
     const { name, student_name, project_name, budget, currency, description, preferred_date, preferred_time, email } = req.body;
 
@@ -112,7 +164,12 @@ router.post('/', upload.single('attachment'), optionalAuth, async (req, res) => 
     await mailer.requestSubmitted(student, project).catch(e => console.error('[MAIL submission err]', e));
     await mailer.notifyAdmin(student, project).catch(e => console.error('[MAIL notifyAdmin err]', e));
 
-    if (req.io) req.io.emit('new_request', fmt(project));
+    // Emit only to the relevant student's room (not broadcast to everyone)
+    if (req.io) {
+      const roomId = studentId ? `user_${studentId}` : `email_${requesterEmail}`;
+      req.io.to(roomId).emit('new_request', fmt(project));
+      req.io.to('admin').emit('new_request', fmt(project)); // also notify admin room
+    }
 
     res.status(201).json(fmt(project));
   } catch (err) {
@@ -153,8 +210,13 @@ router.patch('/:id/reschedule', requireStudent, async (req, res) => {
     const student = studentRows[0] || { name: updated.student_name, email: updated.email };
     
     await mailer.notifyAdminReschedule(student, updated).catch(e => console.error(e));
-    
-    if (req.io) req.io.emit('request_updated', fmt(updated));
+
+    // Emit only to relevant user room
+    if (req.io) {
+      const roomId = req.user.id ? `user_${req.user.id}` : `email_${req.user.email}`;
+      req.io.to(roomId).emit('request_updated', fmt(updated));
+      req.io.to('admin').emit('request_updated', fmt(updated));
+    }
 
     res.json(fmt(updated));
   } catch (err) {
@@ -310,8 +372,15 @@ router.patch('/:id/decision', requireAdmin, async (req, res) => {
     if (decision === 'accepted') await mailer.requestAccepted(student, updated).catch(e => console.error(e));
     else                         await mailer.requestDenied(student, updated).catch(e => console.error(e));
 
-
-    if (req.io) req.io.emit('request_updated', fmt(updated));
+    // Emit to the specific student's room + admin room (not everyone)
+    if (req.io) {
+      if (project.student_id) {
+        req.io.to(`user_${project.student_id}`).emit('request_updated', fmt(updated));
+      } else if (project.email) {
+        req.io.to(`email_${project.email}`).emit('request_updated', fmt(updated));
+      }
+      req.io.to('admin').emit('request_updated', fmt(updated));
+    }
 
     res.json(fmt(updated));
   } catch (err) {
@@ -368,7 +437,13 @@ router.post('/:id/messages', requireAuth, checkProjectAccess, async (req, res) =
     const { rows: uRows } = await pool.query('SELECT name as sender_name, role as sender_role FROM users WHERE id = $1', [req.user.id]);
     const broadcastMsg = { ...msg, ...uRows[0] };
     
-    if (req.io) req.io.emit('new_message', broadcastMsg);
+    // Emit only to the project participants (student + admin), not all users
+    if (req.io) {
+      const p = req.project;
+      if (p.student_id) req.io.to(`user_${p.student_id}`).emit('new_message', broadcastMsg);
+      else if (p.email)  req.io.to(`email_${p.email}`).emit('new_message', broadcastMsg);
+      req.io.to('admin').emit('new_message', broadcastMsg);
+    }
 
     res.status(201).json(broadcastMsg);
   } catch (err) {
