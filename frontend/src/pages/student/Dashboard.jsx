@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   CheckCircle2,
@@ -9,6 +9,7 @@ import {
   Home,
   Inbox,
   LayoutDashboard,
+  LogOut,
   Plus,
   PlusCircle,
   RefreshCw,
@@ -69,7 +70,8 @@ function RowSkeleton() {
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
 export default function Dashboard() {
-  const { user, loading: authLoading } = useContext(AuthContext);
+  const { user, logout, loading: authLoading } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [requests, setRequests]         = useState([]);
   const [loading, setLoading]           = useState(true);
   const [refreshing, setRefreshing]     = useState(false);
@@ -134,6 +136,8 @@ export default function Dashboard() {
     { label: 'Denied',         value: denied,   icon: XCircle,      color: '#ff6b8a' },
   ];
 
+  const displayUser = user || anonUser;
+
   return (
     <div className="db-wrap">
       {/* ── Sidebar ── */}
@@ -156,12 +160,25 @@ export default function Dashboard() {
 
         <div className="db-sidebar-profile">
           <div className="db-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : 'U'}
+            {displayUser?.name ? displayUser.name[0].toUpperCase() : (displayUser?.email ? displayUser.email[0].toUpperCase() : 'U')}
           </div>
-          <div>
-            <strong>{user?.name || 'Welcome back'}</strong>
-            <small>{user?.email || 'Keep building'}</small>
+          <div className="db-profile-details">
+            <strong title={displayUser?.name || 'Welcome'}>{displayUser?.name || 'Welcome back'}</strong>
+            <small title={displayUser?.email || 'Keep building'}>{displayUser?.email || 'Guest User'}</small>
           </div>
+          {displayUser && (
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              className="db-sidebar-logout-btn"
+              title="Sign out / Switch account"
+              aria-label="Sign out / Switch account"
+            >
+              <LogOut size={15} />
+            </button>
+          )}
         </div>
       </aside>
 

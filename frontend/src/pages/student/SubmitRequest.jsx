@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
@@ -15,6 +15,7 @@ import {
   Grid2X2,
   Home,
   LayoutDashboard,
+  LogOut,
   Paperclip,
   PlusCircle,
   User,
@@ -61,7 +62,7 @@ function toISODate(val) {
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
 export default function SubmitRequest() {
-  const { user } = useContext(AuthContext);
+  const { user, setSessionUser } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
 
@@ -156,13 +157,12 @@ export default function SubmitRequest() {
       if (attachment) fd.append('attachment', attachment);
       await api('POST', '/api/requests', fd);
       
-      // Save anonymous session for tracking on Dashboard
-      if (!localStorage.getItem('token')) {
-        localStorage.setItem('anon_user', JSON.stringify({ 
-          name: name.trim(), 
-          email: email.trim() 
-        }));
-      }
+      // Save student session so the entire app immediately knows the new student
+      setSessionUser({ 
+        name: name.trim(), 
+        email: email.trim(),
+        role: 'student'
+      });
       
       setSuccess(true);
     } catch (e) {
@@ -507,7 +507,8 @@ export default function SubmitRequest() {
    SIDEBAR
    ───────────────────────────────────────────────────────────── */
 function Sidebar({ active }) {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   return (
     <aside className="sr-sidebar">
@@ -529,12 +530,22 @@ function Sidebar({ active }) {
 
       <div className="sr-sidebar-profile">
         <div className="sr-profile-letter">
-          {user?.name ? user.name[0].toUpperCase() : 'U'}
+          {user?.name ? user.name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
         </div>
-        <div>
-          <strong>{user?.name || 'Welcome back'}</strong>
-          <small>{user?.email || 'Keep building'}</small>
+        <div className="sr-profile-details">
+          <strong title={user?.name || 'Welcome'}>{user?.name || 'Welcome back'}</strong>
+          <small title={user?.email || 'Keep building'}>{user?.email || 'Guest User'}</small>
         </div>
+        {user && (
+          <button 
+            onClick={() => { logout(); navigate('/login'); }}
+            className="db-sidebar-logout-btn"
+            title="Sign out / Switch account"
+            aria-label="Sign out / Switch account"
+          >
+            <LogOut size={15} />
+          </button>
+        )}
       </div>
     </aside>
   );

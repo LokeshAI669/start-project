@@ -10,6 +10,7 @@ import {
   Grid2X2,
   Home,
   LayoutDashboard,
+  LogOut,
   PlusCircle,
   Search,
   SlidersHorizontal,
@@ -69,7 +70,7 @@ const LEVELS = ['All levels', 'Beginner', 'Intermediate', 'Advanced'];
    MAIN PAGE
    ───────────────────────────────────────────────────────────── */
 export default function BrowseCatalog() {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [search, setSearch]           = useState('');
   const [category, setCategory]       = useState('All Domains');
@@ -155,12 +156,25 @@ export default function BrowseCatalog() {
 
         <div className="pc-sidebar-profile">
           <div className="pc-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : 'U'}
+            {user?.name ? user.name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
           </div>
-          <div>
-            <strong>{user?.name || 'Welcome back'}</strong>
-            <small>{user?.email || 'Keep building'}</small>
+          <div className="pc-profile-details">
+            <strong title={user?.name || 'Welcome'}>{user?.name || 'Welcome back'}</strong>
+            <small title={user?.email || 'Keep building'}>{user?.email || 'Guest User'}</small>
           </div>
+          {user && (
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              className="db-sidebar-logout-btn"
+              title="Sign out / Switch account"
+              aria-label="Sign out / Switch account"
+            >
+              <LogOut size={15} />
+            </button>
+          )}
         </div>
       </aside>
 

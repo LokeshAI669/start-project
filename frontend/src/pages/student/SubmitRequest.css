@@ -93,9 +93,38 @@
   border-radius: 14px;
   background: rgba(255,255,255,0.04);
 }
-.sr-sidebar-profile strong, .sr-sidebar-profile small { display: block; }
+.sr-profile-details {
+  flex: 1;
+  min-width: 0;
+}
+.sr-sidebar-profile strong, .sr-sidebar-profile small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .sr-sidebar-profile strong { font-size: 0.85rem; color: #f5f7ff; }
 .sr-sidebar-profile small  { margin-top: 2px; color: var(--sr-muted); font-size: 0.72rem; }
+.db-sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--sr-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+.db-sidebar-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
 .sr-profile-letter {
   display: grid; place-items: center;
   width: 34px; height: 34px;

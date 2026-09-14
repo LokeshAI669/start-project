@@ -99,10 +99,39 @@
   background: rgba(255,255,255,0.04);
 }
 
+.pc-profile-details {
+  flex: 1;
+  min-width: 0;
+}
 .pc-sidebar-profile strong,
-.pc-sidebar-profile small { display: block; }
+.pc-sidebar-profile small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pc-sidebar-profile strong { font-size: 0.85rem; color: #f5f7ff; }
 .pc-sidebar-profile small  { margin-top: 2px; color: var(--pc-muted); font-size: 0.72rem; }
+.db-sidebar-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--pc-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  padding: 0;
+}
+.db-sidebar-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
 
 .pc-profile-letter {
   display: grid;
