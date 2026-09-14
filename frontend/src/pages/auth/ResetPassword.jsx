@@ -19,15 +19,13 @@ export default function ResetPassword() {
       // POST /api/auth/reset-request when that endpoint is implemented
       await api('POST', '/api/auth/reset-request', { email });
       setSent(true);
-    } catch (err) {
+    } catch {
       // Show success even on error to avoid email enumeration
       setSent(true);
     } finally {
       setLoading(false);
     }
   };
-
-  const theme2 = document.documentElement.getAttribute('data-theme') || 'dark';
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', padding: '24px' }}>

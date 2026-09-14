@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -57,8 +57,6 @@ function App() {
 
 /* Separate component so useLocation works inside BrowserRouter */
 function AppRoutes() {
-  const location = useLocation();
-
   return (
     <>
       <Routes>

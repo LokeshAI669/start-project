@@ -69,27 +69,13 @@ const LEVELS = ['All levels', 'Beginner', 'Intermediate', 'Advanced'];
    MAIN PAGE
    ───────────────────────────────────────────────────────────── */
 export default function BrowseCatalog() {
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-
-  const anonUser = React.useMemo(() => {
-    try {
-      const stored = localStorage.getItem('anon_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  }, []);
-
+  const navigate = useNavigate();
   const [search, setSearch]           = useState('');
   const [category, setCategory]       = useState('All Domains');
   const [level, setLevel]             = useState('All levels');
   const [showFilters, setShowFilters] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const API_BASE = import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
-    ? import.meta.env.VITE_API_URL
-    : (import.meta.env.DEV ? 'http://localhost:3000' : 'https://start-project-mu.vercel.app');
 
   const [projects, setProjects]   = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -110,10 +96,11 @@ export default function BrowseCatalog() {
           tools: getDomainTools(p.domain)
         }));
         setProjects(mapped);
-        setLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.error('Catalog fetch error:', err);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -323,21 +310,28 @@ export default function BrowseCatalog() {
         </AnimatePresence>
 
         {/* Grid */}
-        <motion.section layout className="pc-grid">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((project, i) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={i}
-                onRequest={() => navigate(`/request?catalog_id=${project.id}`)}
-              />
-            ))}
-          </AnimatePresence>
-        </motion.section>
+        {/* Grid */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--pc-muted)' }}>
+            Loading projects…
+          </div>
+        ) : (
+          <motion.section layout className="pc-grid">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((project, i) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={i}
+                  onRequest={() => navigate(`/request?catalog_id=${project.id}`)}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.section>
+        )}
 
         {/* Empty state */}
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="pc-empty">
             <Search size={36} />
             <h3>No projects found</h3>
@@ -366,7 +360,15 @@ function ProjectCard({ project, index, onRequest }) {
     >
       {/* Cover */}
       <div className="pc-cover">
-        <img src={project.image} alt={project.title} loading="lazy" />
+        <img
+          src={project.image}
+          alt={project.title}
+          loading="lazy"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = '/projects/ai-coach.jpg';
+          }}
+        />
         <div className="pc-cover-shade" />
         <span className="pc-domain-badge">{project.category}</span>
         <span className="pc-level-badge">{project.level}</span>

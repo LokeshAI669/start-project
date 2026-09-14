@@ -6,9 +6,6 @@ import JobZenLogo from '../../components/JobZenLogo';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 
-const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3000' : '');
-
-
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '—';
 const fmtCurrency = (c, b) => `${c || '₹'}${Number(b).toLocaleString('en-IN')}`;
 const statusBadge = (s) => {
@@ -18,7 +15,7 @@ const statusBadge = (s) => {
 };
 
 export default function AdminDashboard() {
-  const { user, token, loading: authLoading } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [stats, setStats]       = useState(null);
@@ -37,9 +34,6 @@ export default function AdminDashboard() {
   const isCompact  = useMediaQuery('(max-width: 600px)');
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
-
-  const { logout } = useContext(AuthContext);
-
   useEffect(() => {
     // Redirect to login if not authenticated as admin
     if (!authLoading && (!user || user.role !== 'admin')) {
@@ -47,7 +41,7 @@ export default function AdminDashboard() {
       return;
     }
     if (user && user.role === 'admin') fetchAll();
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
   const fetchAll = async () => {
     setLoading(true);

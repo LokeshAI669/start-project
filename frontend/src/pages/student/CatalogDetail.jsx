@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { api } from "../../utils/api";
 import StudentLayout from "../../components/StudentLayout";
-import { ArrowLeft, Clock, Bookmark, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const difficultyConfig = {
   Beginner:     { color:"var(--green)",  bg:"var(--green-soft)",  border:"var(--green-border)" },
@@ -13,7 +13,7 @@ const difficultyConfig = {
 function parseTechStack(raw) {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw;
-  try { return JSON.parse(raw); } catch (_) {}
+  try { return JSON.parse(raw); } catch { /* ignore fallback */ }
   return raw.split(",").map(s => s.trim()).filter(Boolean);
 }
 
@@ -23,7 +23,6 @@ function resumeValue(d) {
 
 export default function CatalogDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -45,7 +44,9 @@ export default function CatalogDetail() {
       <div style={{ padding:"60px", textAlign:"center", color:"var(--red)" }}>
         {error || "Project not found."}
         <br/>
-        <Link to="/browse" className="btn btn-ghost btn-sm" style={{ marginTop:"16px" }}>? Back to Catalog</Link>
+        <Link to="/browse" className="btn btn-ghost btn-sm" style={{ marginTop:"16px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <ArrowLeft size={14} /> Back to Catalog
+        </Link>
       </div>
     </StudentLayout>
   );
@@ -77,7 +78,7 @@ export default function CatalogDetail() {
               </span>
             )}
             <span style={{ display:"inline-flex", alignItems:"center", gap:"4px", fontFamily:"JetBrains Mono,monospace", fontSize:"10px", color:"var(--text-faint)", background:"var(--bg-elevated)", border:"1px solid var(--border)", padding:"3px 10px", borderRadius:"6px" }}>
-              ? Resume Value: {resume}/5
+              ★ Resume Value: {resume}/5
             </span>
           </div>
           <h1 style={{ fontSize:"1.6rem", fontWeight:800, letterSpacing:"-0.03em", marginBottom:"12px" }}>{project.title}</h1>

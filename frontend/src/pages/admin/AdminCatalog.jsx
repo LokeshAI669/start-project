@@ -13,7 +13,7 @@ const DIFFICULTIES = ['Beginner','Intermediate','Advanced'];
 const emptyForm = { title:'', domain:'', short_description:'', difficulty:'Intermediate', full_description:'', tech_stack:'', estimated_duration:'', objectives:'', prerequisites:'' };
 
 export default function AdminCatalog() {
-  const { token, user, loading: authLoading } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [items, setItems]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,16 +26,13 @@ export default function AdminCatalog() {
   const isNarrow = useMediaQuery('(max-width: 1024px)');
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
-
-  const { logout } = useContext(AuthContext);
-
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
       navigate('/hireproject_admin');
       return;
     }
     if (user && user.role === 'admin') fetchItems();
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
   const fetchItems = async () => {
     setLoading(true);

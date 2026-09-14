@@ -1,11 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
 import JobZenLogo from './JobZenLogo';
 import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X, Home } from 'lucide-react';
 
 export default function StudentLayout({ children, title, subtitle }) {
-  const { user, token } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

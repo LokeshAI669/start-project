@@ -13,7 +13,7 @@ const DIFFICULTY = {
 function parseTech(raw) {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw;
-  try { return JSON.parse(raw); } catch (_) {}
+  try { return JSON.parse(raw); } catch {}
   return raw.split(",").map(s => s.trim()).filter(Boolean);
 }
 

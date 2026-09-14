@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       // Old mock token — clear token only, preserve user for UI
       localStorage.removeItem('token');
       if (storedUser) {
-        try { setUser(JSON.parse(storedUser)); } catch (_e) {}
+        try { setUser(JSON.parse(storedUser)); } catch {}
       }
       setLoading(false);
       return;
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
     // We have a real JWT — restore user from localStorage immediately
     // then silently verify with the server in background
     if (storedUser) {
-      try { setUser(JSON.parse(storedUser)); } catch (_e) {}
+      try { setUser(JSON.parse(storedUser)); } catch {}
     }
     setToken(storedToken);
 
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         // Keep the user in state for the UI!
         if (storedUser) {
-          try { setUser(JSON.parse(storedUser)); } catch (_e) {}
+          try { setUser(JSON.parse(storedUser)); } catch {}
         }
       })
       .finally(() => setLoading(false));

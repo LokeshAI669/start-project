@@ -1,141 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
-import { CheckCircle } from 'lucide-react';
+import { 
+  CheckCircle2, 
+  Clock, 
+  Calendar, 
+  Sparkles, 
+  ArrowUpRight, 
+  ShieldCheck, 
+  FileCheck
+} from 'lucide-react';
 import StatsBadge from './StatsBadge';
 import CTAButtons from './CTAButtons';
 import StatusBar from './StatusBar';
-import FeatureCard from './FeatureCard';
-
-import heroBgVideo       from '../../assets/hero-bg-robot-final.mp4';
-import heroBgMobileVideo from '../../assets/hero-bg-robot.mp4';
-import heroBgPoster      from '../../assets/hero-bg-robot-poster.webp';
-// The new animated robot video — plays as a foreground overlay element
-import heroRobotAnimated from '../../assets/hero-robot-animated.mp4';
-
-// ─── matchMedia hook ──────────────────────────────────────────────────────────
-function useMediaQuery(query) {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia(query).matches;
-  });
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mql = window.matchMedia(query);
-    const onChange = (e) => setMatches(e.matches);
-    mql.addEventListener('change', onChange);
-    setMatches(mql.matches);
-    return () => mql.removeEventListener('change', onChange);
-  }, [query]);
-  return matches;
-}
 
 export default function Hero({ navigate }) {
-  const isMobile  = useMediaQuery('(max-width: 767px)');
-  const isTablet  = useMediaQuery('(min-width: 768px) and (max-width: 1024px)');
-  const isDesktop = useMediaQuery('(min-width: 1025px)');
-
-  // ── Background video state ────────────────────────────────────────────────
-  const [bgVideoFailed, setBgVideoFailed]     = useState(false);
-  const [bgVideoPlaying, setBgVideoPlaying]   = useState(false);
-  const bgVideoRef = useRef(null);
-
-  // ── Animated robot video state ────────────────────────────────────────────
-  const [robotVideoFailed, setRobotVideoFailed] = useState(false);
-  const robotVideoRef = useRef(null);
-
-  // ── Slow network check ────────────────────────────────────────────────────
-  const isSlowConnection = (() => {
-    if (typeof navigator === 'undefined') return false;
-    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    return !!(conn && (conn.saveData || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g'));
-  })();
-
-  // Mobile: skip the heavy background video entirely (use poster instead)
-  const shouldSkipBgVideo = isMobile || isSlowConnection;
-  // Robot animation video: show on tablet + desktop only
-  const shouldSkipRobotVideo = isMobile;
-
-  // ── Play background video ──────────────────────────────────────────────────
-  useEffect(() => {
-    const video = bgVideoRef.current;
-    if (!video || shouldSkipBgVideo) return;
-    video.muted = true;
-    video.play()
-      .then(() => setBgVideoPlaying(true))
-      .catch(() => setBgVideoFailed(true));
-  }, [shouldSkipBgVideo]);
-
-  // ── Play robot animated video ──────────────────────────────────────────────
-  useEffect(() => {
-    const video = robotVideoRef.current;
-    if (!video || shouldSkipRobotVideo) return;
-    video.muted = true;
-    video.play().catch(() => setRobotVideoFailed(true));
-  }, [shouldSkipRobotVideo]);
-
-  const showBgVideo    = !shouldSkipBgVideo && !bgVideoFailed;
-  const showRobotVideo = !shouldSkipRobotVideo && !robotVideoFailed;
-
   return (
     <section className="hero" id="hero" aria-label="Hero section">
-
-      {/* ══ Background Layer ══════════════════════════════════════════════════ */}
+      {/* ══ Abstract Ambient Background ══════════════════════════════════ */}
       <div className="hero-bg-layer" aria-hidden="true">
-        {showBgVideo ? (
-          <video
-            ref={bgVideoRef}
-            className="hero-video-bg"
-            poster={heroBgPoster}
-            autoPlay
-            loop
-            muted
-            playsInline
-            x-webkit-airplay="allow"
-            preload={isTablet ? 'metadata' : 'auto'}
-            onError={() => setBgVideoFailed(true)}
-          >
-            {/* Safari/iOS: HEVC .mov (WebM alpha not supported in Safari) */}
-            <source src={heroBgVideo.replace('.mp4', '.mov')} type='video/mp4; codecs="hvc1"' />
-            {/* Chrome/Firefox/Edge: WebM VP9 */}
-            <source src={heroBgVideo.replace('.mp4', '.webm')} type="video/webm" />
-            {/* Tablet: smaller file */}
-            {isTablet && <source src={heroBgMobileVideo} type="video/mp4" />}
-            {/* Desktop: full quality */}
-            <source src={heroBgVideo} type="video/mp4" />
-          </video>
-        ) : (
-          <div
-            className="hero-poster-bg"
-            style={{ backgroundImage: `url(${heroBgPoster})` }}
-            role="img"
-            aria-label="Hero background"
-          />
-        )}
-
-        {/* Gradient overlay */}
+        <div className="hero-ambient-orb hero-ambient-orb-1" />
+        <div className="hero-ambient-orb hero-ambient-orb-2" />
+        <div className="hero-ambient-orb hero-ambient-orb-3" />
+        <div className="hero-grid-mesh" />
         <div className="hero-video-gradient-overlay" />
       </div>
 
-      {/* ══ Hero Content ══════════════════════════════════════════════════════ */}
+      {/* ══ Hero Content Grid ═══════════════════════════════════════════ */}
       <div className="hero-inner">
-
-        {/* ── Left: text + CTAs ── */}
+        {/* ── Left Column: Headline, CTAs, Trust Badges ── */}
         <motion.div
           className="hero-text"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
+          variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
         >
           <motion.div
-            variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
+            variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
             className="hero-tag"
           >
+            <Sparkles size={13} style={{ color: 'var(--orange-light, #60A5FA)' }} />
             Project Request Platform
           </motion.div>
 
           <motion.h1
-            variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
+            variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
           >
             Where Student Projects<br />
             <span className="typewriter-wrap">
@@ -145,11 +54,10 @@ export default function Hero({ navigate }) {
           </motion.h1>
 
           <motion.p
-            variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
+            variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
           >
-            Submit project ideas, schedule meetings, track approvals in real time —
-            a streamlined platform built for students and supervisors who value
-            clarity and speed.
+            Submit project ideas, schedule meetings, and track supervisor approvals in real time.
+            A streamlined platform engineered for students and faculty who value clarity and speed.
           </motion.p>
 
           <StatsBadge count="250+" label="projects" />
@@ -157,87 +65,162 @@ export default function Hero({ navigate }) {
           <StatusBar />
         </motion.div>
 
-        {/* ── Right: animated robot + dashboard card ── */}
+        {/* ── Right Column: Interactive SaaS Approval Dashboard Visual ── */}
         <div className="hero-dashboard-wrapper">
+          {/* Ambient Glow behind dashboard */}
+          <div className="hero-dashboard-backdrop-glow" aria-hidden="true" />
 
-          {/* ── Spinning rings — desktop only ── */}
-          {isDesktop && (
-            <>
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-                className="dashboard-ring dashboard-ring-outer"
-              />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                className="dashboard-ring dashboard-ring-inner"
-              />
-            </>
-          )}
+          {/* Main Dashboard Window */}
+          <motion.div
+            className="hero-saas-window"
+            initial={{ opacity: 0, y: 28, scale: 0.97 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* macOS Window Header */}
+            <div className="hero-window-header">
+              <div className="hero-window-dots" aria-hidden="true">
+                <span className="dot dot-close" />
+                <span className="dot dot-minimize" />
+                <span className="dot dot-expand" />
+              </div>
+              <div className="hero-window-title">
+                <ShieldCheck size={14} className="hero-window-shield" />
+                <span>JobZen Review Portal</span>
+              </div>
+              <div className="hero-window-badge">
+                <span className="pulse-dot" />
+                <span>Live System</span>
+              </div>
+            </div>
 
-          {/*
-            ══ ANIMATED ROBOT VIDEO ══════════════════════════════════════════
-            The Kling-generated animated robot sits here as an overlay element.
+            {/* Dashboard Content Body */}
+            <div className="hero-window-body">
+              {/* Top Pipeline Bar */}
+              <div className="hero-pipeline-header">
+                <div>
+                  <span className="pipeline-label">Live Pipeline</span>
+                  <h4 className="pipeline-title">Request #JZ-8842</h4>
+                </div>
+                <span className="pipeline-status-tag">
+                  <Clock size={12} /> In Review · Priority
+                </span>
+              </div>
 
-            Styling approach:
-            - mix-blend-mode: lighten  → makes the dark background of the video
-              transparent visually, letting the hero bg show through.
-              Works best when the video has a near-black background.
-            - object-fit: contain      → keeps full robot in frame, never crops
-            - No fixed height/width    → fluid, responsive
-            - pointer-events: none     → clicks pass through to content below
-            - loop + muted + playsInline → required for cross-browser autoplay
+              {/* 3-Step Approval Pipeline */}
+              <div className="hero-pipeline-steps">
+                <div className="pipeline-step completed">
+                  <div className="step-marker">
+                    <CheckCircle2 size={13} />
+                  </div>
+                  <div className="step-info">
+                    <span className="step-name">Submitted</span>
+                    <span className="step-time">10:14 AM</span>
+                  </div>
+                </div>
+                <div className="pipeline-connector active" />
+                <div className="pipeline-step active">
+                  <div className="step-marker">
+                    <span className="step-pulsing-ring" />
+                    <span className="step-inner-dot" />
+                  </div>
+                  <div className="step-info">
+                    <span className="step-name">Faculty Review</span>
+                    <span className="step-time">In Progress</span>
+                  </div>
+                </div>
+                <div className="pipeline-connector" />
+                <div className="pipeline-step pending">
+                  <div className="step-marker">
+                    <span className="step-empty-dot" />
+                  </div>
+                  <div className="step-info">
+                    <span className="step-name">Approval</span>
+                    <span className="step-time">Next</span>
+                  </div>
+                </div>
+              </div>
 
-            If the video has a transparent/alpha channel (WebM with alpha),
-            mix-blend-mode is not needed and can be removed.
-          */}
-          {showRobotVideo && (
-            <motion.div
-              className="hero-robot-video-wrap"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, ease: 'easeOut', delay: 0.4 }}
-            >
-              <video
-                ref={robotVideoRef}
-                className="hero-robot-video"
-                autoPlay
-                loop
-                muted
-                playsInline
-                x-webkit-airplay="allow"
-                preload="auto"
-                onError={() => setRobotVideoFailed(true)}
-              >
-                {/* HEVC mov for Safari/iOS alpha support */}
-                <source
-                  src={heroRobotAnimated.replace('.mp4', '.mov')}
-                  type='video/mp4; codecs="hvc1"'
-                />
-                {/* WebM for Chrome/Firefox (if available) */}
-                <source
-                  src={heroRobotAnimated.replace('.mp4', '.webm')}
-                  type="video/webm"
-                />
-                {/* MP4 universal fallback */}
-                <source src={heroRobotAnimated} type="video/mp4" />
-              </video>
-            </motion.div>
-          )}
+              {/* Featured In-Flight Request Card */}
+              <div className="hero-project-preview-card">
+                <div className="project-preview-top">
+                  <div>
+                    <span className="project-preview-category">Artificial Intelligence</span>
+                    <h5 className="project-preview-name">AI Interview Coach & Sentiment Analysis</h5>
+                  </div>
+                  <span className="project-preview-budget">₹80,000</span>
+                </div>
 
-          {/* Dashboard stats card — shown below robot or as fallback */}
-          <FeatureCard
-            title="Project Approval Rate"
-            percentage="94%"
-            icon={CheckCircle}
-            metrics={[
-              { label: 'Requests Accepted', value: '94%' },
-              { label: 'Avg. Response Time', value: '<24hr' },
-              { label: 'Student Satisfaction', value: '4.9 ★' },
-            ]}
-            badgeText="Live Tracking · Real-Time Updates"
-          />
+                {/* Progress bar */}
+                <div className="project-progress-wrap">
+                  <div className="project-progress-bar">
+                    <motion.div
+                      className="project-progress-fill"
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '84%' }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
+                    />
+                  </div>
+                  <div className="project-progress-meta">
+                    <span>Supervisor review complete</span>
+                    <span className="progress-pct">84%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Real-time KPI Stats Grid */}
+              <div className="hero-kpi-grid">
+                <div className="hero-kpi-card">
+                  <span className="kpi-val text-green">94%</span>
+                  <span className="kpi-label">Acceptance Rate</span>
+                </div>
+                <div className="hero-kpi-card">
+                  <span className="kpi-val text-blue">&lt;24hr</span>
+                  <span className="kpi-label">Avg. Response</span>
+                </div>
+                <div className="hero-kpi-card">
+                  <span className="kpi-val text-gold">4.9 ★</span>
+                  <span className="kpi-label">Satisfaction</span>
+                </div>
+              </div>
+
+              {/* Scheduled Meeting Notification Banner */}
+              <div className="hero-meeting-banner">
+                <div className="meeting-icon-wrap">
+                  <Calendar size={15} />
+                </div>
+                <div className="meeting-text">
+                  <strong>Slot Reserved: Tomorrow at 10:30 AM</strong>
+                  <span>Supervising Faculty: Dr. A. Sharma (HOD Comp Sci)</span>
+                </div>
+                <ArrowUpRight size={15} className="meeting-arrow" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Floating Verified Pill (Desktop & Tablet) */}
+          <motion.div
+            className="hero-floating-badge"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{
+              duration: 0.6,
+              delay: 0.45,
+              y: { duration: 4.5, repeat: Infinity, ease: 'easeInOut' }
+            }}
+          >
+            <div className="floating-badge-icon">
+              <FileCheck size={16} />
+            </div>
+            <div>
+              <div className="floating-badge-title">Project Approved</div>
+              <div className="floating-badge-sub">Confirmation email sent</div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

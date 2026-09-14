@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { AuthContext } from '../../context/AuthContext';
+import { api } from '../../utils/api';
+import JobZenLogo from '../../components/JobZenLogo';
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,13 +21,10 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import { AuthContext } from '../../context/AuthContext';
-import { api } from '../../utils/api';
-import JobZenLogo from '../../components/JobZenLogo';
 import './SubmitRequest.css';
 
 /* ─────────────────────────────────────────────────────────────
-   STEP DEFINITIONS
+   CONSTANTS & HELPERS
    ───────────────────────────────────────────────────────────── */
 const STEPS = [
   { n: 1, label: 'Your Info',     desc: 'Name & contact' },
@@ -36,19 +36,9 @@ const STEPS = [
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
 export default function SubmitRequest() {
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
-
-  const anonUser = React.useMemo(() => {
-    try {
-      const stored = localStorage.getItem('anon_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  }, []);
 
   /* form state */
   const [step, setStep]                     = useState(1);
@@ -70,8 +60,8 @@ export default function SubmitRequest() {
   /* pre-fill from user context */
   useEffect(() => {
     if (user) {
-      if (user.name  && !name)  setName(user.name);
-      if (user.email && !email) setEmail(user.email);
+      if (user.name)  setName(prev => prev || user.name);
+      if (user.email) setEmail(prev => prev || user.email);
     }
   }, [user]);
 
@@ -503,15 +493,6 @@ export default function SubmitRequest() {
    ───────────────────────────────────────────────────────────── */
 function Sidebar({ active }) {
   const { user } = useContext(AuthContext);
-
-  const anonUser = React.useMemo(() => {
-    try {
-      const stored = localStorage.getItem('anon_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  }, []);
 
   return (
     <aside className="sr-sidebar">

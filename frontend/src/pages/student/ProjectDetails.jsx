@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
-import { api } from '../../utils/api';
+import { api, API_BASE } from '../../utils/api';
 import StudentLayout from '../../components/StudentLayout';
 
 
@@ -9,7 +8,6 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day:'2-digi
 const fmtCurrency = (c, b) => `${c || '₹'}${Number(b).toLocaleString('en-IN')}`;
 
 export default function ProjectDetails() {
-  const { token, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('id');
@@ -23,12 +21,8 @@ export default function ProjectDetails() {
   const [rescheduleMsg, setRescheduleMsg]   = useState('');
   const [showReschedule, setShowReschedule] = useState(false);
 
-  useEffect(() => {
+  const fetchProject = useCallback(async () => {
     if (!projectId) { navigate('/dashboard'); return; }
-    fetchProject();
-  }, [projectId, navigate]);
-
-  const fetchProject = async () => {
     try {
       const data = await api('GET', '/api/requests/mine');
       const found = data.find(r => r.id === Number(projectId));
@@ -39,7 +33,11 @@ export default function ProjectDetails() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, navigate]);
+
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
 
   const handleReschedule = async (e) => {
     e.preventDefault();
@@ -126,7 +124,7 @@ export default function ProjectDetails() {
         {project.attachment_url && (
           <div className="card" style={{padding:'20px 24px',marginBottom:'20px'}}>
             <div style={{color:'var(--text-faint)',fontSize:'11px',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px',fontFamily:'JetBrains Mono,monospace'}}>Attachment</div>
-            <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}${project.attachment_url}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm"> View Attachment</a>
+            <a href={`${API_BASE}${project.attachment_url}`} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm"> View Attachment</a>
           </div>
         )}
 

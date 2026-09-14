@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -16,7 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
-import { api, API_BASE } from '../../utils/api';
+import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 import './Dashboard.css';
 
@@ -82,14 +82,7 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Wait for auth to resolve before fetching — avoids spurious 401 on page load
-  useEffect(() => {
-    if (!authLoading) {
-      fetchRequests();
-    }
-  }, [authLoading]);
-
-  const fetchRequests = async (manual = false) => {
+  const fetchRequests = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true);
     else setLoading(true);
     setError('');
@@ -117,7 +110,14 @@ export default function Dashboard() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [user, anonUser, authLoading]);
+
+  // Wait for auth to resolve before fetching — avoids spurious 401 on page load
+  useEffect(() => {
+    if (!authLoading) {
+      fetchRequests();
+    }
+  }, [authLoading, fetchRequests]);
 
   const total    = requests.length;
   const pending  = requests.filter(r => r.status === 'Pending').length;

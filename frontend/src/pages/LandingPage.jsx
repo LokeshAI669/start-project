@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { LayoutList, Mail, Activity, CalendarDays, Sun, Moon, CheckCircle, Sparkles, ArrowRight, Mic, BriefcaseBusiness, Users, BrainCircuit, ChevronRight, Code2, Database, PlayCircle } from 'lucide-react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LayoutList, Mail, Activity, CalendarDays, ArrowRight, BriefcaseBusiness, BrainCircuit, ChevronRight, Code2, Database } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion/react';
 
 import JobZenLogo from '../components/JobZenLogo';
-import { AuthContext } from '../context/AuthContext';
 import './HireProjectLanding.css';
 import Header from '../components/landing/Header';
 import Hero from '../components/landing/Hero';
@@ -361,6 +360,10 @@ function HpProjectCard({ project, index }) {
           src={project.image}
           alt={project.title}
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80';
+          }}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
         <div className="hp-image-overlay" />
@@ -380,7 +383,7 @@ function HpProjectCard({ project, index }) {
 /* ─────────────────────────────────────────────────────────────
    HP CATEGORY CARD
    ───────────────────────────────────────────────────────────── */
-function HpCategoryCard({ icon, title, count, color, index = 0 }) {
+function HpCategoryCard({ icon, title, color, index = 0 }) {
   const cardRef = useRef(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -487,7 +490,6 @@ export default function LandingPage() {
       return next;
     });
   }, []);
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768);
 
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(() => {
@@ -504,12 +506,6 @@ export default function LandingPage() {
     // Apply persisted theme on mount
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize, { passive: true });
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     // ── Navbar scroll effect (passive listener = no jank) ──

@@ -8,12 +8,12 @@ export const API_BASE =
       : 'https://hire-project-backend.vercel.app'; // production backend
 
 
-export async function api(method, endpoint, body = null) {
+export async function api(method, endpoint, body = null, customHeaders = {}) {
   const token    = localStorage.getItem('token');
   const userStr  = localStorage.getItem('user');
   const anonStr  = localStorage.getItem('anon_user');
 
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = { 'Content-Type': 'application/json', ...customHeaders };
 
   // ── Real JWT auth (admin and logged-in users) ──────────────────────────
   if (token && token !== 'student' && token !== 'admin') {
@@ -33,8 +33,12 @@ export async function api(method, endpoint, body = null) {
       const au = JSON.parse(anonStr);
       if (au?.email) emailFallback = au.email;
     }
-    if (emailFallback) headers['x-user-email'] = emailFallback;
-  } catch (_e) {}
+    if (emailFallback && !headers['x-user-email']) {
+      headers['x-user-email'] = emailFallback;
+    }
+  } catch {
+    // Ignore JSON parsing errors for malformed local storage
+  }
 
   const options = { method, headers };
   if (body) {
@@ -50,13 +54,12 @@ export async function api(method, endpoint, body = null) {
   let data;
   try {
     data = await res.json();
-  } catch (_e) {
+  } catch {
     throw new Error('Server returned invalid response');
   }
 
   if (!res.ok) {
-    throw new Error(data.error || 'Something went wrong');
+    throw new Error(data?.error || data?.message || 'Something went wrong');
   }
   return data;
 }
-
