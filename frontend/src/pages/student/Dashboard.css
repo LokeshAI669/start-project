@@ -390,9 +390,19 @@
   font-size: 0.86rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
   vertical-align: middle;
+  /* Explicit color so date columns are clearly readable in dark mode */
+  color: #c8cde8;
 }
 .db-table tr:last-child td { border-bottom: none; }
-.db-table tr:hover td { background: rgba(255,255,255,0.025); }
+.db-table tr:hover td { background: rgba(255,255,255,0.025); color: #e8ecff; }
+
+/* Date cells — slightly brighter than generic td */
+.db-table td:nth-child(3),
+.db-table td:nth-child(4) {
+  color: #d0d5ef;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 
 .db-project-name {
   font-weight: 600;
@@ -446,7 +456,7 @@
   gap: 8px;
   flex-wrap: wrap;
   font-size: 0.75rem;
-  color: var(--db-muted);
+  color: #a8afc8; /* brighter than --db-muted so dates are legible */
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid var(--db-border);

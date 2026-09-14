@@ -297,10 +297,10 @@
 .sr-input,
 .sr-select,
 .sr-textarea {
-  background: rgba(255,255,255,0.045);
-  border: 1px solid var(--sr-border);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 11px;
-  color: var(--sr-text);
+  color: #f0f2ff;
   font-family: "DM Sans", sans-serif;
   font-size: 16px; /* 16px prevents iOS Safari auto-zoom on mobile focus */
   padding: 12px 14px;
@@ -310,18 +310,73 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   appearance: none;
   box-sizing: border-box;
+  /* Force dark color-scheme so native date/time picker UI renders dark */
+  color-scheme: dark;
+}
+
+/* Ensure date & time inputs show text in full white — some browsers override */
+.sr-input[type="date"],
+.sr-input[type="time"] {
+  color: #f0f2ff;
+  /* Calendar/clock icon color */
+  color-scheme: dark;
+}
+
+/* Placeholder / empty state text should be muted not invisible */
+.sr-input::placeholder,
+.sr-textarea::placeholder {
+  color: rgba(255,255,255,0.28);
+}
+
+/* Browser-injected calendar icon — make it visible in dark mode */
+.sr-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) brightness(1.4);
+  opacity: 0.7;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+  transition: opacity 0.2s ease;
+}
+.sr-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Firefox: date input text */
+.sr-input[type="date"]::-moz-placeholder,
+.sr-input[type="time"]::-moz-placeholder {
+  color: rgba(255,255,255,0.28);
 }
 
 .sr-input:focus,
 .sr-select:focus,
 .sr-textarea:focus {
-  border-color: rgba(116,140,255,0.5);
-  background: rgba(116,140,255,0.06);
-  box-shadow: 0 0 0 3px rgba(116,140,255,0.12);
+  border-color: rgba(116,140,255,0.6);
+  background: rgba(116,140,255,0.10);
+  box-shadow: 0 0 0 3px rgba(116,140,255,0.14);
 }
 
 .sr-input::placeholder,
-.sr-textarea::placeholder { color: #555870; font-size: 0.92rem; }
+.sr-textarea::placeholder { color: #6a6f88; font-size: 0.92rem; }
+
+/* ── Date & time native picker icon — make it white on dark bg ─ */
+input[type="date"].sr-input,
+input[type="time"].sr-input {
+  color-scheme: dark;           /* tells the browser to use dark-mode chrome    */
+  color: #f0f2ff;               /* force text colour regardless of OS theme     */
+}
+
+input[type="date"].sr-input::-webkit-calendar-picker-indicator,
+input[type="time"].sr-input::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.3);   /* turns the dark icon white               */
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+input[type="date"].sr-input::-webkit-calendar-picker-indicator:hover,
+input[type="time"].sr-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
 
 .sr-textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
 

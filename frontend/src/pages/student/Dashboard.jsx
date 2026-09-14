@@ -39,7 +39,10 @@ function formatBudget(amount, currency = '₹') {
 
 function formatDate(str) {
   if (!str) return '—';
-  return new Date(str).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  // YYYY-MM-DD strings are parsed as UTC by Date constructor;
+  // appending T00:00:00 makes it local time so the displayed date matches what was entered.
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(str) ? str + 'T00:00:00' : str;
+  return new Date(normalized).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /* ── Skeletons ── */
