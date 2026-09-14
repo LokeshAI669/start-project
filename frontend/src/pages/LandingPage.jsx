@@ -82,7 +82,7 @@ function SplashIntro({ onDone }) {
   }, [onDone]);
 
   return (
-    <div className="splash-overlay" ref={overlayRef} aria-live="polite" aria-label="Loading JobZen">
+    <div className="splash-overlay" ref={overlayRef} aria-live="polite" aria-label="Loading HireProject Review Portal">
       {/* ── Decorative background ── */}
       <div className="splash-bg-grid" />
       <div className="splash-orb splash-orb-1" />
@@ -91,7 +91,7 @@ function SplashIntro({ onDone }) {
       {/* ── Logo ── */}
       <div className="splash-logo-wrap">
         <JobZenLogo theme="dark" size="md" />
-        <span className="splash-logo-tag">Project Request Platform</span>
+        <span className="splash-logo-tag">Review Portal</span>
       </div>
 
       {/* ── Progress bar ── */}
@@ -685,7 +685,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
             className="section-tag"
-          >Why JobZen</motion.div>
+          >Why HireProject</motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -699,7 +699,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="section-desc"
-          >From first submission to final confirmation — JobZen keeps everyone perfectly in sync, automatically.</motion.p>
+          >From first submission to final confirmation — HireProject Review Portal keeps everyone perfectly in sync, automatically.</motion.p>
 
           <div className="features-grid" style={{marginTop:'50px'}}>
             {[
@@ -777,7 +777,7 @@ export default function LandingPage() {
               Ready to get your project <span className="gradient-text-cta">approved?</span>
             </h2>
             <p className="section-desc" style={{margin:'16px auto 36px',maxWidth:'420px',fontSize:'1rem'}}>
-              Join students already using JobZen to move faster and more professionally.
+              Join students already using HireProject to move faster and more professionally.
             </p>
             <div className="cta-glow-btn">
               <motion.button
@@ -796,7 +796,7 @@ export default function LandingPage() {
 
       <footer className="footer">
         <div className="footer-inner">
-          <div className="footer-logo"><JobZenLogo theme={theme} size="sm" /></div>
+          <div className="footer-logo"><JobZenLogo theme="dark" size="sm" /></div>
           <div className="footer-links">
             {/* LinkedIn */}
             <a href="https://www.linkedin.com/in/www-jobzen-968a19421/" target="_blank" rel="noreferrer" className="footer-social-link" title="LinkedIn">
@@ -828,7 +828,7 @@ export default function LandingPage() {
               </svg>
             </a>
           </div>
-          <div className="footer-copy">© 2026 JobZen · All rights reserved</div>
+          <div className="footer-copy">© 2026 HireProject · All rights reserved</div>
         </div>
       </footer>
       </div>{/* end page-wrapper */}

@@ -40,7 +40,7 @@ export default function Hero({ navigate }) {
             className="hero-tag"
           >
             <Sparkles size={13} style={{ color: 'var(--orange-light, #60A5FA)' }} />
-            Project Request Platform
+            HireProject Review Portal
           </motion.div>
 
           <motion.h1
@@ -87,7 +87,7 @@ export default function Hero({ navigate }) {
               </div>
               <div className="hero-window-title">
                 <ShieldCheck size={14} className="hero-window-shield" />
-                <span>JobZen Review Portal</span>
+                <span>HireProject Review Portal</span>
               </div>
               <div className="hero-window-badge">
                 <span className="pulse-dot" />
@@ -101,7 +101,7 @@ export default function Hero({ navigate }) {
               <div className="hero-pipeline-header">
                 <div>
                   <span className="pipeline-label">Live Pipeline</span>
-                  <h4 className="pipeline-title">Request #JZ-8842</h4>
+                  <h4 className="pipeline-title">Request #HP-8842</h4>
                 </div>
                 <span className="pipeline-status-tag">
                   <Clock size={12} /> In Review · Priority
