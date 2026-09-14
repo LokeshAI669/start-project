@@ -477,18 +477,11 @@ function HpCategoryCard({ icon, title, color, index = 0 }) {
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  const [theme, setTheme] = useState(() => {
-    // Persist theme across page visits using localStorage
-    return localStorage.getItem('jz_theme') || 'dark';
-  });
-
-  const toggleTheme = useCallback(() => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('jz_theme', next);
-      document.documentElement.setAttribute('data-theme', next);
-      return next;
-    });
+  // Always dark — no theme toggle, no localStorage toggle
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    // Clear any stale light-mode value a returning user may have
+    localStorage.removeItem('jz_theme');
   }, []);
 
   // Show splash only once per browser session
@@ -501,11 +494,6 @@ export default function LandingPage() {
     sessionStorage.setItem('jz_splash_seen', '1');
     setShowSplash(false);
   }, []);
-
-  useEffect(() => {
-    // Apply persisted theme on mount
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     // ── Navbar scroll effect (passive listener = no jank) ──
@@ -610,7 +598,7 @@ export default function LandingPage() {
       <div style={{ position: 'relative', isolation: 'isolate' }}>
       <div className="grid-overlay"></div>
 
-      <Header theme={theme} toggleTheme={toggleTheme} navigate={navigate} />
+      <Header navigate={navigate} />
       
       <Hero navigate={navigate} />
 

@@ -175,39 +175,6 @@
   --topbar-h: 64px;
 }
 
-/* Theme Toggle Button Styles */
-.theme-switch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  padding: 6px 12px;
-  border-radius: 99px;
-  cursor: pointer;
-  transition: all var(--t);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.theme-switch:hover {
-  background: var(--bg-card);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-.theme-switch-indicator {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--text-secondary);
-  transition: all var(--t);
-}
-[data-theme="light"] .theme-switch-indicator {
-  background: var(--orange);
-}
 
 
 /* â•â• RESET â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
