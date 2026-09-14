@@ -23,9 +23,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Attach dummy io object for socket.io compatibility in serverless environment
+// Attach a no-op socket.io stub so route handlers can call
+// req.io.to(room).emit(...) without crashing in serverless mode.
+// The stub supports chaining: .to() returns itself so .emit() works.
 app.use((req, res, next) => {
-  req.io = { emit: () => {} };
+  const ioStub = { to() { return this; }, emit() {} };
+  req.io = ioStub;
   next();
 });
 

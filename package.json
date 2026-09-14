@@ -2,7 +2,7 @@
   "name": "student-project-monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "Monorepo root — orchestrates frontend (Vite) and backend (Express) workspaces. Dependencies live in their own package.json files.",
+  "description": "Monorepo root — orchestrates frontend (Vite) and backend (Express) workspaces. The root node_modules is used by the Vercel serverless function (api/index.js), so ALL backend dependencies must be listed here.",
   "scripts": {
     "dev": "start \"Backend\" cmd /k \"cd backend && npm run dev\" && cd frontend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
@@ -11,14 +11,16 @@
   },
   "dependencies": {
     "@json2csv/plainjs": "^7.0.8",
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "express-rate-limit": "^8.7.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^2.2.0",
-    "nodemailer": "^9.0.5",
-    "pg": "^8.23.0",
+    "nodemailer": "^9.0.3",
+    "pg": "^8.22.0",
     "socket.io": "^4.8.3"
   }
 }
+
