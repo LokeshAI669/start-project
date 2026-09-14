@@ -45,21 +45,42 @@ export async function api(method, endpoint, body = null, customHeaders = {}) {
     if (body instanceof FormData) {
       delete headers['Content-Type']; // let browser set multipart/form-data boundary
       options.body = body;
+
+      // DEV: log each FormData field so we can trace submission payloads
+      if (import.meta.env.DEV) {
+        console.group(`[API] ${method} ${endpoint}`);
+        for (const [k, v] of body.entries()) {
+          console.log(`  ${k}:`, v instanceof File ? `File(${v.name}, ${v.size}b)` : v);
+        }
+        console.groupEnd();
+      }
     } else {
       options.body = JSON.stringify(body);
     }
   }
 
+
+
   const res = await fetch(`${API_BASE}${endpoint}`, options);
+  const contentType = res.headers.get('content-type') || '';
+  
   let data;
-  try {
-    data = await res.json();
-  } catch {
-    throw new Error('Server returned invalid response');
+  if (contentType.includes('application/json')) {
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error('Server returned invalid JSON response');
+    }
+  } else {
+    const text = await res.text();
+    if (!res.ok) {
+      throw new Error(text || `Server returned status ${res.status}`);
+    }
+    data = { message: text };
   }
 
   if (!res.ok) {
-    throw new Error(data?.error || data?.message || 'Something went wrong');
+    throw new Error(data?.error || data?.message || (typeof data === 'string' ? data : JSON.stringify(data)) || `Request failed with status ${res.status}`);
   }
   return data;
 }

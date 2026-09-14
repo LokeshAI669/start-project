@@ -113,6 +113,15 @@ router.post('/', submitLimiter, (req, res, next) => {
   try {
     const { name, student_name, project_name, budget, currency, description, preferred_date, preferred_time, email } = req.body;
 
+    // Log the full payload in non-production environments to aid debugging
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[REQUESTS] POST /api/requests body:', {
+        name, student_name, email, project_name, budget, currency,
+        description: description ? `${String(description).slice(0, 40)}…` : undefined,
+        preferred_date, preferred_time,
+      });
+    }
+
     const requesterName = (name || student_name || '').trim();
     const requesterEmail = (email || '').trim();
 
@@ -120,10 +129,24 @@ router.post('/', submitLimiter, (req, res, next) => {
       return res.status(400).json({ error: 'Full Name is required' });
     if (!requesterEmail || !/\S+@\S+\.\S+/.test(requesterEmail))
       return res.status(400).json({ error: 'Valid Email address is required' });
-    if (!project_name || budget === undefined || budget === null || budget === '' || !description || !preferred_date || !preferred_time)
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!project_name || !project_name.trim())
+      return res.status(400).json({ error: 'Project name is required' });
+    if (budget === undefined || budget === null || budget === '')
+      return res.status(400).json({ error: 'Budget is required' });
     if (isNaN(Number(budget)) || Number(budget) < 0)
-      return res.status(400).json({ error: 'Budget cannot be negative' });
+      return res.status(400).json({ error: 'Budget must be a non-negative number' });
+    if (!description || !description.trim())
+      return res.status(400).json({ error: 'Project description is required' });
+    if (!preferred_date || !preferred_date.trim())
+      return res.status(400).json({ error: 'Preferred meeting date is required' });
+    if (!preferred_time || !preferred_time.trim())
+      return res.status(400).json({ error: 'Preferred meeting time is required' });
+    // Validate time format — accept HH:mm (24h) or H:mm AM/PM
+    const time24Regex = /^([01]?\d|2[0-3]):[0-5]\d$/;
+    const time12Regex = /^(1[0-2]|0?[1-9]):[0-5]\d\s?(AM|PM)$/i;
+    if (!time24Regex.test(preferred_time.trim()) && !time12Regex.test(preferred_time.trim())) {
+      return res.status(400).json({ error: `Invalid time format: "${preferred_time}". Expected HH:mm (24-hour) or H:mm AM/PM` });
+    }
 
     const attachmentUrl = req.file ? '/uploads/' + req.file.filename : null;
     let studentId = req.user ? req.user.id : null;

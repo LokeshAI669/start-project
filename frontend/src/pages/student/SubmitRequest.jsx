@@ -32,6 +32,31 @@ const STEPS = [
   { n: 3, label: 'Meeting',       desc: 'Schedule & submit' },
 ];
 
+/* Convert a 24-hour "HH:mm" string to a human-readable 12-hour label.
+   e.g. "16:00" → "4:00 PM",  "09:30" → "9:30 AM" */
+function to12h(val) {
+  if (!val) return '';
+  const [hStr, mStr] = val.split(':');
+  let h = parseInt(hStr, 10);
+  const m = mStr || '00';
+  const period = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${m} ${period}`;
+}
+
+/* Normalise any date string to YYYY-MM-DD so the backend always
+   receives a consistent, unambiguous format regardless of browser locale. */
+function toISODate(val) {
+  if (!val) return '';
+  // HTML date inputs always return YYYY-MM-DD natively; normalise just in case.
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return val; // if unparseable, pass through as-is
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 /* ─────────────────────────────────────────────────────────────
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
@@ -49,8 +74,9 @@ export default function SubmitRequest() {
   const [currency, setCurrency]             = useState('₹');
   const [description, setDescription]       = useState('');
   const [timeVal, setTimeVal]               = useState('10:00');
-  const [ampm, setAmpm]                     = useState('AM');
-  const [preferredTime, setPreferredTime]   = useState('10:00 AM');
+  // preferredTime stores the raw 24h HH:mm value sent to the backend.
+  // The UI displays a friendly 12h label via to12h() — no AM/PM dropdown needed.
+  const [preferredTime, setPreferredTime]   = useState('10:00');
   const [preferredDate, setPreferredDate]   = useState('');
   const [attachment, setAttachment]         = useState(null);
   const [error, setError]                   = useState('');
@@ -123,8 +149,9 @@ export default function SubmitRequest() {
       fd.append('budget', Number(budget));
       fd.append('currency', currency);
       fd.append('description', description.trim());
-      fd.append('preferred_date', preferredDate);
-      fd.append('preferred_time', preferredTime);
+      // Always send date as YYYY-MM-DD and time as 24h HH:mm for unambiguous backend parsing
+      fd.append('preferred_date', toISODate(preferredDate));
+      fd.append('preferred_time', preferredTime); // e.g. "16:00" (24h, no AM/PM)
       if (catalogId)  fd.append('catalog_project_id', catalogId);
       if (attachment) fd.append('attachment', attachment);
       await api('POST', '/api/requests', fd);
@@ -149,8 +176,8 @@ export default function SubmitRequest() {
     setSuccess(false); setStep(1);
     setName(''); setEmail(''); setProjectName('');
     setBudget(''); setDescription('');
-    setPreferredDate(''); setPreferredTime('10:00 AM');
-    setTimeVal('10:00'); setAmpm('AM'); setAttachment(null);
+    setPreferredDate(''); setPreferredTime('10:00');
+    setTimeVal('10:00'); setAttachment(null);
   };
 
   /* ══════════════════════════════════════════════════════════════
@@ -410,34 +437,22 @@ export default function SubmitRequest() {
                   <label className="sr-label">
                     <Clock size={13} /> Preferred Time *
                   </label>
-                  <div className="sr-time-row">
-                    <input
-                      className="sr-input"
-                      type="time"
-                      value={timeVal}
-                      onChange={e => {
-                        setTimeVal(e.target.value);
-                        setPreferredTime(e.target.value ? `${e.target.value} ${ampm}` : '');
-                      }}
-                    />
-                    <div className="sr-select-wrap">
-                      <select
-                        className="sr-select"
-                        value={ampm}
-                        onChange={e => {
-                          setAmpm(e.target.value);
-                          setPreferredTime(timeVal ? `${timeVal} ${e.target.value}` : '');
-                        }}
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
-                      <ChevronDown size={14} />
-                    </div>
-                  </div>
+                  {/* Single 24-hour time input — no AM/PM dropdown to avoid
+                      invalid combinations like "16:00 AM". The 12h display
+                      below is for UX only; the raw 24h value is sent to the API. */}
+                  <input
+                    className="sr-input"
+                    type="time"
+                    value={timeVal}
+                    onChange={e => {
+                      const v = e.target.value;
+                      setTimeVal(v);
+                      setPreferredTime(v); // store 24h HH:mm — e.g. "16:00"
+                    }}
+                  />
                   {preferredTime && (
                     <p style={{ fontSize: '0.78rem', color: '#748cff', margin: '6px 0 0', fontWeight: 600 }}>
-                      ✓ Selected: {preferredTime}
+                      ✓ Selected: {to12h(preferredTime)}
                     </p>
                   )}
                 </div>
