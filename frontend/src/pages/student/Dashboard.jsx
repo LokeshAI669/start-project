@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   CheckCircle2,
@@ -9,7 +9,6 @@ import {
   Home,
   Inbox,
   LayoutDashboard,
-  LogOut,
   Plus,
   PlusCircle,
   RefreshCw,
@@ -27,9 +26,9 @@ import './Dashboard.css';
 function statusBadgeClass(status) {
   if (!status) return 'db-badge db-badge-default';
   const s = status.toLowerCase();
-  if (s === 'pending')  return 'db-badge db-badge-pending';
+  if (s === 'pending') return 'db-badge db-badge-pending';
   if (s === 'accepted') return 'db-badge db-badge-accepted';
-  if (s === 'denied')   return 'db-badge db-badge-denied';
+  if (s === 'denied') return 'db-badge db-badge-denied';
   return 'db-badge db-badge-default';
 }
 
@@ -40,10 +39,7 @@ function formatBudget(amount, currency = '₹') {
 
 function formatDate(str) {
   if (!str) return '—';
-  // YYYY-MM-DD strings are parsed as UTC by Date constructor;
-  // appending T00:00:00 makes it local time so the displayed date matches what was entered.
-  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(str) ? str + 'T00:00:00' : str;
-  return new Date(normalized).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(str).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /* ── Skeletons ── */
@@ -70,12 +66,11 @@ function RowSkeleton() {
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
 export default function Dashboard() {
-  const { user, logout, loading: authLoading } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [requests, setRequests]         = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [refreshing, setRefreshing]     = useState(false);
-  const [error, setError]               = useState('');
+  const { user, loading: authLoading } = useContext(AuthContext);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
 
   // Read anonymous user fallback from local storage
   const anonUser = React.useMemo(() => {
@@ -124,19 +119,17 @@ export default function Dashboard() {
     }
   }, [authLoading, fetchRequests]);
 
-  const total    = requests.length;
-  const pending  = requests.filter(r => r.status === 'Pending').length;
+  const total = requests.length;
+  const pending = requests.filter(r => r.status === 'Pending').length;
   const accepted = requests.filter(r => r.status === 'Accepted').length;
-  const denied   = requests.filter(r => r.status === 'Denied').length;
+  const denied = requests.filter(r => r.status === 'Denied').length;
 
   const STATS = [
-    { label: 'Total Requests', value: total,    icon: FileText,     color: '#748cff' },
-    { label: 'Pending',        value: pending,  icon: Clock,        color: '#FFB86B' },
-    { label: 'Accepted',       value: accepted, icon: CheckCircle2, color: '#d8ff5c' },
-    { label: 'Denied',         value: denied,   icon: XCircle,      color: '#ff6b8a' },
+    { label: 'Total Requests', value: total, icon: FileText, color: '#748cff' },
+    { label: 'Pending', value: pending, icon: Clock, color: '#FFB86B' },
+    { label: 'Accepted', value: accepted, icon: CheckCircle2, color: '#d8ff5c' },
+    { label: 'Denied', value: denied, icon: XCircle, color: '#ff6b8a' },
   ];
-
-  const displayUser = user || anonUser;
 
   return (
     <div className="db-wrap">
@@ -160,25 +153,12 @@ export default function Dashboard() {
 
         <div className="db-sidebar-profile">
           <div className="db-profile-letter">
-            {displayUser?.name ? displayUser.name[0].toUpperCase() : (displayUser?.email ? displayUser.email[0].toUpperCase() : 'U')}
+            {user?.name ? user.name[0].toUpperCase() : 'U'}
           </div>
-          <div className="db-profile-details">
-            <strong title={displayUser?.name || 'Welcome'}>{displayUser?.name || 'Welcome back'}</strong>
-            <small title={displayUser?.email || 'Keep building'}>{displayUser?.email || 'Guest User'}</small>
+          <div>
+            <strong>{user?.name || 'Welcome back'}</strong>
+            <small>{user?.email || 'Keep building'}</small>
           </div>
-          {displayUser && (
-            <button
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }}
-              className="db-sidebar-logout-btn"
-              title="Sign out / Switch account"
-              aria-label="Sign out / Switch account"
-            >
-              <LogOut size={15} />
-            </button>
-          )}
         </div>
       </aside>
 
@@ -199,23 +179,23 @@ export default function Dashboard() {
         {/* Stat cards */}
         <div className="db-stats">
           {loading
-            ? [1,2,3,4].map(i => <StatSkeleton key={i} />)
+            ? [1, 2, 3, 4].map(i => <StatSkeleton key={i} />)
             : STATS.map(({ label, value, icon: Icon, color }) => (
-                <motion.div
-                  key={label}
-                  className="db-stat"
-                  style={{ '--stat-color': color }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <div className="db-stat-top">
-                    <span className="db-stat-label">{label}</span>
-                    <div className="db-stat-icon"><Icon size={18} /></div>
-                  </div>
-                  <div className="db-stat-value">{value}</div>
-                </motion.div>
-              ))
+              <motion.div
+                key={label}
+                className="db-stat"
+                style={{ '--stat-color': color }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="db-stat-top">
+                  <span className="db-stat-label">{label}</span>
+                  <div className="db-stat-icon"><Icon size={18} /></div>
+                </div>
+                <div className="db-stat-value">{value}</div>
+              </motion.div>
+            ))
           }
         </div>
 
@@ -247,7 +227,7 @@ export default function Dashboard() {
           </div>
 
           {/* Skeleton rows */}
-          {loading && [1,2,3,4,5].map(i => <RowSkeleton key={i} />)}
+          {loading && [1, 2, 3, 4, 5].map(i => <RowSkeleton key={i} />)}
 
           {/* Error */}
           <AnimatePresence>

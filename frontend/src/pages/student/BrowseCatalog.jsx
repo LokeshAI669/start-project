@@ -10,7 +10,6 @@ import {
   Grid2X2,
   Home,
   LayoutDashboard,
-  LogOut,
   PlusCircle,
   Search,
   SlidersHorizontal,
@@ -70,16 +69,16 @@ const LEVELS = ['All levels', 'Beginner', 'Intermediate', 'Advanced'];
    MAIN PAGE
    ───────────────────────────────────────────────────────────── */
 export default function BrowseCatalog() {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [search, setSearch]           = useState('');
-  const [category, setCategory]       = useState('All Domains');
-  const [level, setLevel]             = useState('All levels');
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All Domains');
+  const [level, setLevel] = useState('All levels');
   const [showFilters, setShowFilters] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const [projects, setProjects]   = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState(['All Domains', ...FALLBACK_DOMAINS]);
 
   // Fetch catalog projects
@@ -123,10 +122,10 @@ export default function BrowseCatalog() {
 
   const filtered = useMemo(() => {
     return projects.filter((p) => {
-      const matchSearch   = p.title.toLowerCase().includes(search.toLowerCase()) ||
-                            (p.description || '').toLowerCase().includes(search.toLowerCase());
+      const matchSearch = p.title.toLowerCase().includes(search.toLowerCase()) ||
+        (p.description || '').toLowerCase().includes(search.toLowerCase());
       const matchCategory = category === 'All Domains' || p.category === category;
-      const matchLevel    = level === 'All levels' || p.level === level;
+      const matchLevel = level === 'All levels' || p.level === level;
       return matchSearch && matchCategory && matchLevel;
     });
   }, [search, category, level, projects]);
@@ -135,7 +134,7 @@ export default function BrowseCatalog() {
     <div className="pc-wrap">
       {/* ── Sidebar ── */}
       <aside className="pc-sidebar">
-        <Link to="/" className="pc-logo" style={{padding:'0 24px'}}>
+        <Link to="/" className="pc-logo" style={{ padding: '0 24px' }}>
           <JobZenLogo theme="dark" size="sm" />
         </Link>
 
@@ -156,25 +155,12 @@ export default function BrowseCatalog() {
 
         <div className="pc-sidebar-profile">
           <div className="pc-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
+            {user?.name ? user.name[0].toUpperCase() : 'U'}
           </div>
-          <div className="pc-profile-details">
-            <strong title={user?.name || 'Welcome'}>{user?.name || 'Welcome back'}</strong>
-            <small title={user?.email || 'Keep building'}>{user?.email || 'Guest User'}</small>
+          <div>
+            <strong>{user?.name || 'Welcome back'}</strong>
+            <small>{user?.email || 'Keep building'}</small>
           </div>
-          {user && (
-            <button
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }}
-              className="db-sidebar-logout-btn"
-              title="Sign out / Switch account"
-              aria-label="Sign out / Switch account"
-            >
-              <LogOut size={15} />
-            </button>
-          )}
         </div>
       </aside>
 
@@ -235,12 +221,12 @@ export default function BrowseCatalog() {
 
             {/* Custom Category select */}
             <div className="pc-select-wrap" style={{ position: 'relative', padding: 0, border: 'none', background: 'transparent', height: 'auto' }}>
-              <button 
-                className="pc-select-btn" 
+              <button
+                className="pc-select-btn"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                style={{ 
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
-                  background: 'rgba(255,255,255,0.055)', border: '1px solid var(--pc-border)', 
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: 'rgba(255,255,255,0.055)', border: '1px solid var(--pc-border)',
                   padding: '0 15px', borderRadius: '12px', color: 'var(--text-primary)',
                   fontSize: '0.9rem', width: '100%', height: '50px', cursor: 'pointer', fontFamily: 'inherit'
                 }}
@@ -250,20 +236,20 @@ export default function BrowseCatalog() {
               </button>
               <AnimatePresence>
                 {isDropdownOpen && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
                     transition={{ duration: 0.15 }}
                     style={{
-                      position: 'absolute', top: '100%', left: 0, width: '100%', 
+                      position: 'absolute', top: '100%', left: 0, width: '100%',
                       marginTop: '6px', background: '#121421',
                       border: '1px solid var(--pc-border)', borderRadius: '12px',
                       overflow: 'hidden', zIndex: 50, boxShadow: '0 15px 35px rgba(0,0,0,0.5)'
                     }}
                   >
                     {categories.map((c) => (
-                      <div 
+                      <div
                         key={c}
                         onClick={() => { setCategory(c); setIsDropdownOpen(false); }}
                         style={{
@@ -273,12 +259,12 @@ export default function BrowseCatalog() {
                           transition: 'background 0.2s'
                         }}
                         onMouseEnter={(e) => {
-                          if(category !== c) e.target.style.background = 'rgba(255,255,255,0.04)';
+                          if (category !== c) e.target.style.background = 'rgba(255,255,255,0.04)';
                           e.target.style.color = 'var(--text-primary)';
                         }}
                         onMouseLeave={(e) => {
                           e.target.style.background = category === c ? 'rgba(255,255,255,0.08)' : 'transparent';
-                          if(category !== c) e.target.style.color = 'var(--pc-muted)';
+                          if (category !== c) e.target.style.color = 'var(--pc-muted)';
                         }}
                       >
                         {c}
@@ -403,5 +389,43 @@ function ProjectCard({ project, index, onRequest }) {
         </button>
       </div>
     </motion.article>
+  );
+}
+animate = {{ opacity: 1, y: 0, scale: 1 }}
+exit = {{ opacity: 0, scale: 0.9 }}
+transition = {{ duration: 0.42, delay: index * 0.055 }}
+whileHover = {{ y: -8 }}
+    >
+  {/* Cover */ }
+  < div className = "pc-cover" >
+        <img
+          src={project.image}
+          alt={project.title}
+          loading="lazy"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = '/projects/ai-coach.jpg';
+          }}
+        />
+        <div className="pc-cover-shade" />
+        <span className="pc-domain-badge">{project.category}</span>
+        <span className="pc-level-badge">{project.level}</span>
+      </div >
+
+  {/* Body */ }
+  < div className = "pc-body" >
+        <h3>{project.title}</h3>
+        <p>{project.description}</p>
+
+        <div className="pc-tools">
+          {project.tools.map((t) => <span key={t}>{t}</span>)}
+        </div>
+
+        <button className="pc-request-btn" onClick={onRequest}>
+          Request this project
+          <ArrowRight size={17} />
+        </button>
+      </div >
+    </motion.article >
   );
 }

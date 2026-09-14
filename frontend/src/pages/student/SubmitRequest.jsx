@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { AuthContext } from '../../context/AuthContext';
 import { api } from '../../utils/api';
@@ -15,7 +15,6 @@ import {
   Grid2X2,
   Home,
   LayoutDashboard,
-  LogOut,
   Paperclip,
   PlusCircle,
   User,
@@ -28,9 +27,9 @@ import './SubmitRequest.css';
    CONSTANTS & HELPERS
    ───────────────────────────────────────────────────────────── */
 const STEPS = [
-  { n: 1, label: 'Your Info',     desc: 'Name & contact' },
-  { n: 2, label: 'Project',       desc: 'Details & budget' },
-  { n: 3, label: 'Meeting',       desc: 'Schedule & submit' },
+  { n: 1, label: 'Your Info', desc: 'Name & contact' },
+  { n: 2, label: 'Project', desc: 'Details & budget' },
+  { n: 3, label: 'Meeting', desc: 'Schedule & submit' },
 ];
 
 /* Convert a 24-hour "HH:mm" string to a human-readable 12-hour label.
@@ -53,8 +52,8 @@ function toISODate(val) {
   const d = new Date(val);
   if (isNaN(d.getTime())) return val; // if unparseable, pass through as-is
   const yyyy = d.getFullYear();
-  const mm   = String(d.getMonth() + 1).padStart(2, '0');
-  const dd   = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -62,32 +61,32 @@ function toISODate(val) {
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────── */
 export default function SubmitRequest() {
-  const { user, setSessionUser } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const catalogId = searchParams.get('catalog_id');
 
   /* form state */
-  const [step, setStep]                     = useState(1);
-  const [name, setName]                     = useState(user?.name || '');
-  const [email, setEmail]                   = useState(user?.email || '');
-  const [projectName, setProjectName]       = useState('');
-  const [budget, setBudget]                 = useState('');
-  const [currency, setCurrency]             = useState('₹');
-  const [description, setDescription]       = useState('');
-  const [timeVal, setTimeVal]               = useState('10:00');
+  const [step, setStep] = useState(1);
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [projectName, setProjectName] = useState('');
+  const [budget, setBudget] = useState('');
+  const [currency, setCurrency] = useState('₹');
+  const [description, setDescription] = useState('');
+  const [timeVal, setTimeVal] = useState('10:00');
   // preferredTime stores the raw 24h HH:mm value sent to the backend.
   // The UI displays a friendly 12h label via to12h() — no AM/PM dropdown needed.
-  const [preferredTime, setPreferredTime]   = useState('10:00');
-  const [preferredDate, setPreferredDate]   = useState('');
-  const [attachment, setAttachment]         = useState(null);
-  const [error, setError]                   = useState('');
-  const [loading, setLoading]               = useState(false);
-  const [success, setSuccess]               = useState(false);
+  const [preferredTime, setPreferredTime] = useState('10:00');
+  const [preferredDate, setPreferredDate] = useState('');
+  const [attachment, setAttachment] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   /* pre-fill from user context */
   useEffect(() => {
     if (user) {
-      if (user.name)  setName(prev => prev || user.name);
+      if (user.name) setName(prev => prev || user.name);
       if (user.email) setEmail(prev => prev || user.email);
     }
   }, [user]);
@@ -103,7 +102,7 @@ export default function SubmitRequest() {
         let desc = data.short_description || '';
         if (data.full_description) desc += '\n\n' + data.full_description;
         if (data.objectives?.length) desc += '\n\nObjectives:\n- ' + data.objectives.join('\n- ');
-        if (data.tech_stack)        desc += '\n\nTech Stack: ' + data.tech_stack;
+        if (data.tech_stack) desc += '\n\nTech Stack: ' + data.tech_stack;
         setDescription(desc);
       })
       .catch(err => console.error('Catalog fetch failed:', err))
@@ -114,11 +113,11 @@ export default function SubmitRequest() {
   /* ── Validation ── */
   const validate = (s) => {
     if (s === 1) {
-      if (!name.trim())  return 'Full name is required.';
+      if (!name.trim()) return 'Full name is required.';
       if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) return 'A valid email is required.';
     }
     if (s === 2) {
-      if (!projectName.trim())                           return 'Project name is required.';
+      if (!projectName.trim()) return 'Project name is required.';
       if (budget === '' || isNaN(+budget) || +budget < 0) return 'Enter a valid budget.';
       if (!description.trim() || description.length < 20) return 'Description must be at least 20 characters.';
     }
@@ -153,17 +152,18 @@ export default function SubmitRequest() {
       // Always send date as YYYY-MM-DD and time as 24h HH:mm for unambiguous backend parsing
       fd.append('preferred_date', toISODate(preferredDate));
       fd.append('preferred_time', preferredTime); // e.g. "16:00" (24h, no AM/PM)
-      if (catalogId)  fd.append('catalog_project_id', catalogId);
+      if (catalogId) fd.append('catalog_project_id', catalogId);
       if (attachment) fd.append('attachment', attachment);
       await api('POST', '/api/requests', fd);
-      
-      // Save student session so the entire app immediately knows the new student
-      setSessionUser({ 
-        name: name.trim(), 
-        email: email.trim(),
-        role: 'student'
-      });
-      
+
+      // Save anonymous session for tracking on Dashboard
+      if (!localStorage.getItem('token')) {
+        localStorage.setItem('anon_user', JSON.stringify({
+          name: name.trim(),
+          email: email.trim()
+        }));
+      }
+
       setSuccess(true);
     } catch (e) {
       setError(e.message);
@@ -507,12 +507,11 @@ export default function SubmitRequest() {
    SIDEBAR
    ───────────────────────────────────────────────────────────── */
 function Sidebar({ active }) {
-  const { user, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   return (
     <aside className="sr-sidebar">
-      <Link to="/" className="sr-logo" style={{padding:'0 24px'}}>
+      <Link to="/" className="sr-logo" style={{ padding: '0 24px' }}>
         <JobZenLogo theme="dark" size="sm" />
       </Link>
 
@@ -530,6 +529,36 @@ function Sidebar({ active }) {
 
       <div className="sr-sidebar-profile">
         <div className="sr-profile-letter">
+          {user?.name ? user.name[0].toUpperCase() : 'U'}
+        </div>
+        <div>
+          <strong>{user?.name || 'Welcome back'}</strong>
+          <small>{user?.email || 'Keep building'}</small>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+        >
+  <X size={20} />
+        </button >
+      </div >
+
+      <nav className="sr-nav">
+        <Link to="/dashboard" className={active === 'dashboard' ? 'sr-active' : ''} onClick={onClose}>
+          <LayoutDashboard size={20} /> My Requests
+        </Link>
+        <Link to="/request" className={active === 'request' ? 'sr-active' : ''} onClick={onClose}>
+          <PlusCircle size={20} /> New Request
+        </Link>
+        <Link to="/browse" className={active === 'browse' ? 'sr-active' : ''} onClick={onClose}>
+          <Grid2X2 size={20} /> Projects
+        </Link>
+      </nav>
+
+      <div className="sr-sidebar-profile">
+        <div className="sr-profile-letter">
           {user?.name ? user.name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
         </div>
         <div className="sr-profile-details">
@@ -538,7 +567,11 @@ function Sidebar({ active }) {
         </div>
         {user && (
           <button 
-            onClick={() => { logout(); navigate('/login'); }}
+            onClick={() => { 
+              logout(); 
+              if (onClose) onClose();
+              navigate('/login'); 
+            }}
             className="db-sidebar-logout-btn"
             title="Sign out / Switch account"
             aria-label="Sign out / Switch account"
@@ -547,7 +580,7 @@ function Sidebar({ active }) {
           </button>
         )}
       </div>
-    </aside>
+    </aside >
   );
 }
 

@@ -4,9 +4,9 @@ import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 
 export default function ResetPassword() {
-  const [email, setEmail]     = useState('');
-  const [sent, setSent]       = useState(false);
-  const [error, setError]     = useState('');
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
