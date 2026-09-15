@@ -980,10 +980,7 @@
   }
 }
 
-gap: 12px;
-margin-bottom: 20px;
-padding-bottom: 16px;
-}
+
 
 .db-header .db-home-btn {
   display: none;
@@ -1012,14 +1009,7 @@ padding-bottom: 16px;
   }
 }
 
-.db-content-header {
-  padding: 16px 14px;
-}
 
-.db-skel-row {
-  padding: 12px 14px;
-}
-}
 
 /* ── Small Phones (<= 480px - iPhone 12/14/15/16, Pixel 7/8/9, Galaxy S20) ── */
 @media (max-width: 480px) {

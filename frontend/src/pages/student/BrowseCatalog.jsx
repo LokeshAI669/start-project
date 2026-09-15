@@ -154,12 +154,10 @@ export default function BrowseCatalog() {
         </nav>
 
         <div className="pc-sidebar-profile">
-          <div className="pc-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : 'U'}
-          </div>
+          <div className="pc-profile-letter">G</div>
           <div>
-            <strong>{user?.name || 'Welcome back'}</strong>
-            <small>{user?.email || 'Keep building'}</small>
+            <strong>Guest</strong>
+            <small>Browse as guest</small>
           </div>
         </div>
       </aside>
@@ -389,43 +387,5 @@ function ProjectCard({ project, index, onRequest }) {
         </button>
       </div>
     </motion.article>
-  );
-}
-animate = {{ opacity: 1, y: 0, scale: 1 }}
-exit = {{ opacity: 0, scale: 0.9 }}
-transition = {{ duration: 0.42, delay: index * 0.055 }}
-whileHover = {{ y: -8 }}
-    >
-  {/* Cover */ }
-  < div className = "pc-cover" >
-        <img
-          src={project.image}
-          alt={project.title}
-          loading="lazy"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = '/projects/ai-coach.jpg';
-          }}
-        />
-        <div className="pc-cover-shade" />
-        <span className="pc-domain-badge">{project.category}</span>
-        <span className="pc-level-badge">{project.level}</span>
-      </div >
-
-  {/* Body */ }
-  < div className = "pc-body" >
-        <h3>{project.title}</h3>
-        <p>{project.description}</p>
-
-        <div className="pc-tools">
-          {project.tools.map((t) => <span key={t}>{t}</span>)}
-        </div>
-
-        <button className="pc-request-btn" onClick={onRequest}>
-          Request this project
-          <ArrowRight size={17} />
-        </button>
-      </div >
-    </motion.article >
   );
 }

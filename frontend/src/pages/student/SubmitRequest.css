@@ -1034,24 +1034,7 @@ input[type="time"].sr-input::-webkit-calendar-picker-indicator:hover {
   }
 }
 
-.sr-step-desc {
-  display: none;
-}
 
-.sr-step-line {
-  margin: 0 8px;
-}
-
-.sr-step-circle {
-  width: 32px;
-  height: 32px;
-  font-size: 0.8rem;
-}
-
-.sr-step-label {
-  font-size: 0.72rem;
-}
-}
 
 /* ── Small Phones (<= 480px - iPhone 12/14/15/16, Pixel 7/8/9, Galaxy S20) ── */
 @media (max-width: 480px) {

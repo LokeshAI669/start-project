@@ -6,8 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 // Lazy-loaded pages — loaded on demand, not all at once.
 // This dramatically reduces the initial JS bundle size on mobile.
 const LandingPage    = lazy(() => import('./pages/LandingPage'));
-const Login          = lazy(() => import('./pages/auth/Login'));
-const ResetPassword  = lazy(() => import('./pages/auth/ResetPassword'));
+
 const Dashboard      = lazy(() => import('./pages/student/Dashboard'));
 const ProjectDetails = lazy(() => import('./pages/student/ProjectDetails'));
 const SubmitRequest  = lazy(() => import('./pages/student/SubmitRequest'));
@@ -62,8 +61,7 @@ function AppRoutes() {
       <Routes>
         {/* ── Public ────────────────────────────────────── */}
         <Route path="/"               element={<LandingPage />} />
-        <Route path="/login"          element={<Login />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+
 
         {/* ── Student ────────────────────────────────────── */}
         <Route path="/dashboard"      element={<Dashboard />} />

@@ -507,8 +507,6 @@ export default function SubmitRequest() {
    SIDEBAR
    ───────────────────────────────────────────────────────────── */
 function Sidebar({ active }) {
-  const { user } = useContext(AuthContext);
-
   return (
     <aside className="sr-sidebar">
       <Link to="/" className="sr-logo" style={{ padding: '0 24px' }}>
@@ -528,59 +526,12 @@ function Sidebar({ active }) {
       </nav>
 
       <div className="sr-sidebar-profile">
-        <div className="sr-profile-letter">
-          {user?.name ? user.name[0].toUpperCase() : 'U'}
-        </div>
+        <div className="sr-profile-letter">G</div>
         <div>
-          <strong>{user?.name || 'Welcome back'}</strong>
-          <small>{user?.email || 'Keep building'}</small>
+          <strong>Guest</strong>
+          <small>Browse as guest</small>
         </div>
       </div>
     </aside>
   );
 }
-
-        >
-  <X size={20} />
-        </button >
-      </div >
-
-      <nav className="sr-nav">
-        <Link to="/dashboard" className={active === 'dashboard' ? 'sr-active' : ''} onClick={onClose}>
-          <LayoutDashboard size={20} /> My Requests
-        </Link>
-        <Link to="/request" className={active === 'request' ? 'sr-active' : ''} onClick={onClose}>
-          <PlusCircle size={20} /> New Request
-        </Link>
-        <Link to="/browse" className={active === 'browse' ? 'sr-active' : ''} onClick={onClose}>
-          <Grid2X2 size={20} /> Projects
-        </Link>
-      </nav>
-
-      <div className="sr-sidebar-profile">
-        <div className="sr-profile-letter">
-          {user?.name ? user.name[0].toUpperCase() : (user?.email ? user.email[0].toUpperCase() : 'U')}
-        </div>
-        <div className="sr-profile-details">
-          <strong title={user?.name || 'Welcome'}>{user?.name || 'Welcome back'}</strong>
-          <small title={user?.email || 'Keep building'}>{user?.email || 'Guest User'}</small>
-        </div>
-        {user && (
-          <button 
-            onClick={() => { 
-              logout(); 
-              if (onClose) onClose();
-              navigate('/login'); 
-            }}
-            className="db-sidebar-logout-btn"
-            title="Sign out / Switch account"
-            aria-label="Sign out / Switch account"
-          >
-            <LogOut size={15} />
-          </button>
-        )}
-      </div>
-    </aside >
-  );
-}
-

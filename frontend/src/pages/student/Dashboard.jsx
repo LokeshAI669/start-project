@@ -152,12 +152,10 @@ export default function Dashboard() {
         </nav>
 
         <div className="db-sidebar-profile">
-          <div className="db-profile-letter">
-            {user?.name ? user.name[0].toUpperCase() : 'U'}
-          </div>
+          <div className="db-profile-letter">G</div>
           <div>
-            <strong>{user?.name || 'Welcome back'}</strong>
-            <small>{user?.email || 'Keep building'}</small>
+            <strong>Guest</strong>
+            <small>Browse as guest</small>
           </div>
         </div>
       </aside>
