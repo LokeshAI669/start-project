@@ -101,15 +101,33 @@
   border: 1px solid var(--db-border);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  min-width: 0;                /* ← allows text truncation */
+}
+
+.db-sidebar-profile:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.db-sidebar-profile-text {
+  min-width: 0;                /* ← critical for ellipsis to work */
+  flex: 1;
+  overflow: hidden;
 }
 
 .db-sidebar-profile strong,
 .db-sidebar-profile small {
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .db-sidebar-profile strong {
   font-size: 0.85rem;
+  font-weight: 600;
   color: #f5f7ff;
 }
 
@@ -122,14 +140,16 @@
 .db-profile-letter {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   color: #111421;
   background: var(--db-green);
   font-weight: 700;
   font-size: 0.9rem;
   flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(216, 255, 92, 0.25);
+  letter-spacing: -0.02em;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -731,6 +751,12 @@
     padding: 11px 12px;
   }
 
+  .db-profile-letter {
+    width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+  }
+
   .db-main {
     padding: 24px 18px 60px;
   }
@@ -777,9 +803,35 @@
     justify-content: flex-start;
   }
 
+  /* On mobile, convert to compact inline pill in the top bar */
   .db-sidebar-profile {
-    display: none;
-    /* Hide bulky box on mobile header to save viewport */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0 14px 0 auto;   /* push to the right of the sticky nav */
+    padding: 6px 10px 6px 6px;
+    border-radius: 99px;     /* pill shape */
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--db-border);
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+    max-width: 180px;
+  }
+
+  .db-profile-letter {
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .db-sidebar-profile strong {
+    font-size: 0.78rem;
+    max-width: 100px;
+  }
+
+  .db-sidebar-profile small {
+    display: none;           /* hide email on mobile to save space */
   }
 
   .db-nav {

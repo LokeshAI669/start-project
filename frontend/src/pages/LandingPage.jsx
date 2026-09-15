@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutList, Mail, Activity, CalendarDays, ArrowRight, BriefcaseBusiness, BrainCircuit, ChevronRight, Code2, Database } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion/react';
@@ -477,19 +477,8 @@ function HpCategoryCard({ icon, title, color, index = 0 }) {
 export default function LandingPage() {
   const navigate = useNavigate();
 
-  const [theme, setTheme] = useState(() => {
-    // Persist theme across page visits using localStorage
-    return localStorage.getItem('jz_theme') || 'dark';
-  });
-
-  const toggleTheme = useCallback(() => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('jz_theme', next);
-      document.documentElement.setAttribute('data-theme', next);
-      return next;
-    });
-  }, []);
+  // Theme is locked to pure dark — no toggle
+  const theme = 'dark';
 
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(() => {
@@ -503,9 +492,10 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
-    // Apply persisted theme on mount
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    // Lock to pure dark theme
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.removeItem('jz_theme');
+  }, []);
 
   useEffect(() => {
     // ── Navbar scroll effect (passive listener = no jank) ──
@@ -610,7 +600,7 @@ export default function LandingPage() {
       <div style={{ position: 'relative', isolation: 'isolate' }}>
         <div className="grid-overlay"></div>
 
-        <Header theme={theme} toggleTheme={toggleTheme} navigate={navigate} />
+        <Header navigate={navigate} />
 
         <Hero navigate={navigate} />
 

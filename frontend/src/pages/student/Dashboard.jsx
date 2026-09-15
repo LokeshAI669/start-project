@@ -158,7 +158,7 @@ export default function Dashboard() {
 
         <div className="db-sidebar-profile">
           <div className="db-profile-letter">{displayLetter}</div>
-          <div>
+          <div className="db-sidebar-profile-text">
             <strong>{displayName}</strong>
             <small>{displayEmail}</small>
           </div>
