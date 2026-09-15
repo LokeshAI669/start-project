@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutList, Mail, Activity, CalendarDays, ArrowRight, BriefcaseBusiness, BrainCircuit, ChevronRight, Code2, Database } from 'lucide-react';
 import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion/react';
