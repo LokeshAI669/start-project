@@ -82,6 +82,11 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Resolve display name and initial for sidebar profile
+  const displayName  = user?.name  || anonUser?.name  || 'Guest';
+  const displayEmail = user?.email || anonUser?.email || 'Browse as guest';
+  const displayLetter = displayName.charAt(0).toUpperCase() || 'G';
+
   const fetchRequests = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true);
     else setLoading(true);
@@ -152,10 +157,10 @@ export default function Dashboard() {
         </nav>
 
         <div className="db-sidebar-profile">
-          <div className="db-profile-letter">G</div>
+          <div className="db-profile-letter">{displayLetter}</div>
           <div>
-            <strong>Guest</strong>
-            <small>Browse as guest</small>
+            <strong>{displayName}</strong>
+            <small>{displayEmail}</small>
           </div>
         </div>
       </aside>

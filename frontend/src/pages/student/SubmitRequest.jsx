@@ -507,6 +507,14 @@ export default function SubmitRequest() {
    SIDEBAR
    ───────────────────────────────────────────────────────────── */
 function Sidebar({ active }) {
+  const { user } = useContext(AuthContext);
+  const anonUser = (() => {
+    try { return JSON.parse(localStorage.getItem('anon_user') || 'null'); } catch { return null; }
+  })();
+  const displayName   = user?.name  || anonUser?.name  || 'Guest';
+  const displayEmail  = user?.email || anonUser?.email || 'Browse as guest';
+  const displayLetter = displayName.charAt(0).toUpperCase() || 'G';
+
   return (
     <aside className="sr-sidebar">
       <Link to="/" className="sr-logo" style={{ padding: '0 24px' }}>
@@ -526,10 +534,10 @@ function Sidebar({ active }) {
       </nav>
 
       <div className="sr-sidebar-profile">
-        <div className="sr-profile-letter">G</div>
+        <div className="sr-profile-letter">{displayLetter}</div>
         <div>
-          <strong>Guest</strong>
-          <small>Browse as guest</small>
+          <strong>{displayName}</strong>
+          <small>{displayEmail}</small>
         </div>
       </div>
     </aside>

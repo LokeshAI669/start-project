@@ -231,7 +231,7 @@ const mailer = {
         <p><strong>New Time:</strong> ${project.preferred_date} at ${project.preferred_time}</p>
         <p><strong>Status:</strong> <span class="badge badge-pending">Pending</span></p>
       </div>
-      <a href="${PLATFORM_URL}/admin-login" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Review in Admin Panel &rarr;</a>
+      <a href="${PLATFORM_URL}/hireproject_admin" class="btn" style="color:#ffffff !important; text-decoration:none !important;">Review in Admin Panel &rarr;</a>
     `);
     await send(adminEmail, `[${PLATFORM}] Rescheduled: ${project.project_name}`, html);
   },

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { api } from '../../utils/api';
+import { api, API_BASE } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 
