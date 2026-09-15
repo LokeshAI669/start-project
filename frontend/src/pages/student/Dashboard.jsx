@@ -82,10 +82,10 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Resolve display name and initial for sidebar profile
-  const displayName  = user?.name  || anonUser?.name  || 'Guest';
-  const displayEmail = user?.email || anonUser?.email || 'Browse as guest';
-  const displayLetter = displayName.charAt(0).toUpperCase() || 'G';
+  // Force Guest profile for student views
+  const displayName  = 'Guest';
+  const displayEmail = 'Browse as guest';
+  const displayLetter = 'G';
 
   const fetchRequests = useCallback(async (manual = false) => {
     if (manual) setRefreshing(true);

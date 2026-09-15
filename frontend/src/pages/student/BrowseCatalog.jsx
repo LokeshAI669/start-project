@@ -155,7 +155,7 @@ export default function BrowseCatalog() {
 
         <div className="pc-sidebar-profile">
           <div className="pc-profile-letter">G</div>
-          <div>
+          <div className="pc-sidebar-profile-text">
             <strong>Guest</strong>
             <small>Browse as guest</small>
           </div>

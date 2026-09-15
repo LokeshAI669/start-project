@@ -507,13 +507,10 @@ export default function SubmitRequest() {
    SIDEBAR
    ───────────────────────────────────────────────────────────── */
 function Sidebar({ active }) {
-  const { user } = useContext(AuthContext);
-  const anonUser = (() => {
-    try { return JSON.parse(localStorage.getItem('anon_user') || 'null'); } catch { return null; }
-  })();
-  const displayName   = user?.name  || anonUser?.name  || 'Guest';
-  const displayEmail  = user?.email || anonUser?.email || 'Browse as guest';
-  const displayLetter = displayName.charAt(0).toUpperCase() || 'G';
+  // Force Guest profile for student views
+  const displayName   = 'Guest';
+  const displayEmail  = 'Browse as guest';
+  const displayLetter = 'G';
 
   return (
     <aside className="sr-sidebar">
@@ -535,7 +532,7 @@ function Sidebar({ active }) {
 
       <div className="sr-sidebar-profile">
         <div className="sr-profile-letter">{displayLetter}</div>
-        <div>
+        <div className="sr-sidebar-profile-text">
           <strong>{displayName}</strong>
           <small>{displayEmail}</small>
         </div>
