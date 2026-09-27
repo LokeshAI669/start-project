@@ -1,23 +1,42 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import {
-  CheckCircle2,
-  Clock,
-  Calendar,
-  Sparkles,
-  ArrowUpRight,
-  ShieldCheck,
-  FileCheck
-} from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import StatsBadge from './StatsBadge';
 import CTAButtons from './CTAButtons';
 import StatusBar from './StatusBar';
+import HeroCanvas from './HeroCanvas';
 
 export default function Hero({ navigate }) {
+  const videoRef = React.useRef(null);
+  const wrapperRef = React.useRef(null);
+  const [tilt, setTilt] = React.useState({ x: 0, y: 0 });
+
+  React.useEffect(() => {
+    const vid = videoRef.current;
+    if (vid) {
+      vid.muted = true;
+      vid.defaultMuted = true;
+      vid.play().catch(() => {});
+    }
+  }, []);
+
+  const handleMouseMove = (e) => {
+    const rect = wrapperRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 16;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * -16;
+    setTilt({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
   return (
     <section className="hero" id="hero" aria-label="Hero section">
       {/* ══ Abstract Ambient Background ══════════════════════════════════ */}
       <div className="hero-bg-layer" aria-hidden="true">
+        <HeroCanvas />
         <div className="hero-ambient-orb hero-ambient-orb-1" />
         <div className="hero-ambient-orb hero-ambient-orb-2" />
         <div className="hero-ambient-orb hero-ambient-orb-3" />
@@ -65,163 +84,64 @@ export default function Hero({ navigate }) {
           <StatusBar />
         </motion.div>
 
-        {/* ── Right Column: Interactive SaaS Approval Dashboard Visual ── */}
-        <div className="hero-dashboard-wrapper">
-          {/* Ambient Glow behind dashboard */}
-          <div className="hero-dashboard-backdrop-glow" aria-hidden="true" />
+        {/* ── Right Column: Premium Floating 3D Video Visual ── */}
+        <motion.div
+          ref={wrapperRef}
+          className="hero-video-visual-wrapper"
+          initial={{ opacity: 0, scale: 0.94, y: 28 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            transform: `perspective(1100px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+            transition: 'transform 0.22s cubic-bezier(0.2, 0, 0, 1)',
+          }}
+        >
+          {/* Ambient Atmospheric Glow */}
+          <div className="hero-video-ambient-glow" aria-hidden="true" />
 
-          {/* Main Dashboard Window */}
-          <motion.div
-            className="hero-saas-window"
-            initial={{ opacity: 0, y: 28, scale: 0.97 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {/* macOS Window Header */}
-            <div className="hero-window-header">
-              <div className="hero-window-dots" aria-hidden="true">
-                <span className="dot dot-close" />
-                <span className="dot dot-minimize" />
-                <span className="dot dot-expand" />
-              </div>
-              <div className="hero-window-title">
-                <ShieldCheck size={14} className="hero-window-shield" />
-                <span>JobZen Review Portal</span>
-              </div>
-              <div className="hero-window-badge">
-                <span className="pulse-dot" />
-                <span>Live System</span>
-              </div>
-            </div>
+          {/* 3D Orbit Rings */}
+          <div className="hero-3d-orbit-ring" aria-hidden="true" />
+          <div className="hero-3d-orbit-ring-2" aria-hidden="true" />
 
-            {/* Dashboard Content Body */}
-            <div className="hero-window-body">
-              {/* Top Pipeline Bar */}
-              <div className="hero-pipeline-header">
-                <div>
-                  <span className="pipeline-label">Live Pipeline</span>
-                  <h4 className="pipeline-title">Request #JZ-8842</h4>
-                </div>
-                <span className="pipeline-status-tag">
-                  <Clock size={12} /> In Review · Priority
-                </span>
-              </div>
+          {/* ── The Video Frame ── */}
+          <div className="hero-video-frame">
+            {/* Radial edge mask for seamless background blending */}
+            <div className="hero-video-mask-border" aria-hidden="true" />
 
-              {/* 3-Step Approval Pipeline */}
-              <div className="hero-pipeline-steps">
-                <div className="pipeline-step completed">
-                  <div className="step-marker">
-                    <CheckCircle2 size={13} />
-                  </div>
-                  <div className="step-info">
-                    <span className="step-name">Submitted</span>
-                    <span className="step-time">10:14 AM</span>
-                  </div>
-                </div>
-                <div className="pipeline-connector active" />
-                <div className="pipeline-step active">
-                  <div className="step-marker">
-                    <span className="step-pulsing-ring" />
-                    <span className="step-inner-dot" />
-                  </div>
-                  <div className="step-info">
-                    <span className="step-name">Faculty Review</span>
-                    <span className="step-time">In Progress</span>
-                  </div>
-                </div>
-                <div className="pipeline-connector" />
-                <div className="pipeline-step pending">
-                  <div className="step-marker">
-                    <span className="step-empty-dot" />
-                  </div>
-                  <div className="step-info">
-                    <span className="step-name">Approval</span>
-                    <span className="step-time">Next</span>
-                  </div>
-                </div>
-              </div>
+            <video
+              ref={videoRef}
+              className="hero-main-video"
+              src="/hero-main-visual.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              disablePictureInPicture
+              aria-hidden="true"
+            />
 
-              {/* Featured In-Flight Request Card */}
-              <div className="hero-project-preview-card">
-                <div className="project-preview-top">
-                  <div>
-                    <span className="project-preview-category">Artificial Intelligence</span>
-                    <h5 className="project-preview-name">AI Interview Coach & Sentiment Analysis</h5>
-                  </div>
-                  <span className="project-preview-budget">₹80,000</span>
-                </div>
+            {/* Holographic shimmer sweep */}
+            <div className="hero-hologram-shimmer" aria-hidden="true" />
 
-                {/* Progress bar */}
-                <div className="project-progress-wrap">
-                  <div className="project-progress-bar">
-                    <motion.div
-                      className="project-progress-fill"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: '84%' }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
-                    />
-                  </div>
-                  <div className="project-progress-meta">
-                    <span>Supervisor review complete</span>
-                    <span className="progress-pct">84%</span>
-                  </div>
-                </div>
-              </div>
+            {/* Bottom fade to blend video into background */}
+            <div className="hero-video-bottom-fade" aria-hidden="true" />
 
-              {/* Real-time KPI Stats Grid */}
-              <div className="hero-kpi-grid">
-                <div className="hero-kpi-card">
-                  <span className="kpi-val text-green">94%</span>
-                  <span className="kpi-label">Acceptance Rate</span>
-                </div>
-                <div className="hero-kpi-card">
-                  <span className="kpi-val text-blue">&lt;24hr</span>
-                  <span className="kpi-label">Avg. Response</span>
-                </div>
-                <div className="hero-kpi-card">
-                  <span className="kpi-val text-gold">4.9 ★</span>
-                  <span className="kpi-label">Satisfaction</span>
-                </div>
-              </div>
+            {/* Top fade */}
+            <div className="hero-video-top-fade" aria-hidden="true" />
 
-              {/* Scheduled Meeting Notification Banner */}
-              <div className="hero-meeting-banner">
-                <div className="meeting-icon-wrap">
-                  <Calendar size={15} />
-                </div>
-                <div className="meeting-text">
-                  <strong>Slot Reserved: Tomorrow at 10:30 AM</strong>
-                  <span>Supervising Faculty: Dr. A. Sharma (HOD Comp Sci)</span>
-                </div>
-                <ArrowUpRight size={15} className="meeting-arrow" />
-              </div>
-            </div>
-          </motion.div>
+            {/* Cyan rim glow */}
+            <div className="hero-video-rim-glow" aria-hidden="true" />
+          </div>
 
-          {/* Floating Verified Pill (Desktop & Tablet) */}
-          <motion.div
-            className="hero-floating-badge"
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            animate={{ y: [0, -6, 0] }}
-            transition={{
-              duration: 0.6,
-              delay: 0.45,
-              y: { duration: 4.5, repeat: Infinity, ease: 'easeInOut' }
-            }}
-          >
-            <div className="floating-badge-icon">
-              <FileCheck size={16} />
-            </div>
-            <div>
-              <div className="floating-badge-title">Project Approved</div>
-              <div className="floating-badge-sub">Confirmation email sent</div>
-            </div>
-          </motion.div>
-        </div>
+          {/* 3D Floating Holographic Pill badge */}
+          <div className="hero-3d-floating-pill" aria-hidden="true">
+            <span className="pill-pulse-dot" />
+            <span>AI Review Live</span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
