@@ -5,6 +5,8 @@ import { api } from '../../utils/api';
 import JobZenLogo from '../../components/JobZenLogo';
 import CustomSelect from '../../components/CustomSelect';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import CatalogFilters from '../../components/admin/CatalogFilters';
+import { useCatalogFilters } from '../../hooks/useCatalogFilters';
 
 
 const DOMAINS = ['Web Development','Mobile Development','AI/ML','Data Science','Cybersecurity','Cloud Computing','IoT','Blockchain','UI/UX Design','Game Development','Other'];
@@ -17,6 +19,7 @@ export default function AdminCatalog() {
   const navigate = useNavigate();
   const [items, setItems]   = useState([]);
   const [loading, setLoading] = useState(true);
+  const filters = useCatalogFilters(items, { pageSize: 25, debounceMs: 300 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -77,24 +80,17 @@ export default function AdminCatalog() {
     setZipUploadError('');
     setUploadingZip(true);
     try {
-      const token = localStorage.getItem('token');
       const formData = new FormData();
       formData.append('zip_file', file);
       
-      const res = await fetch('/api/catalog/upload-zip', {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: formData
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to upload zip file');
+      const data = await api('POST', '/api/catalog/upload-zip', formData);
       setForm(prev => ({ ...prev, zip_url: data.zip_url }));
     } catch (err) {
-      setZipUploadError(err.message);
+      setZipUploadError(err.message || 'Failed to upload zip file');
     } finally {
       setUploadingZip(false);
+      // Reset input value so same file can be re-selected if needed
+      e.target.value = '';
     }
   };
 
@@ -151,7 +147,7 @@ export default function AdminCatalog() {
             </div>
             <div>
               <h1 className="page-title">Manage Catalog</h1>
-              <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>{(items || []).length} active catalog projects</p>
+              <p style={{color:'var(--text-faint)',fontSize:'13px',marginTop:'2px'}}>{filters.subtitle}</p>
             </div>
           </div>
           <div style={{display:'flex',gap:'10px',alignItems:'center', position:'absolute', top:0, right:0}}>
@@ -159,11 +155,40 @@ export default function AdminCatalog() {
           </div>
         </div>
 
+        {/* Filters Section */}
+        <CatalogFilters
+          searchInput={filters.searchInput}
+          onSearchChange={filters.setSearchInput}
+          domainFilter={filters.domainFilter}
+          onDomainChange={filters.setDomainFilter}
+          domainOptions={filters.domainOptions}
+          difficultyFilter={filters.difficultyFilter}
+          onDifficultyChange={filters.setDifficultyFilter}
+          difficultyOptions={filters.difficultyOptions}
+          durationFilter={filters.durationFilter}
+          onDurationChange={filters.setDurationFilter}
+          durationOptions={filters.durationOptions}
+          sortOption={filters.sortOption}
+          onSortChange={filters.setSortOption}
+          sortOptions={filters.sortOptions}
+          isFilterActive={filters.isFilterActive}
+          activeChips={filters.activeChips}
+          onClearFilters={filters.clearFilters}
+        />
+
         {loading ? (
           <div style={{textAlign:'center',padding:'60px',color:'var(--text-faint)'}}>Loading...</div>
         ) : (items || []).length === 0 ? (
           <div className="card" style={{textAlign:'center',padding:'60px'}}>
             <p style={{color:'var(--text-faint)'}}>No catalog projects yet. Add the first one!</p>
+          </div>
+        ) : filters.filteredProjects.length === 0 ? (
+          <div className="catalog-empty-state">
+            <div className="catalog-empty-title">No projects match your filters</div>
+            <p className="catalog-empty-desc">Try adjusting your search query, domain, difficulty, or duration.</p>
+            <button className="btn btn-primary btn-sm" onClick={filters.clearFilters}>
+              Clear all filters
+            </button>
           </div>
         ) : (
           <div className="card" style={{padding:0, overflow:'hidden', width:'100%'}}>
@@ -179,7 +204,7 @@ export default function AdminCatalog() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(items || []).map(p => (
+                  {filters.paginatedProjects.map(p => (
                     <tr key={p.id}>
                       <td style={{fontWeight:600,width:'240px',minWidth:'240px',wordBreak:'break-word'}}>
                         {p.title}
@@ -203,6 +228,36 @@ export default function AdminCatalog() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            {filters.totalPages > 1 && (
+              <div className="catalog-pagination-bar">
+                <div className="catalog-pagination-info">
+                  Showing {(filters.currentPage - 1) * filters.pageSize + 1}–{Math.min(filters.currentPage * filters.pageSize, filters.totalFiltered)} of {filters.totalFiltered} projects
+                </div>
+                <div className="catalog-pagination-actions">
+                  <button
+                    className="catalog-page-btn"
+                    onClick={() => filters.setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={filters.currentPage === 1}
+                    aria-label="Previous page"
+                  >
+                    Previous
+                  </button>
+                  <span style={{ padding: '0 8px', fontSize: '12px', color: 'var(--text-faint)' }}>
+                    Page {filters.currentPage} of {filters.totalPages}
+                  </span>
+                  <button
+                    className="catalog-page-btn"
+                    onClick={() => filters.setCurrentPage(p => Math.min(filters.totalPages, p + 1))}
+                    disabled={filters.currentPage === filters.totalPages}
+                    aria-label="Next page"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

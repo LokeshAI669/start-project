@@ -8,8 +8,13 @@ const { requireAdmin } = require('../auth');
 const router = express.Router();
 
 // ── Zip file upload storage for catalog deliverables ────────────────────────
+const uploadDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const zipStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../../uploads')),
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const sanitized = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
     cb(null, Date.now() + '-' + sanitized);
@@ -20,8 +25,10 @@ const uploadZip = multer({
   storage: zipStorage,
   limits: { fileSize: 1024 * 1024 * 1024 }, // 1 GB max
   fileFilter: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (ext === '.zip' || file.mimetype.includes('zip') || file.mimetype.includes('octet-stream')) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    const mime = (file.mimetype || '').toLowerCase();
+    const isZip = ext === '.zip' || mime.includes('zip') || mime.includes('octet-stream') || mime.includes('compressed');
+    if (isZip) {
       cb(null, true);
     } else {
       cb(new Error('Only .zip files are allowed.'));
