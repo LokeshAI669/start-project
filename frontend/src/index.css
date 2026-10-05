@@ -6511,6 +6511,173 @@ h3,
   }
 }
 
+/* ── Hero Dashboard Mockup (replaces video) ───────────────────────── */
+.hero-mockup-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+.hero-dashboard-mockup {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  background: rgba(12, 14, 24, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: 16px;
+  box-shadow:
+    0 32px 80px -16px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 60px -15px rgba(59, 130, 246, 0.22);
+  overflow: hidden;
+  contain: layout style paint;
+}
+
+.hero-dash-topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.hero-dash-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.hero-dash-title {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.04em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hero-dash-body {
+  padding: 20px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hero-dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.hero-dash-stat-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  transition: border-color 0.25s;
+}
+
+.hero-dash-stat-card:hover {
+  border-color: var(--sc, #3B82F6);
+}
+
+.hero-dash-stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--sc, #3B82F6);
+  line-height: 1;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.hero-dash-stat-lbl {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.hero-dash-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.hero-dash-row:hover {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.hero-dash-row-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-dash-row-budget {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+.hero-dash-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1024px) {
+  .hero-mockup-wrapper {
+    max-width: 500px;
+    margin: 32px auto 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-mockup-wrapper {
+    max-width: 440px;
+    margin: 24px auto 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-mockup-wrapper {
+    max-width: 100%;
+    margin: 16px auto 0;
+  }
+}
+
 .hero-saas-window {
   position: relative;
   z-index: 2;

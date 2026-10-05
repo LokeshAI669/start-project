@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutList, Mail, Activity, CalendarDays, ArrowRight, BriefcaseBusiness, BrainCircuit, ChevronRight, Code2, Database } from 'lucide-react';
-import { motion, useMotionValue, useTransform, animate, useScroll } from 'motion/react';
+import { motion, useMotionValue, useTransform, animate } from 'motion/react';
 
 import JobZenLogo from '../components/JobZenLogo';
 import './HireProjectLanding.css';
@@ -153,12 +153,8 @@ function AnimatedFeatureCard({ Icon, title, desc, index }) {
   const handleMouseMove = (e) => {
     if (isTouch || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
+    const xPct = (e.clientX - rect.left) / rect.width - 0.5;
+    const yPct = (e.clientY - rect.top) / rect.height - 0.5;
     x.set(xPct);
     y.set(yPct);
   };
@@ -166,61 +162,41 @@ function AnimatedFeatureCard({ Icon, title, desc, index }) {
   const handleMouseLeave = () => {
     if (isTouch) return;
     setIsHovered(false);
-    animate(x, 0, { type: "spring", stiffness: 300, damping: 20 });
-    animate(y, 0, { type: "spring", stiffness: 300, damping: 20 });
+    animate(x, 0, { type: 'spring', stiffness: 300, damping: 20 });
+    animate(y, 0, { type: 'spring', stiffness: 300, damping: 20 });
   };
-
-  // Subtly parallax the icon box slower than the rest of the card
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    offset: ["start end", "end start"]
-  });
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [-12, 12]);
 
   return (
     <div style={{ perspective: 1200 }}>
       <motion.div
         ref={cardRef}
         className="feature-card"
-        initial={{ opacity: 0, y: 30, rotateX: 20 }}
-        whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.25 }}
-        transition={{ type: "spring", stiffness: 100, damping: 15, delay: index * 0.12 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 15, delay: index * 0.12 }}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => !isTouch && setIsHovered(true)}
         onMouseLeave={handleMouseLeave}
+        whileHover={!isTouch ? { scale: 1.02 } : {}}
         style={{
           rotateX: isTouch ? 0 : rotateX,
           rotateY: isTouch ? 0 : rotateY,
-          transformStyle: "preserve-3d",
-          position: "relative",
-          zIndex: isHovered ? 10 : 1
+          transformStyle: 'preserve-3d',
+          position: 'relative',
+          zIndex: isHovered ? 10 : 1,
+          willChange: 'transform',
         }}
-        animate={isHovered ? { scale: 1.02, z: 20 } : { scale: 1, z: 0 }}
       >
-        <motion.div
+        <div
           className="feature-icon-wrap2"
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            y: parallaxY,
-            transform: 'translateZ(30px)',
-            willChange: 'transform, box-shadow'
-          }}
-          animate={isHovered ? {
-            boxShadow: [
-              "0 0 0 0px rgba(59, 130, 246, 0.4)",
-              "0 0 0 20px rgba(59, 130, 246, 0)"
-            ]
-          } : {
-            boxShadow: "0 0 0 0px rgba(59, 130, 246, 0)"
-          }}
-          transition={isHovered ? { duration: 1.5, repeat: Infinity, ease: "easeOut" } : { duration: 0.3 }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', transform: 'translateZ(20px)' }}
         >
           <Icon color="var(--blue)" size={24} />
-        </motion.div>
+        </div>
 
-        <div className="feature-title" style={{ transform: "translateZ(15px)" }}>{title}</div>
-        <p className="feature-desc" style={{ transform: "translateZ(5px)" }}>{desc}</p>
+        <div className="feature-title" style={{ transform: 'translateZ(10px)' }}>{title}</div>
+        <p className="feature-desc" style={{ transform: 'translateZ(5px)' }}>{desc}</p>
       </motion.div>
     </div>
   );
@@ -476,9 +452,6 @@ function HpCategoryCard({ icon, title, color, index = 0 }) {
 
 export default function LandingPage() {
   const navigate = useNavigate();
-
-  // Theme is locked to pure dark — no toggle
-  const theme = 'dark';
 
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(() => {
@@ -798,7 +771,7 @@ export default function LandingPage() {
 
         <footer className="footer">
           <div className="footer-inner">
-            <div className="footer-logo"><JobZenLogo theme={theme} size="sm" /></div>
+            <div className="footer-logo"><JobZenLogo theme="dark" size="sm" /></div>
             <div className="footer-links">
               {/* LinkedIn */}
               <a href="https://www.linkedin.com/in/www-jobzen-968a19421/" target="_blank" rel="noreferrer" className="footer-social-link" title="LinkedIn">
