@@ -23,6 +23,8 @@ export default function AdminCatalog() {
   const [form, setForm]     = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
+  const [uploadingZip, setUploadingZip] = useState(false);
+  const [zipUploadError, setZipUploadError] = useState('');
   const isNarrow = useMediaQuery('(max-width: 1024px)');
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
@@ -48,7 +50,7 @@ export default function AdminCatalog() {
     }
   };
 
-  const openAdd = () => { setEditItem(null); setForm(emptyForm); setError(''); setShowForm(true); };
+  const openAdd = () => { setEditItem(null); setForm(emptyForm); setError(''); setZipUploadError(''); setShowForm(true); };
   const openEdit = (item) => {
     setEditItem(item);
     setForm({
@@ -61,7 +63,39 @@ export default function AdminCatalog() {
       zip_url: item.zip_url || ''
     });
     setError('');
+    setZipUploadError('');
     setShowForm(true);
+  };
+
+  const handleZipFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.zip')) {
+      setZipUploadError('Please select a valid .zip file.');
+      return;
+    }
+    setZipUploadError('');
+    setUploadingZip(true);
+    try {
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('zip_file', file);
+      
+      const res = await fetch('/api/catalog/upload-zip', {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to upload zip file');
+      setForm(prev => ({ ...prev, zip_url: data.zip_url }));
+    } catch (err) {
+      setZipUploadError(err.message);
+    } finally {
+      setUploadingZip(false);
+    }
   };
 
   const handleSave = async (e) => {
@@ -149,10 +183,11 @@ export default function AdminCatalog() {
                     <tr key={p.id}>
                       <td style={{fontWeight:600,width:'240px',minWidth:'240px',wordBreak:'break-word'}}>
                         {p.title}
-                        <div style={{display:'flex',gap:'6px',marginTop:'4px',flexWrap:'wrap'}}>
-                          {p.github_url && <span style={{fontSize:'10px',fontFamily:'JetBrains Mono,monospace',color:'#60A5FA',background:'rgba(59,130,246,0.1)',padding:'1px 5px',borderRadius:'4px'}}>GitHub</span>}
-                          {p.zip_url && <span style={{fontSize:'10px',fontFamily:'JetBrains Mono,monospace',color:'#34D399',background:'rgba(52,211,153,0.1)',padding:'1px 5px',borderRadius:'4px'}}>ZIP</span>}
-                        </div>
+                        {p.zip_url && (
+                          <div style={{marginTop:'4px'}}>
+                            <span style={{fontSize:'10px',fontFamily:'JetBrains Mono,monospace',color:'#34D399',background:'rgba(52,211,153,0.1)',padding:'2px 6px',borderRadius:'4px'}}>ZIP DELIVERABLE</span>
+                          </div>
+                        )}
                       </td>
                       <td style={{whiteSpace:'nowrap',width:'150px'}}><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',background:'var(--orange-soft)',color:'var(--orange)',padding:'3px 8px',borderRadius:'99px'}}>{p.domain}</span></td>
                       <td style={{fontSize:'12px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'130px'}}>{p.difficulty}</td>
@@ -232,15 +267,37 @@ export default function AdminCatalog() {
                 <label className="form-label">Prerequisites</label>
                 <input className="form-input" value={form.prerequisites} onChange={f('prerequisites')} placeholder="e.g. Basic JavaScript knowledge" />
               </div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-                <div className="form-group">
-                  <label className="form-label">GitHub Repository URL</label>
-                  <input className="form-input" value={form.github_url} onChange={f('github_url')} placeholder="e.g. https://github.com/..." />
+              <div className="form-group" style={{background:'rgba(255,255,255,0.03)',border:'1px solid var(--border)',borderRadius:'8px',padding:'14px'}}>
+                <label className="form-label" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
+                  <span style={{fontWeight:600}}>Project Deliverable (.ZIP File)</span>
+                  {uploadingZip && <span style={{color:'var(--orange)',fontSize:'11px'}}>Uploading zip archive...</span>}
+                </label>
+
+                <div style={{display:'flex',gap:'10px',alignItems:'center',marginBottom:'10px',flexWrap:'wrap'}}>
+                  <label className="btn btn-ghost btn-sm" style={{cursor:uploadingZip ? 'not-allowed' : 'pointer',display:'inline-flex',alignItems:'center',gap:'6px',background:'rgba(255,255,255,0.08)'}}>
+                    <input
+                      type="file"
+                      accept=".zip,application/zip,application/x-zip-compressed"
+                      style={{display:'none'}}
+                      onChange={handleZipFileChange}
+                      disabled={uploadingZip}
+                    />
+                    📁 {uploadingZip ? 'Uploading...' : 'Choose .ZIP File to Upload'}
+                  </label>
+                  {form.zip_url && (
+                    <span style={{fontSize:'11px',color:'var(--green)',fontFamily:'JetBrains Mono,monospace',wordBreak:'break-all'}}>
+                      ✓ Loaded: {form.zip_url}
+                    </span>
+                  )}
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Download / Zip URL</label>
-                  <input className="form-input" value={form.zip_url} onChange={f('zip_url')} placeholder="e.g. /uploads/project.zip" />
-                </div>
+
+                <input
+                  className="form-input"
+                  value={form.zip_url}
+                  onChange={f('zip_url')}
+                  placeholder="Or enter path e.g. /uploads/AI-skin-specialist.zip or external download link"
+                />
+                {zipUploadError && <div style={{color:'var(--red)',fontSize:'12px',marginTop:'6px'}}>{zipUploadError}</div>}
               </div>
 
               {error && <div className="form-error show" style={{marginBottom:'16px'}}>{error}</div>}

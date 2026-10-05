@@ -1,10 +1,53 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 const { pool } = require('../db');
 const { requireAdmin } = require('../auth');
 
 const router = express.Router();
+
+// ── Zip file upload storage for catalog deliverables ────────────────────────
+const zipStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, '../../uploads')),
+  filename: (req, file, cb) => {
+    const sanitized = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    cb(null, Date.now() + '-' + sanitized);
+  }
+});
+
+const uploadZip = multer({
+  storage: zipStorage,
+  limits: { fileSize: 1024 * 1024 * 1024 }, // 1 GB max
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.zip' || file.mimetype.includes('zip') || file.mimetype.includes('octet-stream')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .zip files are allowed.'));
+    }
+  }
+});
+
+// POST /api/catalog/upload-zip (Admin only)
+router.post('/upload-zip', requireAdmin, (req, res) => {
+  uploadZip.single('zip_file')(req, res, (err) => {
+    if (err) {
+      console.error('[CATALOG] zip upload error:', err);
+      return res.status(400).json({ error: err.message || 'Zip upload failed' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: 'No zip file provided' });
+    }
+    const zipUrl = `/uploads/${req.file.filename}`;
+    res.json({
+      message: 'Zip file uploaded successfully',
+      zip_url: zipUrl,
+      filename: req.file.filename,
+      size: req.file.size
+    });
+  });
+});
 
 // GET /api/catalog/domains
 router.get('/domains', async (req, res) => {

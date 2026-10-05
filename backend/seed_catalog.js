@@ -220,7 +220,6 @@ async function run() {
 
       if (title === 'AI Skin Specialist') {
         desc = 'AI-powered dermatology consultation platform with voice, image, and video analysis, follow-up chat, consultation history, offline mode, and Docker support.';
-        github_url = 'https://github.com/LokeshAI669/AI-skin-specialist';
         zip_url = '/uploads/AI-skin-specialist.zip';
       }
       
