@@ -65,6 +65,16 @@ export default function CatalogDetail() {
   const resume  = resumeValue(project.difficulty);
   const objs    = Array.isArray(project.objectives) ? project.objectives : [];
 
+  const downloadUrl = (project?.zip_url && (project.zip_url.startsWith('http://') || project.zip_url.startsWith('https://')))
+    ? project.zip_url
+    : (project?.zip_url && project.zip_url.startsWith('/downloads/'))
+      ? project.zip_url
+      : `/api/catalog/${project?.id}/download`;
+
+  const downloadFilename = (project?.zip_url && project.zip_url.includes('.'))
+    ? project.zip_url.split('/').pop()
+    : `${(project?.title || 'project').replace(/[^a-zA-Z0-9_-]/g, '_')}.zip`;
+
   return (
     <StudentLayout title="Project Details" subtitle="Full project overview">
       <div style={{ maxWidth:"820px", margin:"0 auto" }}>
@@ -195,8 +205,8 @@ export default function CatalogDetail() {
 
               {project.zip_url && (
                 <a
-                  href={`/api/catalog/${project.id}/download`}
-                  download
+                  href={downloadUrl}
+                  download={downloadFilename}
                   className="btn"
                   style={{
                     display:"inline-flex",
@@ -240,8 +250,8 @@ export default function CatalogDetail() {
             )}
             {project.zip_url && (
               <a
-                href={`/api/catalog/${project.id}/download`}
-                download
+                href={downloadUrl}
+                download={downloadFilename}
                 className="btn btn-ghost btn-sm"
                 style={{ display:"inline-flex", alignItems:"center", gap:"6px", textDecoration:"none", color:"#60A5FA" }}
               >

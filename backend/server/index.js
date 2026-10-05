@@ -27,6 +27,7 @@ async function start() {
     FRONTEND_URL,
     'https://www.jobzen.co.in',          // production domain
     'https://jobzen.co.in',              // production domain (no www)
+    'https://hire.jobzen.co.in',         // hire subdomain
     'https://start-project-mu.vercel.app', // Vercel preview
     'http://localhost:5173',             // Vite dev server
     'http://localhost:4173',             // Vite preview
@@ -93,6 +94,7 @@ async function start() {
   app.use(express.urlencoded({ extended: true }));
   
   app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+  app.use('/downloads', express.static(path.join(__dirname, '..', '..', 'frontend', 'public', 'downloads')));
 
   // ── API Routes ──────────────────────────────────────────────
   app.use('/api/auth',     require('./routes/auth'));

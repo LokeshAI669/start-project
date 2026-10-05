@@ -165,19 +165,54 @@ router.get('/:id', async (req, res) => {
 router.get('/:id/download', async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const { rows } = await pool.query('SELECT title, zip_url FROM project_catalog WHERE id = $1', [id]);
-    if (rows.length === 0 || !rows[0].zip_url) {
-      return res.status(404).json({ error: 'No downloadable zip file available for this project' });
+    const { rows } = await pool.query('SELECT title, zip_url, github_url FROM project_catalog WHERE id = $1', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Project not found' });
     }
-    const zipUrl = rows[0].zip_url;
-    if (zipUrl.startsWith('/uploads/')) {
+    const { title, zip_url, github_url } = rows[0];
+    const zipUrl = zip_url || '';
+
+    // 1. External URL (http / https) -> direct redirect
+    if (zipUrl.startsWith('http://') || zipUrl.startsWith('https://')) {
+      return res.redirect(zipUrl);
+    }
+
+    // 2. Relative file: check local files in backend/uploads or frontend/public/downloads
+    if (zipUrl) {
       const fileName = path.basename(zipUrl);
-      const filePath = path.join(__dirname, '..', '..', 'uploads', fileName);
-      if (fs.existsSync(filePath)) {
-        return res.download(filePath, fileName);
+      const possiblePaths = [
+        path.join(__dirname, '..', '..', 'uploads', fileName),
+        path.join(__dirname, '..', '..', 'frontend', 'public', 'downloads', fileName),
+        path.join(__dirname, '..', '..', 'frontend', 'dist', 'downloads', fileName),
+        path.join(process.cwd(), 'uploads', fileName),
+        path.join(process.cwd(), 'frontend', 'public', 'downloads', fileName),
+      ];
+
+      for (const p of possiblePaths) {
+        if (fs.existsSync(p)) {
+          res.setHeader('Content-Type', 'application/zip');
+          return res.download(p, fileName);
+        }
+      }
+
+      // If zipUrl starts with /downloads/, redirect to static asset
+      if (zipUrl.startsWith('/downloads/')) {
+        return res.redirect(zipUrl);
       }
     }
-    return res.redirect(zipUrl);
+
+    // 3. Fallback: GitHub zip archive if available
+    if (github_url && github_url.includes('github.com')) {
+      const cleanGh = github_url.replace(/\/+$/, '').replace(/\.git$/, '');
+      return res.redirect(`${cleanGh}/archive/refs/heads/main.zip`);
+    }
+
+    // 4. Special fallback for project 45 (AI Skin Specialist)
+    if (id === 45 || (title && title.toLowerCase().includes('skin specialist'))) {
+      return res.redirect('/downloads/AI-skin-specialist.zip');
+    }
+
+    return res.status(404).json({ error: 'Downloadable zip file not found' });
   } catch (err) {
     console.error('[CATALOG] download error:', err);
     res.status(500).json({ error: 'Download failed' });

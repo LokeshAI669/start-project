@@ -2,7 +2,8 @@ node_modules/
 .env
 .idea/
 *.pt
-*.zip
+backend/uploads/
+!frontend/public/downloads/*.zip
 frontend/public/hero-robot-*
 frontend/public/hero-trans*
 frontend/public/test_alpha.*
