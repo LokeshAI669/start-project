@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@json2csv/plainjs": "^7.0.8",
+    "@supabase/supabase-js": "^2.117.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -18,7 +19,9 @@
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",
     "pg": "^8.22.0",
-    "socket.io": "^4.8.3"
+    "razorpay": "^2.9.8",
+    "socket.io": "^4.8.3",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

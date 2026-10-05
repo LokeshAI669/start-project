@@ -36,6 +36,9 @@ export default function CatalogFilters({
   durationFilter,
   onDurationChange,
   durationOptions = [],
+  premiumFilter,
+  onPremiumChange,
+  premiumOptions = ['All Projects', 'Free Projects', 'Premium Projects'],
   sortOption,
   onSortChange,
   sortOptions = [],
@@ -139,7 +142,26 @@ export default function CatalogFilters({
             </span>
           </div>
 
-          {/* 5. Sort Dropdown */}
+          {/* 5. Premium Filter (All / Free / Premium) */}
+          <div className="catalog-filter-select-group">
+            <select
+              className="catalog-filter-select"
+              value={premiumFilter}
+              onChange={(e) => onPremiumChange && onPremiumChange(e.target.value)}
+              aria-label="Filter by Premium Status"
+            >
+              {premiumOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <span className="catalog-filter-select-arrow" aria-hidden="true">
+              <ChevronDown size={14} />
+            </span>
+          </div>
+
+          {/* 6. Sort Dropdown */}
           <div className="catalog-filter-select-group">
             <select
               className="catalog-filter-select"

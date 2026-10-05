@@ -74,6 +74,15 @@ export default function StudentLayout({ children, title, subtitle }) {
             <FolderKanban className="sidebar-icon" size={18} />
             <span>Projects</span>
           </Link>
+
+          <Link 
+            to="/purchases" 
+            className={`sidebar-item ${location.pathname === '/purchases' ? 'active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <FileArchive className="sidebar-icon" size={18} />
+            <span>My Purchases</span>
+          </Link>
         </nav>
 
 

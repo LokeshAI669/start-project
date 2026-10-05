@@ -248,6 +248,47 @@ const mailer = {
     `);
     await send(user.email, `[${PLATFORM}] Password Reset`, html);
   },
+
+  // 8. Purchase confirmation & instant ZIP download receipt
+  async purchaseConfirmation({ buyerEmail, buyerName, projectTitle, amount, paymentId, downloadUrl, maxDownloads = 5 }) {
+    const accessUrl = downloadUrl || `${PLATFORM_URL}/purchases`;
+    const html = baseTemplate('Project Source Code Delivery', `
+      <h2>Payment Confirmed &amp; Source Code Ready! 🎉</h2>
+      <p>Hi ${buyerName || 'there'}, thank you for purchasing <strong>${projectTitle}</strong> on ${PLATFORM}. Your payment has been received and your source code package is ready to download.</p>
+      
+      <div class="highlight">
+        <p><strong>Project:</strong> ${projectTitle}</p>
+        <p><strong>Amount Paid:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+        <p><strong>Payment ID:</strong> <span style="font-family:monospace;font-size:13px;">${paymentId}</span></p>
+        <p><strong>Download Limit:</strong> Up to ${maxDownloads} downloads</p>
+        <p><strong>Status:</strong> <span class="badge badge-accepted">Paid &amp; Active</span></p>
+      </div>
+
+      <p style="margin-top:20px;">Click the button below to download your complete project ZIP archive (code, assets, neural model setups, and documentation):</p>
+      <a href="${accessUrl}" class="btn" style="color:#ffffff !important; text-decoration:none !important; background:#2563EB; font-weight:600;">Download Project ZIP &rarr;</a>
+
+      <p style="margin-top:24px;font-size:13px;color:#6b7280;">
+        You can also access this project anytime under <a href="${PLATFORM_URL}/purchases" style="color:#2563EB;">My Purchases</a> on ${PLATFORM}.
+      </p>
+    `);
+    await send(buyerEmail, `[${PLATFORM}] Project Deliverable: ${projectTitle} (Payment Confirmed)`, html);
+  },
+
+  // 9. Purchase refunded notification
+  async purchaseRefunded({ buyerEmail, buyerName, projectTitle, amount, paymentId }) {
+    const html = baseTemplate('Payment Refunded', `
+      <h2>Your Payment Has Been Refunded</h2>
+      <p>Hi ${buyerName || 'there'}, your purchase for <strong>${projectTitle}</strong> has been refunded.</p>
+      <div class="highlight">
+        <p><strong>Project:</strong> ${projectTitle}</p>
+        <p><strong>Refunded Amount:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+        <p><strong>Payment ID:</strong> <span style="font-family:monospace;font-size:13px;">${paymentId}</span></p>
+        <p><strong>Status:</strong> <span class="badge badge-pending">Refunded</span></p>
+      </div>
+      <p style="color:#6b7280;font-size:14px;">The amount will reflect back in your original payment method in 5-7 business days depending on your bank.</p>
+    `);
+    await send(buyerEmail, `[${PLATFORM}] Refund Processed: ${projectTitle}`, html);
+  },
 };
 
 module.exports = mailer;

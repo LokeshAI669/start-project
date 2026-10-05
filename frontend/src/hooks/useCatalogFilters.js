@@ -13,6 +13,7 @@ const DIFFICULTY_WEIGHTS = {
 
 /**
  * Custom hook for catalog filtering, sorting, pagination, and URL sync.
+ * Supports Search, Domain, Difficulty, Duration, Premium (All/Free/Premium), and Sort.
  *
  * @param {Array} projects - Raw project items from API or database
  * @param {Object} [options] - Configuration options
@@ -28,6 +29,7 @@ export function useCatalogFilters(projects = [], options = {}) {
   const initialDomain = searchParams.get('domain') || 'All Domains';
   const initialDifficulty = searchParams.get('difficulty') || 'All';
   const initialDuration = searchParams.get('duration') || 'All';
+  const initialPremium = searchParams.get('premium') || 'All';
   const initialSort = searchParams.get('sort') || DEFAULT_SORT;
   const initialPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
 
@@ -38,6 +40,7 @@ export function useCatalogFilters(projects = [], options = {}) {
   const [domainFilter, setDomainFilter] = useState(initialDomain);
   const [difficultyFilter, setDifficultyFilter] = useState(initialDifficulty);
   const [durationFilter, setDurationFilter] = useState(initialDuration);
+  const [premiumFilter, setPremiumFilter] = useState(initialPremium);
   const [sortOption, setSortOption] = useState(initialSort);
   const [currentPage, setCurrentPage] = useState(initialPage);
 
@@ -53,7 +56,7 @@ export function useCatalogFilters(projects = [], options = {}) {
     return () => clearTimeout(handler);
   }, [searchInput, debounceMs]);
 
-  // Keep searchInput in sync if URL query param changes externally (e.g. back button)
+  // Keep state in sync if URL query param changes externally (e.g. back button)
   useEffect(() => {
     const qFromUrl = searchParams.get('q') || '';
     if (qFromUrl !== searchInput && qFromUrl !== debouncedQ) {
@@ -69,6 +72,9 @@ export function useCatalogFilters(projects = [], options = {}) {
     const durFromUrl = searchParams.get('duration') || 'All';
     if (durFromUrl !== durationFilter) setDurationFilter(durFromUrl);
 
+    const premFromUrl = searchParams.get('premium') || 'All';
+    if (premFromUrl !== premiumFilter) setPremiumFilter(premFromUrl);
+
     const sortFromUrl = searchParams.get('sort') || DEFAULT_SORT;
     if (sortFromUrl !== sortOption) setSortOption(sortFromUrl);
 
@@ -83,9 +89,10 @@ export function useCatalogFilters(projects = [], options = {}) {
       domainFilter !== 'All Domains' ||
       difficultyFilter !== 'All' ||
       durationFilter !== 'All' ||
+      (premiumFilter !== 'All' && premiumFilter !== 'All Projects') ||
       sortOption !== DEFAULT_SORT
     );
-  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, sortOption]);
+  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, premiumFilter, sortOption]);
 
   // ── 4. Sync Filter State to URL Query Parameters ────────────────────────────
   useEffect(() => {
@@ -106,6 +113,9 @@ export function useCatalogFilters(projects = [], options = {}) {
     if (durationFilter && durationFilter !== 'All' && durationFilter !== 'All Durations') {
       params.set('duration', durationFilter);
     }
+    if (premiumFilter && premiumFilter !== 'All' && premiumFilter !== 'All Projects') {
+      params.set('premium', premiumFilter);
+    }
     if (sortOption && sortOption !== DEFAULT_SORT) {
       params.set('sort', sortOption);
     }
@@ -114,7 +124,7 @@ export function useCatalogFilters(projects = [], options = {}) {
     }
 
     setSearchParams(params, { replace: true });
-  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, sortOption, currentPage, setSearchParams]);
+  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, premiumFilter, sortOption, currentPage, setSearchParams]);
 
   // ── 5. Build Dynamic Options from Available Data ────────────────────────────
   const domainOptions = useMemo(() => {
@@ -149,11 +159,17 @@ export function useCatalogFilters(projects = [], options = {}) {
     return result;
   }, [projects]);
 
+  const premiumOptions = useMemo(() => {
+    return ['All Projects', 'Free Projects', 'Premium Projects'];
+  }, []);
+
   const sortOptions = useMemo(() => {
     return [
       { value: 'title-asc', label: 'Title A–Z' },
       { value: 'title-desc', label: 'Title Z–A' },
       { value: 'diff-asc', label: 'Difficulty (Beginner→Advanced)' },
+      { value: 'price-desc', label: 'Price (High to Low)' },
+      { value: 'price-asc', label: 'Price (Low to High)' },
       { value: 'newest', label: 'Newest first' },
     ];
   }, []);
@@ -194,6 +210,13 @@ export function useCatalogFilters(projects = [], options = {}) {
         }
       }
 
+      // 5. Premium Filter (All / Free / Premium)
+      if (premiumFilter === 'Premium' || premiumFilter === 'Premium Projects') {
+        if (!p.is_premium) return false;
+      } else if (premiumFilter === 'Free' || premiumFilter === 'Free Projects') {
+        if (p.is_premium) return false;
+      }
+
       return true;
     });
 
@@ -211,6 +234,12 @@ export function useCatalogFilters(projects = [], options = {}) {
         if (wA !== wB) return wA - wB;
         return (a.title || '').localeCompare(b.title || '');
       }
+      if (sortOption === 'price-desc') {
+        return Number(b.price || 0) - Number(a.price || 0);
+      }
+      if (sortOption === 'price-asc') {
+        return Number(a.price || 0) - Number(b.price || 0);
+      }
       if (sortOption === 'newest') {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : a.id || 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : b.id || 0;
@@ -218,7 +247,7 @@ export function useCatalogFilters(projects = [], options = {}) {
       }
       return 0;
     });
-  }, [projects, debouncedQ, domainFilter, difficultyFilter, durationFilter, sortOption]);
+  }, [projects, debouncedQ, domainFilter, difficultyFilter, durationFilter, premiumFilter, sortOption]);
 
   // ── 7. Pagination ───────────────────────────────────────────────────────────
   const totalFiltered = filteredAndSorted.length;
@@ -279,6 +308,17 @@ export function useCatalogFilters(projects = [], options = {}) {
       });
     }
 
+    if (premiumFilter !== 'All' && premiumFilter !== 'All Projects') {
+      chips.push({
+        id: 'premium',
+        label: premiumFilter.includes('Premium') ? '⭐ Premium' : 'Free Projects',
+        onRemove: () => {
+          setPremiumFilter('All');
+          setCurrentPage(1);
+        },
+      });
+    }
+
     if (sortOption !== DEFAULT_SORT) {
       const match = sortOptions.find((s) => s.value === sortOption);
       chips.push({
@@ -292,7 +332,7 @@ export function useCatalogFilters(projects = [], options = {}) {
     }
 
     return chips;
-  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, sortOption, sortOptions]);
+  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, premiumFilter, sortOption, sortOptions]);
 
   // ── 9. Clear All Filters ───────────────────────────────────────────────────
   const clearFilters = useCallback(() => {
@@ -301,6 +341,7 @@ export function useCatalogFilters(projects = [], options = {}) {
     setDomainFilter('All Domains');
     setDifficultyFilter('All');
     setDurationFilter('All');
+    setPremiumFilter('All');
     setSortOption(DEFAULT_SORT);
     setCurrentPage(1);
   }, []);
@@ -318,6 +359,11 @@ export function useCatalogFilters(projects = [], options = {}) {
 
   const updateDuration = useCallback((val) => {
     setDurationFilter(val);
+    setCurrentPage(1);
+  }, []);
+
+  const updatePremium = useCallback((val) => {
+    setPremiumFilter(val);
     setCurrentPage(1);
   }, []);
 
@@ -340,19 +386,6 @@ export function useCatalogFilters(projects = [], options = {}) {
     return `Showing ${totalFiltered} of ${totalRaw} projects`;
   }, [projects.length, isFilterActive, totalFiltered]);
 
-  // ── 11. Query params payload (for future server-side API swap) ──────────────
-  const serverQueryParams = useMemo(() => {
-    return {
-      q: debouncedQ || undefined,
-      domain: domainFilter !== 'All Domains' && domainFilter !== 'All' ? domainFilter : undefined,
-      difficulty: difficultyFilter !== 'All' && difficultyFilter !== 'All Difficulties' ? difficultyFilter : undefined,
-      duration: durationFilter !== 'All' && durationFilter !== 'All Durations' ? durationFilter : undefined,
-      sort: sortOption,
-      page: safePage,
-      limit: pageSize,
-    };
-  }, [debouncedQ, domainFilter, difficultyFilter, durationFilter, sortOption, safePage, pageSize]);
-
   return {
     // Current filter states
     searchInput,
@@ -360,6 +393,7 @@ export function useCatalogFilters(projects = [], options = {}) {
     domainFilter,
     difficultyFilter,
     durationFilter,
+    premiumFilter,
     sortOption,
     currentPage: safePage,
     pageSize,
@@ -368,6 +402,7 @@ export function useCatalogFilters(projects = [], options = {}) {
     domainOptions,
     difficultyOptions,
     durationOptions,
+    premiumOptions,
     sortOptions,
 
     // Filtered data & pagination
@@ -381,13 +416,13 @@ export function useCatalogFilters(projects = [], options = {}) {
     isFilterActive,
     activeChips,
     subtitle,
-    serverQueryParams,
 
     // Action handlers
     setSearchInput: updateSearchInput,
     setDomainFilter: updateDomain,
     setDifficultyFilter: updateDifficulty,
     setDurationFilter: updateDuration,
+    setPremiumFilter: updatePremium,
     setSortOption: updateSort,
     setCurrentPage,
     clearFilters,

@@ -33,9 +33,11 @@ app.use((req, res, next) => {
 });
 
 // ── Mount API Routes ──────────────────────────────────────────
-app.use('/api/requests', require('../backend/server/routes/requests'));
-app.use('/api/catalog', require('../backend/server/routes/catalog'));
-app.use('/api/auth', require('../backend/server/routes/auth'));
+app.use('/api/requests',     require('../backend/server/routes/requests'));
+app.use('/api/catalog',      require('../backend/server/routes/catalog'));
+app.use('/api/auth',         require('../backend/server/routes/auth'));
+app.use('/api',              require('../backend/server/routes/orders'));
+app.use('/api/admin/orders', require('../backend/server/routes/adminOrders'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', ts: Date.now() }));
 

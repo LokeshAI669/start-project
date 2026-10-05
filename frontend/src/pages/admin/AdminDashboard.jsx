@@ -115,6 +115,7 @@ export default function AdminDashboard() {
         <nav className="sidebar-nav">
           <Link to="/admin/dashboard" className="sidebar-item active"> All Requests</Link>
           <Link to="/admin/catalog" className="sidebar-item"> Manage Catalog</Link>
+          <Link to="/admin/orders" className="sidebar-item"> Sales &amp; Orders</Link>
         </nav>
       </aside>
 

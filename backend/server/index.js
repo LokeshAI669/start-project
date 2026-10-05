@@ -97,9 +97,11 @@ async function start() {
   app.use('/downloads', express.static(path.join(__dirname, '..', '..', 'frontend', 'public', 'downloads')));
 
   // ── API Routes ──────────────────────────────────────────────
-  app.use('/api/auth',     require('./routes/auth'));
-  app.use('/api/requests', require('./routes/requests'));
-  app.use('/api/catalog',  require('./routes/catalog'));
+  app.use('/api/auth',         require('./routes/auth'));
+  app.use('/api/requests',     require('./routes/requests'));
+  app.use('/api/catalog',      require('./routes/catalog'));
+  app.use('/api',              require('./routes/orders'));
+  app.use('/api/admin/orders', require('./routes/adminOrders'));
 
 
   // ── Health ──────────────────────────────────────────────────

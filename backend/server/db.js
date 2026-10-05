@@ -93,6 +93,81 @@ const MIGRATIONS = [
       ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_url TEXT;
     `,
   },
+  {
+    version: '003',
+    description: 'Add premium fields to catalog, purchases, download_logs, and audit_logs tables',
+    sql: `
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS price NUMERIC(10, 2) DEFAULT 0;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_storage_key TEXT;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_file_name TEXT;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_file_size BIGINT DEFAULT 0;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_version INTEGER DEFAULT 1;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_updated_at TIMESTAMP;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'published';
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT FALSE;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+
+      CREATE INDEX IF NOT EXISTS idx_catalog_is_premium ON project_catalog(is_premium);
+      CREATE INDEX IF NOT EXISTS idx_catalog_status ON project_catalog(status);
+      CREATE INDEX IF NOT EXISTS idx_catalog_is_deleted ON project_catalog(is_deleted);
+
+      CREATE TABLE IF NOT EXISTS purchases (
+        id                    SERIAL PRIMARY KEY,
+        user_id               INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_email            TEXT NOT NULL,
+        user_name             TEXT,
+        project_id            INTEGER NOT NULL REFERENCES project_catalog(id) ON DELETE CASCADE,
+        amount                NUMERIC(10, 2) NOT NULL,
+        currency              VARCHAR(10) DEFAULT 'INR',
+        razorpay_order_id     VARCHAR(100) NOT NULL UNIQUE,
+        razorpay_payment_id   VARCHAR(100) UNIQUE,
+        razorpay_signature    TEXT,
+        status                VARCHAR(30) DEFAULT 'pending',
+        zip_version_purchased INTEGER DEFAULT 1,
+        download_count        INTEGER DEFAULT 0,
+        max_downloads         INTEGER DEFAULT 5,
+        created_at            TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at            TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_purchases_user_email ON purchases(user_email);
+      CREATE INDEX IF NOT EXISTS idx_purchases_project_id ON purchases(project_id);
+      CREATE INDEX IF NOT EXISTS idx_purchases_order_id ON purchases(razorpay_order_id);
+      CREATE INDEX IF NOT EXISTS idx_purchases_status ON purchases(status);
+
+      CREATE TABLE IF NOT EXISTS download_logs (
+        id            SERIAL PRIMARY KEY,
+        purchase_id   INTEGER NOT NULL REFERENCES purchases(id) ON DELETE CASCADE,
+        user_id       INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_email    TEXT NOT NULL,
+        project_id    INTEGER NOT NULL REFERENCES project_catalog(id) ON DELETE CASCADE,
+        zip_version   INTEGER NOT NULL DEFAULT 1,
+        ip_address    TEXT,
+        user_agent    TEXT,
+        downloaded_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_download_logs_purchase_id ON download_logs(purchase_id);
+      CREATE INDEX IF NOT EXISTS idx_download_logs_project_id ON download_logs(project_id);
+
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_email  TEXT NOT NULL,
+        action      VARCHAR(50) NOT NULL,
+        entity_type VARCHAR(50) NOT NULL DEFAULT 'project_catalog',
+        entity_id   INTEGER,
+        old_values  JSONB,
+        new_values  JSONB,
+        ip_address  TEXT,
+        created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
+    `,
+  },
 ];
 
 // ── Migration runner ──────────────────────────────────────────────────────────

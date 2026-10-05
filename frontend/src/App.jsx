@@ -15,6 +15,8 @@ const CatalogDetail  = lazy(() => import('./pages/student/CatalogDetail'));
 const AdminLogin     = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminCatalog   = lazy(() => import('./pages/admin/AdminCatalog'));
+const AdminOrders    = lazy(() => import('./pages/admin/AdminOrders'));
+const MyPurchases    = lazy(() => import('./pages/student/MyPurchases'));
 const NotFound       = lazy(() => import('./pages/NotFound'));
 
 // Simple full-screen spinner shown while a lazy page chunk loads
@@ -65,6 +67,7 @@ function AppRoutes() {
 
         {/* ── Student ────────────────────────────────────── */}
         <Route path="/dashboard"      element={<Dashboard />} />
+        <Route path="/purchases"      element={<MyPurchases />} />
         <Route path="/request"        element={<SubmitRequest />} />
         <Route path="/browse"         element={<BrowseCatalog />} />
         <Route path="/catalog/:id"    element={<CatalogDetail />} />
@@ -74,6 +77,7 @@ function AppRoutes() {
         <Route path="/hireproject_admin"  element={<AdminLogin />} />
         <Route path="/admin/dashboard"    element={<AdminDashboard />} />
         <Route path="/admin/catalog"      element={<AdminCatalog />} />
+        <Route path="/admin/orders"       element={<AdminOrders />} />
 
         {/* ── 404 — catches all unknown URLs ─────────────────── */}
         <Route path="*" element={<NotFound />} />
