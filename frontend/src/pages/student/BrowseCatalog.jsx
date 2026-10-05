@@ -13,6 +13,7 @@ import {
   PlusCircle,
   Search,
   SlidersHorizontal,
+  Download,
 } from 'lucide-react';
 import JobZenLogo from '../../components/JobZenLogo';
 import './ProjectCatalog.css';
@@ -93,7 +94,9 @@ export default function BrowseCatalog() {
           description: p.short_description,
           color: getDomainColor(p.domain),
           image: getDomainImage(p.domain),
-          tools: getDomainTools(p.domain)
+          tools: getDomainTools(p.domain),
+          github_url: p.github_url,
+          zip_url: p.zip_url
         }));
         setProjects(mapped);
       })
@@ -370,21 +373,67 @@ function ProjectCard({ project, index, onRequest }) {
         <div className="pc-cover-shade" />
         <span className="pc-domain-badge">{project.category}</span>
         <span className="pc-level-badge">{project.level}</span>
+        {project.zip_url && (
+          <span style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'rgba(37, 99, 235, 0.9)',
+            color: '#fff',
+            backdropFilter: 'blur(6px)',
+            fontSize: '10px',
+            fontWeight: 700,
+            padding: '3px 8px',
+            borderRadius: '6px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+            letterSpacing: '0.03em',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            zIndex: 2
+          }}>
+            <Download size={11} /> ZIP AVAILABLE
+          </span>
+        )}
       </div>
 
       {/* Body */}
       <div className="pc-body">
-        <h3>{project.title}</h3>
+        <Link to={`/catalog/${project.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h3 style={{ cursor: 'pointer' }}>{project.title}</h3>
+        </Link>
         <p>{project.description}</p>
 
         <div className="pc-tools">
           {project.tools.map((t) => <span key={t}>{t}</span>)}
         </div>
 
-        <button className="pc-request-btn" onClick={onRequest}>
-          Request this project
-          <ArrowRight size={17} />
-        </button>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+          <Link
+            to={`/catalog/${project.id}`}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '9px 14px',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: 'var(--pc-text, #fff)',
+              textDecoration: 'none',
+              transition: 'background 0.2s',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Overview
+          </Link>
+          <button className="pc-request-btn" style={{ flex: 1, margin: 0 }} onClick={onRequest}>
+            Request project
+            <ArrowRight size={17} />
+          </button>
+        </div>
       </div>
     </motion.article>
   );

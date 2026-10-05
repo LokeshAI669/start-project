@@ -53,12 +53,17 @@ CREATE TABLE IF NOT EXISTS project_catalog (
   estimated_duration VARCHAR(50),
   objectives TEXT[],
   prerequisites TEXT,
+  github_url TEXT,
+  zip_url TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_catalog_domain ON project_catalog(domain);
 
+ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS github_url TEXT;
+ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_url TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS catalog_project_id INTEGER REFERENCES project_catalog(id);
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS student_name TEXT;
 ALTER TABLE projects ALTER COLUMN student_id DROP NOT NULL;
+

@@ -2,7 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../utils/api";
 import StudentLayout from "../../components/StudentLayout";
-import { ArrowLeft, Clock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, ArrowRight, CheckCircle2, Download, ExternalLink, FileArchive } from "lucide-react";
+
+function GithubIcon({ size = 16, style = {} }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+      <path d="M9 18c-4.51 2-5-2-7-2" />
+    </svg>
+  );
+}
 
 const difficultyConfig = {
   Beginner:     { color:"var(--green)",  bg:"var(--green-soft)",  border:"var(--green-border)" },
@@ -132,8 +141,115 @@ export default function CatalogDetail() {
           </div>
         )}
 
+        {/* -- Deliverables & Source Code -- */}
+        {(project.github_url || project.zip_url) && (
+          <div className="card" style={{
+            padding:"26px 30px",
+            marginBottom:"20px",
+            border:"1px solid rgba(59, 130, 246, 0.35)",
+            background:"linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(24, 24, 27, 0.8) 100%)",
+            boxShadow:"0 8px 30px rgba(0, 0, 0, 0.25)"
+          }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"16px", flexWrap:"wrap", gap:"10px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+                <FileArchive size={17} style={{ color:"#60A5FA" }} />
+                <span style={{ fontFamily:"JetBrains Mono,monospace", fontSize:"11px", textTransform:"uppercase", letterSpacing:".08em", color:"#60A5FA", fontWeight:700 }}>
+                  Project Source Code & Deliverables
+                </span>
+              </div>
+              <span style={{ fontSize:"11px", color:"var(--green)", background:"var(--green-soft)", border:"1px solid var(--green-border)", padding:"3px 10px", borderRadius:"99px", fontWeight:600 }}>
+                Verified Deliverable Available
+              </span>
+            </div>
+            
+            <p style={{ fontSize:"13.5px", color:"var(--text-secondary)", lineHeight:"1.65", margin:"0 0 18px 0" }}>
+              The complete implementation source code, trained neural model pipelines, container setup, and complete documentation are ready for exploration and local deployment.
+            </p>
+
+            <div style={{ display:"flex", flexWrap:"wrap", gap:"12px" }}>
+              {project.github_url && (
+                <a
+                  href={project.github_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost"
+                  style={{
+                    display:"inline-flex",
+                    alignItems:"center",
+                    gap:"8px",
+                    background:"rgba(255,255,255,0.06)",
+                    border:"1px solid rgba(255,255,255,0.14)",
+                    padding:"10px 18px",
+                    borderRadius:"8px",
+                    color:"#fff",
+                    textDecoration:"none",
+                    fontWeight:600,
+                    fontSize:"13px"
+                  }}
+                >
+                  <GithubIcon size={17} />
+                  <span>GitHub Repository</span>
+                  <ExternalLink size={13} style={{ opacity:0.65 }} />
+                </a>
+              )}
+
+              {project.zip_url && (
+                <a
+                  href={`/api/catalog/${project.id}/download`}
+                  download
+                  className="btn"
+                  style={{
+                    display:"inline-flex",
+                    alignItems:"center",
+                    gap:"8px",
+                    background:"linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+                    border:"1px solid rgba(59,130,246,0.5)",
+                    color:"#fff",
+                    padding:"10px 20px",
+                    borderRadius:"8px",
+                    textDecoration:"none",
+                    fontWeight:600,
+                    fontSize:"13px",
+                    boxShadow:"0 4px 16px rgba(37,99,235,0.35)"
+                  }}
+                >
+                  <Download size={17} />
+                  <span>Download Project ZIP</span>
+                  <span style={{ fontSize:"10px", opacity:0.85, background:"rgba(0,0,0,0.3)", padding:"2px 6px", borderRadius:"4px", fontFamily:"JetBrains Mono,monospace" }}>
+                    ZIP ARCHIVE
+                  </span>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* -- CTA -- */}
-        <div style={{ display:"flex", justifyContent:"flex-end", marginTop:"8px" }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"12px", marginTop:"12px" }}>
+          <div style={{ display:"flex", gap:"10px", flexWrap:"wrap" }}>
+            {project.github_url && (
+              <a
+                href={project.github_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-ghost btn-sm"
+                style={{ display:"inline-flex", alignItems:"center", gap:"6px", textDecoration:"none" }}
+              >
+                <GithubIcon size={14} /> GitHub
+              </a>
+            )}
+            {project.zip_url && (
+              <a
+                href={`/api/catalog/${project.id}/download`}
+                download
+                className="btn btn-ghost btn-sm"
+                style={{ display:"inline-flex", alignItems:"center", gap:"6px", textDecoration:"none", color:"#60A5FA" }}
+              >
+                <Download size={14} /> Download ZIP
+              </a>
+            )}
+          </div>
+
           <Link to={`/request?catalog_id=${project.id}`} className="btn btn-primary btn-lg">
             Request This Project <ArrowRight size={16} />
           </Link>

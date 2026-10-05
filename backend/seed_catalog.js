@@ -49,7 +49,7 @@ Artificial Intelligence
 42 Antenna Performance Prediction
 43 Clinical Text Classification Using Sequential Forward Selection
 44 Generative Artificial Intelligence in Teaching
-45 AI Perspective in Digital Healthcare Ownership versus Practicality
+45 AI Skin Specialist
 46 Improving Ethical Considerations in GenAI
 
 DEEP LEARNING 
@@ -214,13 +214,21 @@ async function run() {
       }
 
       // Generate a dynamic short description
-      const desc = `An advanced academic project exploring ${title.toLowerCase()} to solve real-world problems and optimize systems.`;
+      let desc = `An advanced academic project exploring ${title.toLowerCase()} to solve real-world problems and optimize systems.`;
+      let github_url = null;
+      let zip_url = null;
+
+      if (title === 'AI Skin Specialist') {
+        desc = 'AI-powered dermatology consultation platform with voice, image, and video analysis, follow-up chat, consultation history, offline mode, and Docker support.';
+        github_url = 'https://github.com/LokeshAI669/AI-skin-specialist';
+        zip_url = '/uploads/AI-skin-specialist.zip';
+      }
       
       // Assign random difficulty
       const diffs = ['Beginner', 'Intermediate', 'Advanced'];
-      const difficulty = diffs[Math.floor(Math.random() * diffs.length)];
+      const difficulty = title === 'AI Skin Specialist' ? 'Advanced' : diffs[Math.floor(Math.random() * diffs.length)];
 
-      projects.push({ title, domain, desc, difficulty });
+      projects.push({ title, domain, desc, difficulty, github_url, zip_url });
     }
   }
 
@@ -231,8 +239,8 @@ async function run() {
     await client.query('BEGIN');
     for (const p of projects) {
       await client.query(
-        'INSERT INTO project_catalog (title, domain, short_description, difficulty) VALUES ($1, $2, $3, $4)',
-        [p.title, p.domain, p.desc, p.difficulty]
+        'INSERT INTO project_catalog (title, domain, short_description, difficulty, github_url, zip_url) VALUES ($1, $2, $3, $4, $5, $6)',
+        [p.title, p.domain, p.desc, p.difficulty, p.github_url, p.zip_url]
       );
       count++;
     }

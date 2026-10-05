@@ -10,7 +10,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 const DOMAINS = ['Web Development','Mobile Development','AI/ML','Data Science','Cybersecurity','Cloud Computing','IoT','Blockchain','UI/UX Design','Game Development','Other'];
 const DIFFICULTIES = ['Beginner','Intermediate','Advanced'];
 
-const emptyForm = { title:'', domain:'', short_description:'', difficulty:'Intermediate', full_description:'', tech_stack:'', estimated_duration:'', objectives:'', prerequisites:'' };
+const emptyForm = { title:'', domain:'', short_description:'', difficulty:'Intermediate', full_description:'', tech_stack:'', estimated_duration:'', objectives:'', prerequisites:'', github_url:'', zip_url:'' };
 
 export default function AdminCatalog() {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -56,7 +56,9 @@ export default function AdminCatalog() {
       difficulty: item.difficulty || 'Intermediate', full_description: item.full_description || '',
       tech_stack: item.tech_stack || '', estimated_duration: item.estimated_duration || '',
       objectives: Array.isArray(item.objectives) ? item.objectives.join('\n') : (item.objectives || ''),
-      prerequisites: item.prerequisites || ''
+      prerequisites: item.prerequisites || '',
+      github_url: item.github_url || '',
+      zip_url: item.zip_url || ''
     });
     setError('');
     setShowForm(true);
@@ -145,7 +147,13 @@ export default function AdminCatalog() {
                 <tbody>
                   {(items || []).map(p => (
                     <tr key={p.id}>
-                      <td style={{fontWeight:600,width:'240px',minWidth:'240px',wordBreak:'break-word'}}>{p.title}</td>
+                      <td style={{fontWeight:600,width:'240px',minWidth:'240px',wordBreak:'break-word'}}>
+                        {p.title}
+                        <div style={{display:'flex',gap:'6px',marginTop:'4px',flexWrap:'wrap'}}>
+                          {p.github_url && <span style={{fontSize:'10px',fontFamily:'JetBrains Mono,monospace',color:'#60A5FA',background:'rgba(59,130,246,0.1)',padding:'1px 5px',borderRadius:'4px'}}>GitHub</span>}
+                          {p.zip_url && <span style={{fontSize:'10px',fontFamily:'JetBrains Mono,monospace',color:'#34D399',background:'rgba(52,211,153,0.1)',padding:'1px 5px',borderRadius:'4px'}}>ZIP</span>}
+                        </div>
+                      </td>
                       <td style={{whiteSpace:'nowrap',width:'150px'}}><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:'10px',background:'var(--orange-soft)',color:'var(--orange)',padding:'3px 8px',borderRadius:'99px'}}>{p.domain}</span></td>
                       <td style={{fontSize:'12px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'130px'}}>{p.difficulty}</td>
                       <td style={{fontSize:'12px',color:'var(--text-faint)',whiteSpace:'nowrap',width:'130px'}}>{p.estimated_duration || '—'}</td>
@@ -223,6 +231,16 @@ export default function AdminCatalog() {
               <div className="form-group">
                 <label className="form-label">Prerequisites</label>
                 <input className="form-input" value={form.prerequisites} onChange={f('prerequisites')} placeholder="e.g. Basic JavaScript knowledge" />
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
+                <div className="form-group">
+                  <label className="form-label">GitHub Repository URL</label>
+                  <input className="form-input" value={form.github_url} onChange={f('github_url')} placeholder="e.g. https://github.com/..." />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Download / Zip URL</label>
+                  <input className="form-input" value={form.zip_url} onChange={f('zip_url')} placeholder="e.g. /uploads/project.zip" />
+                </div>
               </div>
 
               {error && <div className="form-error show" style={{marginBottom:'16px'}}>{error}</div>}

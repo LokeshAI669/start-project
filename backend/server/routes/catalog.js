@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const { pool } = require('../db');
 const { requireAdmin } = require('../auth');
 
@@ -109,12 +111,36 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// GET /api/catalog/:id/download
+router.get('/:id/download', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { rows } = await pool.query('SELECT title, zip_url FROM project_catalog WHERE id = $1', [id]);
+    if (rows.length === 0 || !rows[0].zip_url) {
+      return res.status(404).json({ error: 'No downloadable zip file available for this project' });
+    }
+    const zipUrl = rows[0].zip_url;
+    if (zipUrl.startsWith('/uploads/')) {
+      const fileName = path.basename(zipUrl);
+      const filePath = path.join(__dirname, '..', '..', 'uploads', fileName);
+      if (fs.existsSync(filePath)) {
+        return res.download(filePath, fileName);
+      }
+    }
+    return res.redirect(zipUrl);
+  } catch (err) {
+    console.error('[CATALOG] download error:', err);
+    res.status(500).json({ error: 'Download failed' });
+  }
+});
+
 // POST /api/catalog (Admin only)
 router.post('/', requireAdmin, async (req, res) => {
   try {
     const { 
       title, domain, short_description, difficulty, 
-      full_description, tech_stack, estimated_duration, objectives, prerequisites 
+      full_description, tech_stack, estimated_duration, objectives, prerequisites,
+      github_url, zip_url
     } = req.body;
     
     if (!title || !domain) {
@@ -124,14 +150,16 @@ router.post('/', requireAdmin, async (req, res) => {
     const { rows } = await pool.query(`
       INSERT INTO project_catalog (
         title, domain, short_description, difficulty, 
-        full_description, tech_stack, estimated_duration, objectives, prerequisites
+        full_description, tech_stack, estimated_duration, objectives, prerequisites,
+        github_url, zip_url
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `, [
       title, domain, short_description || null, difficulty || 'Intermediate',
       full_description || null, tech_stack || null, estimated_duration || null,
-      objectives || null, prerequisites || null
+      objectives || null, prerequisites || null,
+      github_url || null, zip_url || null
     ]);
     
     res.status(201).json(rows[0]);
@@ -147,7 +175,8 @@ router.put('/:id', requireAdmin, async (req, res) => {
     const id = Number(req.params.id);
     const { 
       title, domain, short_description, difficulty, is_active,
-      full_description, tech_stack, estimated_duration, objectives, prerequisites
+      full_description, tech_stack, estimated_duration, objectives, prerequisites,
+      github_url, zip_url
     } = req.body;
     
     const { rows } = await pool.query(`
@@ -161,12 +190,15 @@ router.put('/:id', requireAdmin, async (req, res) => {
           tech_stack = COALESCE($7, tech_stack),
           estimated_duration = COALESCE($8, estimated_duration),
           objectives = COALESCE($9, objectives),
-          prerequisites = COALESCE($10, prerequisites)
-      WHERE id = $11
+          prerequisites = COALESCE($10, prerequisites),
+          github_url = COALESCE($11, github_url),
+          zip_url = COALESCE($12, zip_url)
+      WHERE id = $13
       RETURNING *
     `, [
       title, domain, short_description, difficulty, is_active,
       full_description, tech_stack, estimated_duration, objectives, prerequisites,
+      github_url, zip_url,
       id
     ]);
     
@@ -211,7 +243,8 @@ router.post('/bulk-import', requireAdmin, async (req, res) => {
     for (const item of items) {
       const { 
         title, domain, short_description, difficulty,
-        full_description, tech_stack, estimated_duration, objectives, prerequisites
+        full_description, tech_stack, estimated_duration, objectives, prerequisites,
+        github_url, zip_url
       } = item;
       
       if (title && domain) {
@@ -224,13 +257,15 @@ router.post('/bulk-import', requireAdmin, async (req, res) => {
         await client.query(`
           INSERT INTO project_catalog (
             title, domain, short_description, difficulty,
-            full_description, tech_stack, estimated_duration, objectives, prerequisites
+            full_description, tech_stack, estimated_duration, objectives, prerequisites,
+            github_url, zip_url
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         `, [
           title, domain, short_description || null, difficulty || 'Intermediate',
           full_description || null, tech_stack || null, estimated_duration || null,
-          Array.isArray(objs) ? objs : null, prerequisites || null
+          Array.isArray(objs) ? objs : null, prerequisites || null,
+          github_url || null, zip_url || null
         ]);
         count++;
       }

@@ -85,14 +85,14 @@ const MIGRATIONS = [
       ALTER TABLE projects ADD COLUMN IF NOT EXISTS student_name TEXT;
     `,
   },
-
-  // ── Add future migrations below this line ─────────────────────────────────
-  // Example:
-  // {
-  //   version: '002',
-  //   description: 'Add phone_number column to users',
-  //   sql: `ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_number TEXT;`,
-  // },
+  {
+    version: '002',
+    description: 'Add github_url and zip_url columns to project_catalog',
+    sql: `
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS github_url TEXT;
+      ALTER TABLE project_catalog ADD COLUMN IF NOT EXISTS zip_url TEXT;
+    `,
+  },
 ];
 
 // ── Migration runner ──────────────────────────────────────────────────────────
