@@ -1,11 +1,15 @@
 // Centralised API base URL — used everywhere in the app.
-// Priority: VITE_API_URL env var > dev localhost > production backend
+// Priority: VITE_API_URL env var > dev localhost > same-origin (production)
+//
+// In production the API is served from the SAME Vercel deployment as the
+// frontend via vercel.json rewrites (/api/* → /api/index.js), so we use
+// an empty string (same-origin relative URLs) — no separate backend host needed.
 export const API_BASE =
   (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '')
     ? import.meta.env.VITE_API_URL
     : import.meta.env.DEV
       ? 'http://localhost:3000'
-      : 'https://hire-project-backend.vercel.app'; // production backend
+      : ''; // production: same-origin via vercel.json rewrites
 
 
 export async function api(method, endpoint, body = null, customHeaders = {}) {
