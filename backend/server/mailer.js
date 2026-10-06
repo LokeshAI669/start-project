@@ -289,6 +289,71 @@ const mailer = {
     `);
     await send(buyerEmail, `[${PLATFORM}] Refund Processed: ${projectTitle}`, html);
   },
+
+  // 10. UPI payment submitted — notify admin to verify
+  async upiPaymentPending({ buyerName, buyerEmail, projectTitle, amount, utrId, orderId }) {
+    let adminEmail = process.env.ADMIN_NOTIFY_EMAIL || process.env.ADMIN_EMAIL;
+    try {
+      const { rows } = await pool.query("SELECT email FROM users WHERE role = 'admin' LIMIT 1");
+      if (rows[0]?.email) adminEmail = rows[0].email;
+    } catch (_) {}
+
+    const html = baseTemplate('New UPI Payment — Verification Required', `
+      <h2>💰 New UPI Payment Received</h2>
+      <p>A student has submitted a UPI payment and is waiting for your verification to access the project.</p>
+      <div class="highlight">
+        <p><strong>Student Name:</strong> ${buyerName}</p>
+        <p><strong>Student Email:</strong> <a href="mailto:${buyerEmail}">${buyerEmail}</a></p>
+        <p><strong>Project:</strong> ${projectTitle}</p>
+        <p><strong>Amount:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+        <p><strong>UTR / Transaction ID:</strong> <span style="font-family:monospace;font-size:14px;font-weight:700;color:#7C3AED;">${utrId}</span></p>
+        <p><strong>Order Reference:</strong> <span style="font-family:monospace;font-size:12px;">${orderId}</span></p>
+      </div>
+      <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:14px 18px;margin-top:16px;">
+        <p style="margin:0;color:#92400e;font-size:14px;font-weight:600;">⚡ Action Required</p>
+        <p style="margin:8px 0 0;color:#78350f;font-size:13px;">Please verify this UTR number in your PhonePe app and approve or reject the payment in your Admin Orders panel.</p>
+      </div>
+      <a href="${PLATFORM_URL}/admin/orders" class="btn" style="color:#ffffff !important;text-decoration:none !important;margin-top:20px;display:inline-block;">Go to Admin Orders →</a>
+    `);
+    await send(adminEmail, `[${PLATFORM}] UPI Payment Pending Verification — ${buyerName} (₹${Number(amount).toLocaleString('en-IN')})`, html);
+  },
+
+  // 11. UPI payment approved — notify student to download
+  async upiPaymentApproved({ buyerEmail, buyerName, projectTitle, amount, utrId }) {
+    const html = baseTemplate('Payment Verified — Project Ready to Download!', `
+      <h2>✅ Payment Verified! Your Project is Ready</h2>
+      <p>Hi ${buyerName || 'there'}, your UPI payment for <strong>${projectTitle}</strong> has been verified and approved.</p>
+      <div class="highlight">
+        <p><strong>Project:</strong> ${projectTitle}</p>
+        <p><strong>Amount Paid:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+        <p><strong>UTR Number:</strong> <span style="font-family:monospace;font-size:13px;">${utrId}</span></p>
+        <p><strong>Status:</strong> <span class="badge badge-accepted">Verified & Active</span></p>
+      </div>
+      <p>You can now download your project from My Purchases:</p>
+      <a href="${PLATFORM_URL}/purchases" class="btn" style="color:#ffffff !important;text-decoration:none !important;">Download Project →</a>
+      <p style="margin-top:24px;font-size:13px;color:#6b7280;">
+        You can access this project anytime under <a href="${PLATFORM_URL}/purchases" style="color:#2563EB;">My Purchases</a>.
+      </p>
+    `);
+    await send(buyerEmail, `[${PLATFORM}] Payment Verified — ${projectTitle} is Ready to Download!`, html);
+  },
+
+  // 12. UPI payment rejected — notify student
+  async upiPaymentRejected({ buyerEmail, buyerName, projectTitle, amount, reason }) {
+    const html = baseTemplate('Payment Verification Failed', `
+      <h2>Payment Could Not Be Verified</h2>
+      <p>Hi ${buyerName || 'there'}, unfortunately we could not verify your UPI payment for <strong>${projectTitle}</strong>.</p>
+      <div class="highlight">
+        <p><strong>Project:</strong> ${projectTitle}</p>
+        <p><strong>Amount:</strong> ₹${Number(amount).toLocaleString('en-IN')}</p>
+        <p><strong>Status:</strong> <span class="badge badge-denied">Rejected</span></p>
+        ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+      </div>
+      <p style="font-size:14px;color:#374151;">If you believe this is a mistake, please contact us with your correct UTR/Transaction ID from your PhonePe app.</p>
+      <a href="mailto:${process.env.GMAIL_USER || 'support@jobzen.co.in'}" class="btn" style="color:#ffffff !important;text-decoration:none !important;">Contact Support →</a>
+    `);
+    await send(buyerEmail, `[${PLATFORM}] Payment Verification Failed — ${projectTitle}`, html);
+  },
 };
 
 module.exports = mailer;

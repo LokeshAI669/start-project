@@ -267,4 +267,102 @@ router.get('/audit-logs', async (req, res) => {
   }
 });
 
+// ── GET /api/admin/orders/upi-pending ─────────────────────────────
+// Returns all UPI orders awaiting admin verification
+router.get('/upi-pending', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        p.id, p.user_email, p.user_name, p.amount, p.currency,
+        p.utr_id, p.upi_status, p.status, p.payment_method,
+        p.created_at, p.razorpay_order_id as order_ref,
+        c.title as project_title, c.id as project_id
+      FROM purchases p
+      LEFT JOIN project_catalog c ON p.project_id = c.id
+      WHERE p.payment_method = 'upi'
+        AND p.upi_status = 'pending_verification'
+      ORDER BY p.created_at DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error('[UPI PENDING] Error:', err);
+    res.status(500).json({ error: 'Failed to fetch pending UPI orders' });
+  }
+});
+
+// ── PATCH /api/admin/orders/:id/verify-upi ────────────────────────
+// Admin approves or rejects a UPI payment
+router.patch('/:id/verify-upi', async (req, res) => {
+  try {
+    const orderId = Number(req.params.id);
+    const { action, reason } = req.body; // action: 'approve' | 'reject'
+
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ error: 'action must be "approve" or "reject"' });
+    }
+
+    const { rows } = await pool.query(`
+      SELECT p.*, c.title as project_title
+      FROM purchases p
+      JOIN project_catalog c ON p.project_id = c.id
+      WHERE p.id = $1 AND p.payment_method = 'upi'
+    `, [orderId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'UPI order not found' });
+    }
+
+    const order = rows[0];
+
+    if (order.upi_status !== 'pending_verification') {
+      return res.status(400).json({ error: `Order is already ${order.upi_status}` });
+    }
+
+    const newStatus     = action === 'approve' ? 'paid'     : 'upi_rejected';
+    const newUpiStatus  = action === 'approve' ? 'verified' : 'rejected';
+
+    await pool.query(`
+      UPDATE purchases
+      SET status = $1, upi_status = $2, updated_at = NOW()
+      WHERE id = $3
+    `, [newStatus, newUpiStatus, orderId]);
+
+    // Send email to student
+    if (action === 'approve') {
+      mailer.upiPaymentApproved({
+        buyerEmail:   order.user_email,
+        buyerName:    order.user_name || 'Student',
+        projectTitle: order.project_title,
+        amount:       order.amount,
+        utrId:        order.utr_id,
+      }).catch(e => console.error('[MAIL] UPI approved email failed:', e.message));
+    } else {
+      mailer.upiPaymentRejected({
+        buyerEmail:   order.user_email,
+        buyerName:    order.user_name || 'Student',
+        projectTitle: order.project_title,
+        amount:       order.amount,
+        reason:       reason || '',
+      }).catch(e => console.error('[MAIL] UPI rejected email failed:', e.message));
+    }
+
+    await recordAuditLog(req, {
+      action: action === 'approve' ? 'UPI_PAYMENT_APPROVED' : 'UPI_PAYMENT_REJECTED',
+      entityId: orderId,
+      oldValues: { status: 'pending_verification', upiStatus: 'pending_verification' },
+      newValues: { status: newStatus, upiStatus: newUpiStatus, reason: reason || null },
+    });
+
+    res.json({
+      success: true,
+      message: action === 'approve'
+        ? `Payment approved — student notified at ${order.user_email}`
+        : `Payment rejected — student notified at ${order.user_email}`,
+    });
+  } catch (err) {
+    console.error('[UPI VERIFY] Error:', err);
+    res.status(500).json({ error: err.message || 'Failed to verify UPI payment' });
+  }
+});
+
 module.exports = router;

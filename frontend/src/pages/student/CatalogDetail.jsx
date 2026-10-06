@@ -3,10 +3,11 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { api, API_BASE } from "../../utils/api";
 import StudentLayout from "../../components/StudentLayout";
+import UpiPaymentModal from "../../components/UpiPaymentModal";
 import { 
   ArrowLeft, Clock, ArrowRight, CheckCircle2, Download, 
   ExternalLink, FileArchive, Star, ShoppingBag, ShieldCheck, 
-  AlertCircle, Sparkles, Check 
+  AlertCircle, Sparkles, Check, Smartphone
 } from "lucide-react";
 
 function GithubIcon({ size = 16, style = {} }) {
@@ -56,6 +57,7 @@ export default function CatalogDetail() {
   
   // Checkout & Payment State
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showUpiModal, setShowUpiModal]           = useState(false);
   const [buyerName, setBuyerName] = useState(user?.name || "");
   const [buyerEmail, setBuyerEmail] = useState(user?.email || "");
   const [paying, setPaying] = useState(false);
@@ -370,7 +372,7 @@ export default function CatalogDetail() {
               borderRadius:"6px",
               fontWeight:600
             }}>
-              {isPremium ? "Instant Digital Delivery (Razorpay)" : "Verified Free Deliverable"}
+              {isPremium ? "Razorpay · UPI · PhonePe Accepted" : "Verified Free Deliverable"}
             </span>
           </div>
 
@@ -384,26 +386,18 @@ export default function CatalogDetail() {
             {isPremium ? (
               <button
                 type="button"
-                className="btn"
-                onClick={handleInitiatePurchase}
-                disabled={paying}
+                onClick={() => setShowUpiModal(true)}
                 style={{
-                  display:"inline-flex",
-                  alignItems:"center",
-                  gap:"8px",
+                  display:"inline-flex", alignItems:"center", gap:"8px",
                   background:"linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
                   border:"1px solid rgba(245,158,11,0.5)",
-                  color:"#000",
-                  padding:"10px 22px",
-                  borderRadius:"8px",
-                  fontWeight:700,
-                  fontSize:"14px",
-                  cursor:"pointer",
+                  color:"#000", padding:"10px 22px", borderRadius:"8px",
+                  fontWeight:700, fontSize:"14px", cursor:"pointer",
                   boxShadow:"0 4px 16px rgba(245,158,11,0.3)"
                 }}
               >
                 <ShoppingBag size={17} />
-                <span>{paying ? "Opening Checkout..." : `Buy & Download ZIP — ₹${price.toLocaleString('en-IN')}`}</span>
+                Buy via UPI (₹{price.toLocaleString('en-IN')})
               </button>
             ) : (
               project.zip_url && (
@@ -412,17 +406,11 @@ export default function CatalogDetail() {
                   download={downloadFilename}
                   className="btn"
                   style={{
-                    display:"inline-flex",
-                    alignItems:"center",
-                    gap:"8px",
+                    display:"inline-flex", alignItems:"center", gap:"8px",
                     background:"linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
                     border:"1px solid rgba(59,130,246,0.5)",
-                    color:"#fff",
-                    padding:"10px 20px",
-                    borderRadius:"8px",
-                    textDecoration:"none",
-                    fontWeight:600,
-                    fontSize:"13px",
+                    color:"#fff", padding:"10px 20px", borderRadius:"8px",
+                    textDecoration:"none", fontWeight:600, fontSize:"13px",
                     boxShadow:"0 4px 16px rgba(37,99,235,0.35)"
                   }}
                 >
@@ -476,8 +464,7 @@ export default function CatalogDetail() {
               <button
                 type="button"
                 className="btn btn-primary btn-lg"
-                onClick={handleInitiatePurchase}
-                disabled={paying}
+                onClick={() => setShowUpiModal(true)}
                 style={{
                   background:"linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
                   color:"#000",
@@ -485,7 +472,7 @@ export default function CatalogDetail() {
                   border:"none"
                 }}
               >
-                <ShoppingBag size={17} /> Buy &amp; Download (₹{price})
+                <ShoppingBag size={17} /> Buy via UPI (₹{price})
               </button>
             ) : (
               <Link to={`/request?catalog_id=${project.id}`} className="btn btn-primary btn-lg">
@@ -638,6 +625,17 @@ export default function CatalogDetail() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── UPI Payment Modal ── */}
+      {showUpiModal && (
+        <UpiPaymentModal
+          project={{ id: project.id, title: project.title, price }}
+          buyerName={buyerName}
+          buyerEmail={buyerEmail}
+          onClose={() => setShowUpiModal(false)}
+          onSuccess={() => {}}
+        />
       )}
     </StudentLayout>
   );

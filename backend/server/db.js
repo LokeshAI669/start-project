@@ -168,6 +168,18 @@ const MIGRATIONS = [
       CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
     `,
   },
+  {
+    version: '004',
+    description: 'Add UPI / manual payment support — payment_method, utr_id, upi_status columns',
+    sql: `
+      ALTER TABLE purchases ADD COLUMN IF NOT EXISTS payment_method  VARCHAR(20)  DEFAULT 'razorpay';
+      ALTER TABLE purchases ADD COLUMN IF NOT EXISTS utr_id           TEXT;
+      ALTER TABLE purchases ADD COLUMN IF NOT EXISTS upi_status       VARCHAR(30)  DEFAULT NULL;
+
+      CREATE INDEX IF NOT EXISTS idx_purchases_payment_method ON purchases(payment_method);
+      CREATE INDEX IF NOT EXISTS idx_purchases_upi_status     ON purchases(upi_status);
+    `,
+  },
 ];
 
 // ── Migration runner ──────────────────────────────────────────────────────────

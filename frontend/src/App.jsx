@@ -1,7 +1,18 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import { API_BASE } from './utils/api';
+
+// ── Silent backend warmup — fires immediately on app load ─────────────────────
+// Pings /api/health so the Vercel serverless function wakes up before the
+// user triggers a real request. Eliminates cold-start delay after domain switch.
+function useBackendWarmup() {
+  useEffect(() => {
+    fetch(`${API_BASE}/api/health`, { method: 'GET', cache: 'no-store' })
+      .catch(() => {}); // fire & forget — never block the UI
+  }, []);
+}
 
 // Lazy-loaded pages — loaded on demand, not all at once.
 // This dramatically reduces the initial JS bundle size on mobile.
@@ -43,6 +54,7 @@ function PageLoader() {
 
 
 function App() {
+  useBackendWarmup(); // wake up serverless backend immediately on page load
   return (
     <ErrorBoundary>
       <AuthProvider>

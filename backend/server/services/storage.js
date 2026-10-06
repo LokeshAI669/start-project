@@ -22,8 +22,12 @@ if (SUPABASE_URL && SUPABASE_KEY) {
 }
 
 const LOCAL_STORAGE_DIR = path.join(__dirname, '..', '..', 'private_storage');
-if (!fs.existsSync(LOCAL_STORAGE_DIR)) {
-  fs.mkdirSync(LOCAL_STORAGE_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(LOCAL_STORAGE_DIR)) {
+    fs.mkdirSync(LOCAL_STORAGE_DIR, { recursive: true });
+  }
+} catch (err) {
+  console.warn('[STORAGE] Could not create local storage dir (expected on Vercel serverless):', err.message);
 }
 
 /**
@@ -35,14 +39,16 @@ if (!fs.existsSync(LOCAL_STORAGE_DIR)) {
  * @param {string} [options.mimeType='application/zip']
  * @returns {Promise<{ storageKey: string, size: number, filename: string, isSupabase: boolean }>}
  */
-async function uploadProjectZip({ projectId, buffer, filename, mimeType = 'application/zip' }) {
+async function uploadProjectZip({ projectId, buffer, filePath: srcPath, filename, mimeType = 'application/zip' }) {
   const sanitized = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
   const storageKey = `projects/${projectId}/${Date.now()}-${sanitized}`;
 
   if (supabase) {
-    const { data, error } = await supabase.storage
+    // Use buffer if provided, otherwise read from file path
+    const data = buffer || fs.readFileSync(srcPath);
+    const { data: uploaded, error } = await supabase.storage
       .from(BUCKET_NAME)
-      .upload(storageKey, buffer, {
+      .upload(storageKey, data, {
         contentType: mimeType,
         upsert: true,
       });
@@ -53,8 +59,8 @@ async function uploadProjectZip({ projectId, buffer, filename, mimeType = 'appli
     }
 
     return {
-      storageKey: data.path || storageKey,
-      size: buffer.length,
+      storageKey: uploaded.path || storageKey,
+      size: buffer ? buffer.length : fs.statSync(srcPath).size,
       filename: sanitized,
       isSupabase: true,
     };
@@ -67,11 +73,21 @@ async function uploadProjectZip({ projectId, buffer, filename, mimeType = 'appli
   }
 
   const localFilePath = path.join(projectDir, `${Date.now()}-${sanitized}`);
-  fs.writeFileSync(localFilePath, buffer);
+
+  if (srcPath && fs.existsSync(srcPath)) {
+    // Move temp file to final location (no extra RAM needed)
+    fs.copyFileSync(srcPath, localFilePath);
+  } else if (buffer) {
+    fs.writeFileSync(localFilePath, buffer);
+  } else {
+    throw new Error('No file buffer or path provided to uploadProjectZip');
+  }
+
+  const size = fs.statSync(localFilePath).size;
 
   return {
     storageKey: path.relative(LOCAL_STORAGE_DIR, localFilePath).replace(/\\/g, '/'),
-    size: buffer.length,
+    size,
     filename: sanitized,
     isSupabase: false,
   };

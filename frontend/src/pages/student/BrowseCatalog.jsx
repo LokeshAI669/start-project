@@ -477,7 +477,7 @@ function ProjectCard({ project, index, onRequest }) {
                 gap: '6px'
               }}
             >
-              Buy — ₹{project.price?.toLocaleString('en-IN')}
+              Buy via UPI — ₹{project.price?.toLocaleString('en-IN')}
               <ArrowRight size={15} />
             </Link>
           ) : (

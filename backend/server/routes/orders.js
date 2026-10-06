@@ -356,4 +356,91 @@ router.get('/download/:projectId', downloadLimiter, requireStudent, async (req, 
   }
 });
 
+// ── POST /api/orders/upi ─────────────────────────────────────────
+// Student submits UTR after paying via PhonePe UPI.
+// Creates a pending_verification purchase and notifies admin.
+router.post('/orders/upi', orderLimiter, optionalAuth, async (req, res) => {
+  try {
+    const { projectId, buyerEmail, buyerName, utrId } = req.body;
+
+    // Basic validation
+    if (!projectId || !buyerEmail || !utrId) {
+      return res.status(400).json({ error: 'projectId, buyerEmail and utrId are required.' });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(buyerEmail)) {
+      return res.status(400).json({ error: 'Invalid email address.' });
+    }
+    if (utrId.trim().length < 8) {
+      return res.status(400).json({ error: 'Please enter a valid UTR / Transaction ID.' });
+    }
+
+    // Fetch project & verify it's premium
+    const { rows: projectRows } = await pool.query(
+      'SELECT id, title, price, is_premium FROM project_catalog WHERE id = $1 AND is_deleted = FALSE',
+      [Number(projectId)]
+    );
+    if (projectRows.length === 0) {
+      return res.status(404).json({ error: 'Project not found.' });
+    }
+    const project = projectRows[0];
+    if (!project.is_premium) {
+      return res.status(400).json({ error: 'This project is free — no payment required.' });
+    }
+
+    // Check for duplicate pending UTR for same project+email
+    const { rows: existing } = await pool.query(
+      `SELECT id FROM purchases
+       WHERE user_email = LOWER($1) AND project_id = $2
+         AND status NOT IN ('upi_rejected', 'refunded')`,
+      [buyerEmail.trim().toLowerCase(), Number(projectId)]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({
+        error: 'A purchase for this project already exists for your email. Check My Purchases or contact support.',
+      });
+    }
+
+    const amount       = Number(project.price);
+    const orderRef     = `UPI_${Date.now()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const userId       = req.user?.id || null;
+    const cleanEmail   = buyerEmail.trim().toLowerCase();
+    const cleanName    = (buyerName || 'Student').trim();
+
+    // Insert pending purchase
+    const { rows: insertRows } = await pool.query(`
+      INSERT INTO purchases
+        (user_id, user_email, user_name, project_id, amount, currency,
+         razorpay_order_id, status, payment_method, utr_id, upi_status,
+         zip_version_purchased, max_downloads, created_at, updated_at)
+      VALUES
+        ($1, $2, $3, $4, $5, 'INR',
+         $6, 'pending_verification', 'upi', $7, 'pending_verification',
+         1, 5, NOW(), NOW())
+      RETURNING id
+    `, [userId, cleanEmail, cleanName, Number(projectId), amount, orderRef, utrId.trim()]);
+
+    const purchaseId = insertRows[0].id;
+
+    // Notify admin immediately (fire & forget)
+    mailer.upiPaymentPending({
+      buyerName:    cleanName,
+      buyerEmail:   cleanEmail,
+      projectTitle: project.title,
+      amount,
+      utrId:        utrId.trim(),
+      orderId:      orderRef,
+    }).catch(e => console.error('[MAIL] UPI pending email failed:', e.message));
+
+    res.json({
+      success: true,
+      purchaseId,
+      message: 'Payment submitted! Admin will verify your UTR and you will receive an email once approved.',
+    });
+  } catch (err) {
+    console.error('[UPI ORDER] Error:', err);
+    res.status(500).json({ error: err.message || 'Failed to submit UPI payment' });
+  }
+});
+
 module.exports = router;

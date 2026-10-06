@@ -130,9 +130,9 @@ export default function AdminCatalog() {
       setZipUploadError('Please select a valid .zip archive file.');
       return;
     }
-    const MAX_SIZE = 200 * 1024 * 1024; // 200 MB
+    const MAX_SIZE = 1024 * 1024 * 1024; // 1 GB
     if (file.size > MAX_SIZE) {
-      setZipUploadError(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 200 MB.`);
+      setZipUploadError(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)} MB). Maximum allowed size is 1 GB.`);
       return;
     }
 
@@ -598,7 +598,7 @@ export default function AdminCatalog() {
                   {/* Private ZIP Upload / Replace Component */}
                   <div style={{marginTop:'12px'}}>
                     <label className="form-label" style={{fontWeight:600,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                      <span>Private Project ZIP Archive (Max 200 MB)</span>
+                      <span>Private Project ZIP Archive (Max 1 GB)</span>
                       {form.zip_version > 1 && (
                         <span style={{fontSize:'11px',color:'#F59E0B',fontFamily:'JetBrains Mono,monospace'}}>
                           Version {form.zip_version}
@@ -683,7 +683,7 @@ export default function AdminCatalog() {
                             onChange={handleZipFileChange}
                             disabled={uploadingZip}
                           />
-                          Browse &amp; Upload ZIP (Max 200MB)
+                          Browse & Upload ZIP (Max 1GB)
                         </label>
                       </div>
                     )}

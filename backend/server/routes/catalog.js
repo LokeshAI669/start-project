@@ -10,10 +10,18 @@ const { recordAuditLog } = require('../services/audit');
 
 const router = express.Router();
 
-// ── Zip file upload handling (Max 200MB, .zip only, stored in memory for cloud/storage upload) ──
+const os = require('os');
+
+// ── Zip file upload handling (Max 1GB, .zip only, disk storage to avoid RAM crash) ──
 const uploadZip = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 200 * 1024 * 1024 }, // 200 MB max
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, os.tmpdir()),
+    filename: (req, file, cb) => {
+      const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      cb(null, `zip_upload_${Date.now()}_${safe}`);
+    },
+  }),
+  limits: { fileSize: 1024 * 1024 * 1024 }, // 1 GB max
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname || '').toLowerCase();
     const mime = (file.mimetype || '').toLowerCase();
@@ -85,13 +93,17 @@ router.post('/upload-zip', requireAdmin, (req, res) => {
         }
       }
 
-      // Upload to private storage (Supabase private bucket or protected storage)
+      // Upload to private storage — pass disk path directly (zero RAM overhead)
+      const filePath = req.file.path;
       const uploadResult = await storage.uploadProjectZip({
         projectId,
-        buffer: req.file.buffer,
+        filePath,
         filename: req.file.originalname,
         mimeType: req.file.mimetype || 'application/zip',
       });
+
+      // Clean up temp file
+      fs.unlink(filePath, () => {});
 
       // If replacing an old file, delete the previous storage object
       if (oldStorageKey && oldStorageKey !== uploadResult.storageKey) {

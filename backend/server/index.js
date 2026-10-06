@@ -37,11 +37,11 @@ async function start() {
   const corsOptions = {
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, Postman, server-side)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS: origin '${origin}' is not allowed`));
-      }
+      if (!origin) return callback(null, true);
+      // Allow any Vercel preview deploy automatically
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin '${origin}' is not allowed`));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email'],
@@ -90,8 +90,9 @@ async function start() {
   });
 
   app.use(cors(corsOptions));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.options('*', cors(corsOptions)); // instant preflight for all routes
+  app.use(express.json({ limit: '1gb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1gb' }));
   
   app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
   app.use('/downloads', express.static(path.join(__dirname, '..', '..', 'frontend', 'public', 'downloads')));

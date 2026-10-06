@@ -7,7 +7,8 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { 
   DollarSign, ShoppingCart, Users, Award, 
   Search, RefreshCw, Mail, RotateCcw, 
-  CheckCircle2, Clock, XCircle, ArrowUpRight, ShieldCheck, History
+  CheckCircle2, Clock, XCircle, ArrowUpRight, ShieldCheck, History,
+  Smartphone, AlertCircle
 } from 'lucide-react';
 
 export default function AdminOrders() {
@@ -23,6 +24,8 @@ export default function AdminOrders() {
   const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
   const [showAuditLogs, setShowAuditLogs] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
+  const [upiPending, setUpiPending]   = useState([]);
+  const [upiProcessing, setUpiProcessing] = useState(null);
 
   const isNarrow = useMediaQuery('(max-width: 1024px)');
   const theme = document.documentElement.getAttribute('data-theme') || 'dark';
@@ -35,6 +38,7 @@ export default function AdminOrders() {
     if (user && user.role === 'admin') {
       fetchOrders();
       fetchStats();
+      fetchUpiPending();
     }
   }, [user, authLoading, navigate, statusFilter]);
 
@@ -75,6 +79,34 @@ export default function AdminOrders() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchOrders();
+  };
+
+  const fetchUpiPending = async () => {
+    try {
+      const data = await api('GET', '/api/admin/orders/upi-pending');
+      setUpiPending(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Failed to fetch UPI pending:', err);
+    }
+  };
+
+  const handleVerifyUpi = async (orderId, action, buyerEmail) => {
+    const msg = action === 'approve'
+      ? `Approve UPI payment and grant download access to ${buyerEmail}?`
+      : `Reject UPI payment from ${buyerEmail}? Student will be notified.`;
+    if (!window.confirm(msg)) return;
+    setUpiProcessing(orderId);
+    try {
+      const res = await api('PATCH', `/api/admin/orders/${orderId}/verify-upi`, { action });
+      setActionMessage({ text: res.message, type: action === 'approve' ? 'success' : 'error' });
+      await fetchUpiPending();
+      await fetchOrders();
+      await fetchStats();
+    } catch (err) {
+      setActionMessage({ text: err.message || 'Action failed', type: 'error' });
+    } finally {
+      setUpiProcessing(null);
+    }
   };
 
   const handleResendEmail = async (orderId) => {
@@ -174,6 +206,83 @@ export default function AdminOrders() {
           }}>
             <span>{actionMessage.text}</span>
             <button onClick={() => setActionMessage({ text: '', type: '' })} style={{background:'none',border:'none',color:'inherit',cursor:'pointer'}}>✕</button>
+          </div>
+        )}
+
+        {/* ── UPI Pending Verification Banner ── */}
+        {upiPending.length > 0 && (
+          <div style={{
+            background: 'rgba(124,58,237,0.08)',
+            border: '1px solid rgba(124,58,237,0.35)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '24px',
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px' }}>
+              <Smartphone size={16} color="#7C3AED" />
+              <span style={{ fontWeight:700, fontSize:'14px', color:'#A78BFA' }}>
+                UPI Payments Pending Verification ({upiPending.length})
+              </span>
+              <span style={{
+                background:'rgba(239,68,68,0.15)', color:'#F87171',
+                fontSize:'10px', fontWeight:700, padding:'2px 7px',
+                borderRadius:'100px', border:'1px solid rgba(239,68,68,0.3)'
+              }}>ACTION REQUIRED</span>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+              {upiPending.map(order => (
+                <div key={order.id} style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '10px', padding: '12px 16px',
+                  display: 'flex', alignItems: 'center',
+                  gap: '12px', flexWrap: 'wrap',
+                }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{ fontSize:'13px', fontWeight:700, color:'var(--text-primary)' }}>
+                      {order.project_title}
+                    </div>
+                    <div style={{ fontSize:'12px', color:'var(--text-faint)', marginTop:'2px' }}>
+                      {order.user_name} · {order.user_email}
+                    </div>
+                    <div style={{ marginTop:'4px', display:'flex', gap:'8px', flexWrap:'wrap' }}>
+                      <span style={{ fontSize:'11px', color:'#A78BFA' }}>₹{Number(order.amount).toLocaleString('en-IN')}</span>
+                      <span style={{ fontSize:'11px', color:'var(--text-faint)' }}>UTR:</span>
+                      <span style={{
+                        fontSize:'12px', fontFamily:'monospace', fontWeight:700,
+                        color:'#F59E0B', letterSpacing:'0.05em'
+                      }}>{order.utr_id}</span>
+                    </div>
+                  </div>
+                  <div style={{ display:'flex', gap:'8px' }}>
+                    <button
+                      onClick={() => handleVerifyUpi(order.id, 'approve', order.user_email)}
+                      disabled={upiProcessing === order.id}
+                      style={{
+                        display:'flex', alignItems:'center', gap:'5px',
+                        background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.4)',
+                        color:'#34D399', borderRadius:'8px', padding:'7px 14px',
+                        fontSize:'12px', fontWeight:700, cursor:'pointer',
+                      }}
+                    >
+                      <CheckCircle2 size={13} /> Approve
+                    </button>
+                    <button
+                      onClick={() => handleVerifyUpi(order.id, 'reject', order.user_email)}
+                      disabled={upiProcessing === order.id}
+                      style={{
+                        display:'flex', alignItems:'center', gap:'5px',
+                        background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)',
+                        color:'#F87171', borderRadius:'8px', padding:'7px 14px',
+                        fontSize:'12px', fontWeight:700, cursor:'pointer',
+                      }}
+                    >
+                      <XCircle size={13} /> Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
