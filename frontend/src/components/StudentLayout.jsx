@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import JobZenLogo from './JobZenLogo';
-import { LayoutDashboard, PlusCircle, FolderKanban, FileArchive, Menu, X, Home } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, FolderKanban, Menu, X, Home } from 'lucide-react';
 
 export default function StudentLayout({ children, title, subtitle }) {
   const navigate = useNavigate();
@@ -75,14 +75,6 @@ export default function StudentLayout({ children, title, subtitle }) {
             <span>Projects</span>
           </Link>
 
-          <Link 
-            to="/purchases" 
-            className={`sidebar-item ${location.pathname === '/purchases' ? 'active' : ''}`}
-            onClick={closeSidebar}
-          >
-            <FileArchive className="sidebar-icon" size={18} />
-            <span>My Purchases</span>
-          </Link>
         </nav>
 
 

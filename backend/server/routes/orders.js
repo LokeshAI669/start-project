@@ -257,7 +257,7 @@ router.get('/purchases/my-purchases', requireStudent, async (req, res) => {
   }
 });
 
-// ── GET /api/download/:projectId (Secure Download with Quota Check) ──
+// ── GET /api/download/:projectId (Free Download for All Students) ──
 router.get('/download/:projectId', downloadLimiter, requireStudent, async (req, res) => {
   try {
     const projectId = Number(req.params.projectId);
@@ -268,35 +268,15 @@ router.get('/download/:projectId', downloadLimiter, requireStudent, async (req, 
       return res.status(400).json({ error: 'Invalid project ID or user session' });
     }
 
-    // 1. Check if user has a paid purchase for this project
-    const { rows: purchases } = await pool.query(`
-      SELECT * FROM purchases
-      WHERE project_id = $1 AND LOWER(user_email) = LOWER($2) AND status = 'paid'
-      ORDER BY id DESC LIMIT 1
-    `, [projectId, userEmail]);
-
-    if (purchases.length === 0) {
-      return res.status(403).json({ error: 'Access denied: You have not purchased this project.' });
-    }
-
-    const purchase = purchases[0];
-
-    // 2. Check download quota (max 5)
-    if (purchase.download_count >= purchase.max_downloads) {
-      return res.status(403).json({
-        error: `Download limit reached (${purchase.max_downloads}/${purchase.max_downloads}). Please contact support if you need an extension.`
-      });
-    }
-
-    // 3. Fetch project details
+    // Fetch project details (no purchase check — all projects are free for students)
     const { rows: pRows } = await pool.query(`
       SELECT title, zip_storage_key, zip_url, zip_file_name, zip_version
       FROM project_catalog
-      WHERE id = $1
+      WHERE id = $1 AND is_deleted = FALSE AND is_active = TRUE
     `, [projectId]);
 
     if (pRows.length === 0) {
-      return res.status(404).json({ error: 'Project no longer exists' });
+      return res.status(404).json({ error: 'Project not found or no longer available' });
     }
 
     const project = pRows[0];
@@ -306,28 +286,23 @@ router.get('/download/:projectId', downloadLimiter, requireStudent, async (req, 
       return res.status(404).json({ error: 'No downloadable ZIP file attached to this project' });
     }
 
-    // 4. Increment download count
-    const newCount = purchase.download_count + 1;
-    await pool.query('UPDATE purchases SET download_count = $1, updated_at = NOW() WHERE id = $2', [newCount, purchase.id]);
-
-    // 5. Log download in download_logs
+    // Log download event (fire & forget)
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
     const userAgent = req.headers['user-agent'] || '';
-    await pool.query(`
+    pool.query(`
       INSERT INTO download_logs (purchase_id, user_id, user_email, project_id, zip_version, ip_address, user_agent)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-    `, [purchase.id, userId, userEmail, projectId, project.zip_version || 1, String(ip).slice(0, 100), String(userAgent).slice(0, 255)]);
+      VALUES (NULL, $1, $2, $3, $4, $5, $6)
+    `, [userId, userEmail, projectId, project.zip_version || 1, String(ip).slice(0, 100), String(userAgent).slice(0, 255)])
+    .catch(e => console.warn('[DOWNLOAD] log insert failed:', e.message));
 
-    // 6. Generate short-lived signed URL (5 minutes / 300s) or stream local file
+    // Generate short-lived signed URL (5 minutes / 300s) or stream local file
     try {
       const { signedUrl, localFilePath } = await storage.getSignedDownloadUrl(storageKey, 300);
 
       if (signedUrl) {
-        // Supabase Storage signed URL
         return res.json({
           downloadUrl: signedUrl,
           expiresIn: 300,
-          remainingDownloads: purchase.max_downloads - newCount,
           zipVersion: project.zip_version
         });
       }
@@ -355,6 +330,7 @@ router.get('/download/:projectId', downloadLimiter, requireStudent, async (req, 
     res.status(500).json({ error: err.message || 'Download generation failed' });
   }
 });
+
 
 // ── POST /api/orders/upi ─────────────────────────────────────────
 // Student submits UTR after paying via PhonePe UPI.

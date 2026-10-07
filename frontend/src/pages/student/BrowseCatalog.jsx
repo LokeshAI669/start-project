@@ -14,8 +14,6 @@ import {
   Search,
   SlidersHorizontal,
   Download,
-  FileArchive,
-  Star,
 } from 'lucide-react';
 import JobZenLogo from '../../components/JobZenLogo';
 import './ProjectCatalog.css';
@@ -158,10 +156,6 @@ export default function BrowseCatalog() {
           <Link to="/browse" className="pc-active">
             <Grid2X2 size={20} />
             Projects
-          </Link>
-          <Link to="/purchases">
-            <FileArchive size={20} />
-            My Purchases
           </Link>
         </nav>
 
@@ -383,27 +377,7 @@ function ProjectCard({ project, index, onRequest }) {
         <span className="pc-domain-badge">{project.category}</span>
         <span className="pc-level-badge">{project.level}</span>
         
-        {project.is_premium ? (
-          <span style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-            color: '#000',
-            fontSize: '10px',
-            fontWeight: 800,
-            padding: '4px 9px',
-            borderRadius: '100px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            letterSpacing: '0.04em',
-            boxShadow: '0 2px 10px rgba(245,158,11,0.4)',
-            zIndex: 2
-          }}>
-            <Star size={11} fill="#000" /> ₹{project.price?.toLocaleString('en-IN')}
-          </span>
-        ) : (project.zip_url || project.zip_storage_key) ? (
+        {(project.zip_url || project.zip_storage_key) ? (
           <span style={{
             position: 'absolute',
             top: '12px',
@@ -460,32 +434,10 @@ function ProjectCard({ project, index, onRequest }) {
             Overview
           </Link>
 
-          {project.is_premium ? (
-            <Link
-              to={`/catalog/${project.id}`}
-              className="pc-request-btn"
-              style={{
-                flex: 1,
-                margin: 0,
-                textDecoration: 'none',
-                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                color: '#000',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px'
-              }}
-            >
-              Buy via UPI — ₹{project.price?.toLocaleString('en-IN')}
-              <ArrowRight size={15} />
-            </Link>
-          ) : (
-            <button className="pc-request-btn" style={{ flex: 1, margin: 0 }} onClick={onRequest}>
+          <button className="pc-request-btn" style={{ flex: 1, margin: 0 }} onClick={onRequest}>
               Request project
               <ArrowRight size={17} />
             </button>
-          )}
         </div>
       </div>
     </motion.article>

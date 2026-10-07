@@ -1,6 +1,6 @@
 const express = require('express');
-const cors    = require('cors');
-const path    = require('path');
+const cors = require('cors');
+const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../backend/.env') });
 const { initDB } = require('../backend/server/db');
 
@@ -69,16 +69,16 @@ app.use(async (req, res, next) => {
 
 // ── Socket.io stub — route handlers call req.io.to().emit() safely ───────────
 app.use((req, _res, next) => {
-  req.io = { to() { return this; }, emit() {} };
+  req.io = { to() { return this; }, emit() { } };
   next();
 });
 
 // ── Mount API Routes ──────────────────────────────────────────────────────────
-app.use('/api/auth',         require('../backend/server/routes/auth'));
-app.use('/api/requests',     require('../backend/server/routes/requests'));
-app.use('/api/catalog',      require('../backend/server/routes/catalog'));
+app.use('/api/auth', require('../backend/server/routes/auth'));
+app.use('/api/requests', require('../backend/server/routes/requests'));
+app.use('/api/catalog', require('../backend/server/routes/catalog'));
 app.use('/api/admin/orders', require('../backend/server/routes/adminOrders'));
-app.use('/api',              require('../backend/server/routes/orders'));
+app.use('/api', require('../backend/server/routes/orders'));
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: Date.now() }));
 

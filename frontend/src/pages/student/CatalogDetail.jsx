@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { api, API_BASE } from "../../utils/api";
 import StudentLayout from "../../components/StudentLayout";
-import UpiPaymentModal from "../../components/UpiPaymentModal";
 import { 
   ArrowLeft, Clock, ArrowRight, CheckCircle2, Download, 
-  ExternalLink, FileArchive, Star, ShoppingBag, ShieldCheck, 
-  AlertCircle, Sparkles, Check, Smartphone
+  ExternalLink, FileArchive, ShieldCheck,
+  AlertCircle
 } from "lucide-react";
 
 function GithubIcon({ size = 16, style = {} }) {
@@ -36,40 +35,12 @@ function resumeValue(d) {
   return d === "Advanced" ? 4.8 : d === "Beginner" ? 3.0 : 3.8;
 }
 
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    if (window.Razorpay) return resolve(true);
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
-
 export default function CatalogDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
-  // Checkout & Payment State
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [showUpiModal, setShowUpiModal]           = useState(false);
-  const [buyerName, setBuyerName] = useState(user?.name || "");
-  const [buyerEmail, setBuyerEmail] = useState(user?.email || "");
-  const [paying, setPaying] = useState(false);
-  const [paymentError, setPaymentError] = useState("");
-  const [purchaseSuccess, setPurchaseSuccess] = useState(null);
-
-  useEffect(() => {
-    if (user?.email) {
-      setBuyerEmail(user.email);
-      setBuyerName(user.name || "Student");
-    }
-  }, [user]);
 
   useEffect(() => {
     api("GET", `/api/catalog/${id}`)
@@ -105,100 +76,22 @@ export default function CatalogDetail() {
 
   const diff    = difficultyConfig[project.difficulty] || difficultyConfig.Intermediate;
   const tech    = parseTechStack(project.tech_stack);
-  const resume  = resumeValue(project.difficulty);
   const objs    = Array.isArray(project.objectives) ? project.objectives : [];
-  const isPremium = Boolean(project.is_premium);
-  const price = Number(project.price || 0);
 
+  // Determine the best download URL for the project
   const downloadUrl = (project?.zip_url && (project.zip_url.startsWith('http://') || project.zip_url.startsWith('https://')))
     ? project.zip_url
     : (project?.zip_url && project.zip_url.startsWith('/downloads/'))
       ? project.zip_url
-      : `/api/catalog/${project?.id}/download`;
+      : project?.zip_storage_key
+        ? `${API_BASE}/api/download/${project?.id}`
+        : null;
 
   const downloadFilename = (project?.zip_url && project.zip_url.includes('.'))
     ? project.zip_url.split('/').pop()
     : `${(project?.title || 'project').replace(/[^a-zA-Z0-9_-]/g, '_')}.zip`;
 
-  // Start Razorpay Checkout flow
-  const handleInitiatePurchase = async () => {
-    if (!user && (!buyerEmail || !buyerEmail.includes('@'))) {
-      setShowCheckoutModal(true);
-      return;
-    }
-
-    setPaying(true);
-    setPaymentError("");
-
-    try {
-      const isLoaded = await loadRazorpayScript();
-      if (!isLoaded) {
-        throw new Error("Razorpay checkout failed to load. Please check your internet connection.");
-      }
-
-      // 1. Create order on server (server verifies price directly from database)
-      const orderData = await api("POST", "/api/orders", {
-        projectId: project.id,
-        buyerEmail: buyerEmail.trim().toLowerCase(),
-        buyerName: buyerName.trim() || "Student",
-      });
-
-      // 2. Open Razorpay modal
-      const options = {
-        key: orderData.keyId,
-        amount: orderData.amount,
-        currency: orderData.currency || "INR",
-        name: "JobZen",
-        description: `Project Source Code: ${project.title.slice(0, 30)}`,
-        order_id: orderData.orderId,
-        prefill: {
-          name: buyerName,
-          email: buyerEmail,
-        },
-        theme: {
-          color: "#2563EB",
-        },
-        handler: async (response) => {
-          try {
-            // 3. Verify signature on server
-            const verifyRes = await api("POST", "/api/payments/verify", {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              buyerEmail,
-              buyerName,
-            });
-
-            setShowCheckoutModal(false);
-            setPurchaseSuccess({
-              projectId: project.id,
-              paymentId: response.razorpay_payment_id,
-              title: project.title,
-            });
-          } catch (verifyErr) {
-            setPaymentError(verifyErr.message || "Payment verification failed.");
-          } finally {
-            setPaying(false);
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setPaying(false);
-          }
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", (response) => {
-        setPaymentError(response.error.description || "Payment failed");
-        setPaying(false);
-      });
-      rzp.open();
-    } catch (err) {
-      setPaymentError(err.message || "Could not initialize checkout.");
-      setPaying(false);
-    }
-  };
+  const hasDownload = !!downloadUrl;
 
   return (
     <StudentLayout title="Project Details" subtitle="Full project overview">
@@ -214,7 +107,7 @@ export default function CatalogDetail() {
 
         {/* -- Header card -- */}
         <div className="card" style={{ padding:"28px", marginBottom:"24px", position:"relative", overflow:"hidden" }}>
-          {/* Difficulty badge & Pricing pill */}
+          {/* Difficulty badge & FREE badge */}
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:"12px" }}>
             <div style={{ display:"flex", gap:"8px", alignItems:"center" }}>
               <span
@@ -233,38 +126,28 @@ export default function CatalogDetail() {
                 {project.difficulty}
               </span>
 
-              {isPremium && (
-                <span style={{
-                  fontSize:"11px",
-                  fontWeight:800,
-                  fontFamily:"JetBrains Mono, monospace",
-                  color:"#F59E0B",
-                  background:"rgba(245,158,11,0.12)",
-                  border:"1px solid rgba(245,158,11,0.3)",
-                  padding:"3px 10px",
-                  borderRadius:"100px",
-                  display:"inline-flex",
-                  alignItems:"center",
-                  gap:"4px"
-                }}>
-                  <Star size={11} fill="#F59E0B" /> Premium Deliverable
-                </span>
-              )}
+              {/* Always show FREE badge — all projects are free for students */}
+              <span style={{
+                fontSize:"11px",
+                fontWeight:800,
+                color:"#34D399",
+                background:"rgba(52,211,153,0.12)",
+                border:"1px solid rgba(52,211,153,0.35)",
+                padding:"3px 10px",
+                borderRadius:"100px",
+                display:"inline-flex",
+                alignItems:"center",
+                gap:"4px"
+              }}>
+                ✦ Free for Students
+              </span>
             </div>
 
-            {/* Price or Duration */}
-            <div style={{ display:"flex", alignItems:"center", gap:"12px" }}>
-              {isPremium && (
-                <div style={{ fontSize:"22px", fontWeight:900, color:"#F59E0B", fontFamily:"Plus Jakarta Sans, sans-serif" }}>
-                  ₹{price.toLocaleString('en-IN')}
-                </div>
-              )}
-              {project.estimated_duration && (
-                <span style={{ fontSize:"12px", color:"var(--text-muted)", display:"inline-flex", alignItems:"center", gap:"5px" }}>
-                  <Clock size={13} /> {project.estimated_duration}
-                </span>
-              )}
-            </div>
+            {project.estimated_duration && (
+              <span style={{ fontSize:"12px", color:"var(--text-muted)", display:"inline-flex", alignItems:"center", gap:"5px" }}>
+                <Clock size={13} /> {project.estimated_duration}
+              </span>
+            )}
           </div>
 
           <h1 style={{ fontSize:"24px", fontWeight:800, marginTop:"12px", marginBottom:"8px", lineHeight:1.3 }}>
@@ -353,74 +236,65 @@ export default function CatalogDetail() {
         <div className="card" style={{
           padding:"24px",
           marginBottom:"20px",
-          background: isPremium ? "rgba(245,158,11,0.03)" : "rgba(37,99,235,0.04)",
-          border: isPremium ? "1px solid rgba(245,158,11,0.3)" : "1px solid rgba(59,130,246,0.25)"
+          background: "rgba(37,99,235,0.04)",
+          border: "1px solid rgba(59,130,246,0.25)"
         }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"10px", marginBottom:"12px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-              <FileArchive size={18} style={{ color: isPremium ? "#F59E0B" : "#60A5FA" }} />
+              <FileArchive size={18} style={{ color:"#60A5FA" }} />
               <h2 style={{ fontSize:"15px", fontWeight:700, margin:0, letterSpacing:"0.02em" }}>
                 PROJECT SOURCE CODE &amp; DELIVERABLES
               </h2>
             </div>
             <span style={{
               fontSize:"11px",
-              color: isPremium ? "#F59E0B" : "#34D399",
-              background: isPremium ? "rgba(245,158,11,0.12)" : "rgba(16,185,129,0.12)",
-              border: `1px solid ${isPremium ? "rgba(245,158,11,0.3)" : "rgba(16,185,129,0.3)"}`,
+              color:"#34D399",
+              background:"rgba(16,185,129,0.12)",
+              border:"1px solid rgba(16,185,129,0.3)",
               padding:"3px 8px",
               borderRadius:"6px",
               fontWeight:600
             }}>
-              {isPremium ? "Razorpay · UPI · PhonePe Accepted" : "Verified Free Deliverable"}
+              Free for All Students
             </span>
           </div>
 
           <p style={{ fontSize:"13px", color:"var(--text-secondary)", lineHeight:1.6, margin:"0 0 16px" }}>
-            {isPremium
-              ? "This verified project package contains the full source code implementation, neural model weights, container deployment configs, and complete technical documentation. Complete payment to download immediately."
-              : "The complete implementation source code, trained neural model pipelines, container setup, and comprehensive documentation are ready for exploration and local deployment."}
+            The complete implementation source code, trained neural model pipelines, container setup, and comprehensive documentation are ready for exploration and local deployment — completely free for all students.
           </p>
 
           <div style={{ display:"flex", gap:"10px", flexWrap:"wrap", alignItems:"center" }}>
-            {isPremium ? (
-              <button
-                type="button"
-                onClick={() => setShowUpiModal(true)}
+            {hasDownload ? (
+              <a
+                href={downloadUrl}
+                download={downloadFilename}
+                className="btn"
                 style={{
                   display:"inline-flex", alignItems:"center", gap:"8px",
-                  background:"linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
-                  border:"1px solid rgba(245,158,11,0.5)",
-                  color:"#000", padding:"10px 22px", borderRadius:"8px",
-                  fontWeight:700, fontSize:"14px", cursor:"pointer",
-                  boxShadow:"0 4px 16px rgba(245,158,11,0.3)"
+                  background:"linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+                  border:"1px solid rgba(59,130,246,0.5)",
+                  color:"#fff", padding:"10px 20px", borderRadius:"8px",
+                  textDecoration:"none", fontWeight:600, fontSize:"13px",
+                  boxShadow:"0 4px 16px rgba(37,99,235,0.35)"
                 }}
               >
-                <ShoppingBag size={17} />
-                Buy via UPI (₹{price.toLocaleString('en-IN')})
-              </button>
+                <Download size={17} />
+                <span>Download Project ZIP</span>
+                <span style={{ fontSize:"10px", opacity:0.85, background:"rgba(0,0,0,0.3)", padding:"2px 6px", borderRadius:"4px", fontFamily:"JetBrains Mono,monospace" }}>
+                  FREE ZIP
+                </span>
+              </a>
             ) : (
-              project.zip_url && (
-                <a
-                  href={downloadUrl}
-                  download={downloadFilename}
-                  className="btn"
-                  style={{
-                    display:"inline-flex", alignItems:"center", gap:"8px",
-                    background:"linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
-                    border:"1px solid rgba(59,130,246,0.5)",
-                    color:"#fff", padding:"10px 20px", borderRadius:"8px",
-                    textDecoration:"none", fontWeight:600, fontSize:"13px",
-                    boxShadow:"0 4px 16px rgba(37,99,235,0.35)"
-                  }}
-                >
-                  <Download size={17} />
-                  <span>Download Project ZIP</span>
-                  <span style={{ fontSize:"10px", opacity:0.85, background:"rgba(0,0,0,0.3)", padding:"2px 6px", borderRadius:"4px", fontFamily:"JetBrains Mono,monospace" }}>
-                    ZIP ARCHIVE
-                  </span>
-                </a>
-              )
+              <div style={{
+                display:"inline-flex", alignItems:"center", gap:"8px",
+                background:"rgba(255,255,255,0.04)",
+                border:"1px solid rgba(255,255,255,0.1)",
+                color:"var(--text-faint)", padding:"10px 20px", borderRadius:"8px",
+                fontSize:"13px",
+              }}>
+                <AlertCircle size={15} />
+                <span>Download coming soon — check GitHub below</span>
+              </div>
             )}
 
             {project.github_url && (
@@ -449,6 +323,21 @@ export default function CatalogDetail() {
               </a>
             )}
           </div>
+
+          {/* Security / integrity note */}
+          <div style={{
+            marginTop:"16px",
+            paddingTop:"12px",
+            borderTop:"1px solid var(--border)",
+            display:"flex",
+            alignItems:"center",
+            gap:"6px",
+            fontSize:"12px",
+            color:"var(--text-faint)"
+          }}>
+            <ShieldCheck size={14} style={{ color:"#34D399" }} />
+            All projects are verified, regularly updated, and freely available to enrolled students.
+          </div>
         </div>
 
         {/* -- Bottom CTA Bar -- */}
@@ -460,183 +349,12 @@ export default function CatalogDetail() {
           </div>
 
           <div style={{ display:"flex", gap:"10px", alignItems:"center", flexWrap:"wrap" }}>
-            {isPremium ? (
-              <button
-                type="button"
-                className="btn btn-primary btn-lg"
-                onClick={() => setShowUpiModal(true)}
-                style={{
-                  background:"linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
-                  color:"#000",
-                  fontWeight:700,
-                  border:"none"
-                }}
-              >
-                <ShoppingBag size={17} /> Buy via UPI (₹{price})
-              </button>
-            ) : (
-              <Link to={`/request?catalog_id=${project.id}`} className="btn btn-primary btn-lg">
-                Request This Project <ArrowRight size={16} />
-              </Link>
-            )}
+            <Link to={`/request?catalog_id=${project.id}`} className="btn btn-primary btn-lg">
+              Request This Project <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </div>
-
-      {/* Guest Checkout Info Modal */}
-      {showCheckoutModal && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',backdropFilter:'blur(4px)'}} onClick={() => setShowCheckoutModal(false)}>
-          <div className="card" style={{width:'100%',maxWidth:'440px',padding:'28px'}} onClick={e => e.stopPropagation()}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
-              <h3 style={{margin:0,fontSize:'17px',display:'flex',alignItems:'center',gap:'8px'}}>
-                <ShoppingBag size={18} style={{color:'#F59E0B'}} /> Purchase Deliverable
-              </h3>
-              <button onClick={() => setShowCheckoutModal(false)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--text-faint)'}}>✕</button>
-            </div>
-
-            <p style={{fontSize:'13px',color:'var(--text-secondary)',margin:'0 0 16px',lineHeight:1.5}}>
-              Enter your email address where you will receive the order receipt and instant ZIP download link:
-            </p>
-
-            <form onSubmit={(e) => { e.preventDefault(); handleInitiatePurchase(); }}>
-              <div className="form-group">
-                <label className="form-label">Full Name</label>
-                <input
-                  className="form-input"
-                  value={buyerName}
-                  onChange={(e) => setBuyerName(e.target.value)}
-                  placeholder="e.g. John Doe"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Email Address *</label>
-                <input
-                  type="email"
-                  className="form-input"
-                  value={buyerEmail}
-                  onChange={(e) => setBuyerEmail(e.target.value)}
-                  placeholder="e.g. student@college.edu"
-                  required
-                />
-              </div>
-
-              <div style={{
-                background:'rgba(245,158,11,0.06)',
-                border:'1px solid rgba(245,158,11,0.25)',
-                borderRadius:'6px',
-                padding:'12px',
-                marginBottom:'16px',
-                display:'flex',
-                justifyContent:'space-between',
-                alignItems:'center'
-              }}>
-                <span style={{fontSize:'13px',color:'var(--text-secondary)'}}>Total Amount:</span>
-                <span style={{fontSize:'18px',fontWeight:800,color:'#F59E0B'}}>₹{price.toLocaleString('en-IN')}</span>
-              </div>
-
-              {paymentError && (
-                <div style={{color:'var(--red)',fontSize:'12px',marginBottom:'14px',display:'flex',alignItems:'center',gap:'5px'}}>
-                  <AlertCircle size={14} /> {paymentError}
-                </div>
-              )}
-
-              <div style={{display:'flex',gap:'10px',justifyContent:'flex-end'}}>
-                <button type="button" className="btn btn-ghost" onClick={() => setShowCheckoutModal(false)}>Cancel</button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={paying}
-                  style={{background:'#F59E0B',color:'#000',fontWeight:700,border:'none'}}
-                >
-                  {paying ? "Opening..." : "Proceed to Payment"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Success Celebration Modal */}
-      {purchaseSuccess && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:1100,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',backdropFilter:'blur(5px)'}}>
-          <div className="card" style={{width:'100%',maxWidth:'480px',padding:'32px',textAlign:'center'}}>
-            <div style={{
-              width:'56px',
-              height:'56px',
-              borderRadius:'50%',
-              background:'rgba(52,211,153,0.15)',
-              color:'#34D399',
-              display:'flex',
-              alignItems:'center',
-              justifyContent:'center',
-              margin:'0 auto 16px'
-            }}>
-              <Check size={28} />
-            </div>
-
-            <h3 style={{fontSize:'20px',fontWeight:800,margin:'0 0 8px',color:'var(--text-primary)'}}>
-              Payment Confirmed! 🎉
-            </h3>
-            <p style={{fontSize:'13px',color:'var(--text-secondary)',lineHeight:1.6,margin:'0 0 20px'}}>
-              Thank you for purchasing <strong>{purchaseSuccess.title}</strong>. Your project package is ready for instant download. A confirmation receipt has also been sent to your email.
-            </p>
-
-            <div style={{
-              background:'rgba(255,255,255,0.03)',
-              border:'1px solid var(--border)',
-              borderRadius:'8px',
-              padding:'14px',
-              marginBottom:'20px',
-              fontSize:'12px',
-              color:'var(--text-faint)'
-            }}>
-              Payment ID: <code style={{color:'#34D399'}}>{purchaseSuccess.paymentId}</code>
-            </div>
-
-            <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  window.location.href = `${API_BASE}/api/download/${purchaseSuccess.projectId}`;
-                }}
-                style={{
-                  display:'inline-flex',
-                  alignItems:'center',
-                  justifyContent:'center',
-                  gap:'8px',
-                  background:'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                  padding:'12px',
-                  fontSize:'14px',
-                  fontWeight:700
-                }}
-              >
-                <Download size={16} /> Download Project ZIP Archive
-              </button>
-
-              <button
-                className="btn btn-ghost"
-                onClick={() => navigate('/purchases')}
-                style={{fontSize:'13px'}}
-              >
-                View in My Purchases &rarr;
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── UPI Payment Modal ── */}
-      {showUpiModal && (
-        <UpiPaymentModal
-          project={{ id: project.id, title: project.title, price }}
-          buyerName={buyerName}
-          buyerEmail={buyerEmail}
-          onClose={() => setShowUpiModal(false)}
-          onSuccess={() => {}}
-        />
-      )}
     </StudentLayout>
   );
 }
